@@ -61,9 +61,11 @@ v2 = normalize(N4 - v1)
 #C6-C5 vector
 v3 = normalize(C6 - v1)
 
+
+#####case(3) !CH2####
 #Perpendicular to the N4-C5-C6 plane
 v4 = normalize(np.cross(v3, v2))
-#Roational vector
+#Rotational vector
 u = normalize(v2 - v3)
 #Vector to be rotated by theta/2, perpendicular to u and v4
 #Comm' Amelie : why theta/2 ?? 
@@ -71,7 +73,7 @@ v4 = normalize(np.cross(v4, u))
 
 ## Part : Rotate the new v£4 around u by theta
 #quaternion of 109.5 degrees aka 1.911rad around v_N4_C5 normalized vector
-quat_N4_C5 = v2q(cross_v2_v3, 1.911/2)
+quat_N4_C5 = v2q(u, -1.911/2)
 
 #generate the rotational matrix 
 rot_mat_quat_N4_C5 = rotational_matrix(quat_N4_C5)
@@ -82,3 +84,41 @@ vec_H51 = np.dot(rot_mat_quat_N4_C5, v4)
 norm_vec_H51 = normalize(vec_H51)
 hcoor = 0.1 * norm_vec_H51 + C5
 ##End part Rotate the new v£4 around u by theta
+
+#+ 109.5°
+quat_N4_C5 = v2q(u, 1.911/2)
+
+#generate the rotational matrix 
+rot_mat_quat_N4_C5 = rotational_matrix(quat_N4_C5)
+
+#Use the rotational matrix on the C5-C6 vector
+vec_H52 = np.dot(rot_mat_quat_N4_C5, v4)
+
+norm_vec_H52 = normalize(vec_H52)
+hcoor = 0.1 * norm_vec_H52 + C5
+
+
+
+#####case(4) !CH3e
+v1 = C5
+#ref vectors
+#N4-C5 vector
+v2 = normalize(N4 - v1)
+#C6-C5 vector
+v3 = normalize(C6 - v1)
+
+u = normalize(np.cross(v3, v2))
+
+quat_N4_C5 = v2q(u, -1.911/2)
+
+#generate the rotational matrix 
+rot_mat_quat_N4_C5 = rotational_matrix(quat_N4_C5)
+
+#Use the rotational matrix on the C5-C6 vector
+vec_H51 = np.dot(rot_mat_quat_N4_C5, v2)
+
+norm_vec_H51 = normalize(vec_H51)
+hcoor = 0.1 * norm_vec_H51 + C5
+
+
+
