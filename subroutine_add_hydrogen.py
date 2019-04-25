@@ -71,7 +71,7 @@ u = normalize(v2 - v3)
 #Comm' Amelie : why theta/2 ?? 
 v4 = normalize(np.cross(v4, u))
 
-## Part : Rotate the new v£4 around u by theta
+## Part : Rotate the new v4 around u by theta
 #quaternion of 109.5 degrees aka 1.911rad around v_N4_C5 normalized vector
 quat_N4_C5 = v2q(u, -1.911/2)
 
@@ -82,8 +82,8 @@ rot_mat_quat_N4_C5 = rotational_matrix(quat_N4_C5)
 vec_H51 = np.dot(rot_mat_quat_N4_C5, v4)
 
 norm_vec_H51 = normalize(vec_H51)
-hcoor = 0.1 * norm_vec_H51 + C5
-##End part Rotate the new v£4 around u by theta
+hcoor = 1 * norm_vec_H51 + C5
+##End part Rotate the new v4 around u by theta
 
 #+ 109.5°
 quat_N4_C5 = v2q(u, 1.911/2)
@@ -95,7 +95,7 @@ rot_mat_quat_N4_C5 = rotational_matrix(quat_N4_C5)
 vec_H52 = np.dot(rot_mat_quat_N4_C5, v4)
 
 norm_vec_H52 = normalize(vec_H52)
-hcoor = 0.1 * norm_vec_H52 + C5
+hcoor = 1 * norm_vec_H52 + C5
 
 
 
