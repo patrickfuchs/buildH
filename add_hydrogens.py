@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-import numpy as np 
+import numpy as np
+import pandas as pd
 
 """
 This script reconstructs hydrogens from BLABLABLA...
@@ -95,6 +96,34 @@ def apply_rotation(vec_to_rotate, rotational_vector, rad_angle):
     return norm_vec
 
 
+def read_pdb(pdb_filename):
+    """Doctring TODO
+    Arguments
+    ---------
+    pdb_filename : string
+
+    Returns
+    -------
+    pandas dataframe
+    """
+    rows = []
+    with open(pdb_filename, "r") as f:
+        for line in f:
+            if line.startswith("ATOM"):
+                #dictmp = {}
+                atnum = int(line[6:11])
+                atname = line[12:16].strip()
+                resname = line[17:20].strip()
+                resnum = int(line[22:26])
+                x = float(line[30:38])
+                y = float(line[38:46])
+                z = float(line[46:54])
+                rows.append((atnum, atname, resname, resnum, x, y, z))
+    df_atoms = pd.DataFrame(rows, columns=["atnum", "atname", "resname",
+                                           "resnum", "x", "y", "z"])
+    return df_atoms
+
+
 def write_PDB(atom_num, atom_type, coor):
     """Prints atom coordinates in PDB format.
 
@@ -153,6 +182,42 @@ def get_SP2_H(atom, helper1, helper2):
 
 
 if __name__ == "__main__":
+    # read coordinates in a pandas dataframe
+    df_atoms = read_pdb("POPC.pdb")
+    print(df_atoms)
+    # select only atoms N4
+    print(df_atoms[ (df_atoms["resname"] == "POP") &
+                    (df_atoms["atname"] == "N4") ])
+    # select coor of atoms N4
+    N4 = df_atoms[ (df_atoms["resname"] == "POP") &
+                   (df_atoms["atname"] == "N4") ]
+    # select coor only of N4
+    N4_coor_only = N4[["x", "y", "z"]]
+    print(N4_coor_only)
+    # convert N4_coor_only dataframe to an np 2D-array
+    N4_2Darray = np.array(N4_coor_only.values.tolist())
+    print(N4_2Darray)
+    # do the same on C5 and O11
+    C5_2Darray = np.array(df_atoms[ (df_atoms["resname"] == "POP") &
+                                    (df_atoms["atname"] == "C5") ] \
+                          [["x", "y", "z"]].values.tolist())
+    O11_2Darray = np.array(df_atoms[ (df_atoms["resname"] == "POP") &
+                                     (df_atoms["atname"] == "O11") ] \
+                           [["x", "y", "z"]].values.tolist())
+    index = 1
+    for i in range(len(N4_2Darray)):
+        print(i, C5_2Darray[i],
+              N4_2Darray[i],
+              O11_2Darray[i])
+        coor_H1, coor_H2 = get_SP2_H(C5_2Darray[i],
+                                     N4_2Darray[i],
+                                     O11_2Darray[i])
+        write_PDB(index, "C", C5_2Darray[i])
+        index += 1 
+        write_PDB(index, "H", coor_H1)
+        index += 1 
+        write_PDB(index, "H", coor_H2)
+    exit()
     #Traduction case(3) fortran subroutine add_hydrogen
     ##Tests##
     #N4, C5, O11, C13
