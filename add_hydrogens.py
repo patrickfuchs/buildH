@@ -314,6 +314,7 @@ def angle(A,B,C):
 C24 = np.array([05.82, 31.07,  33.03])
 #C23 
 helper1 = np.array([06.66,  31.71,  31.93])
+v2 = helper1 - C24
 #C25
 helper2 = np.array([06.29,  30.67,  34.27])
 v3 = helper2 - C24
@@ -323,7 +324,7 @@ v3 = helper2 - C24
 angle_Cs = angle(helper1, C24, helper2)
 #Dans le code fortran angle_Cs est divise par 180 ? passage en rad ? 
 theta = math.pi * (2 - angle_Cs/180.) /2 
-u = normalize(np.cross(helper1, helper2))
+u = normalize(np.cross(v2, v3))
 norm_vec_H = apply_rotation(v3, u, theta)
 coor_H = 1 * norm_vec_H + C24
 
@@ -333,11 +334,12 @@ write_PDB(3, "H", coor_H)
 write_PDB(4, "C", helper2)
 
 #C25 
-C25 = np.array([06.29,  30.67,  34.27])
+C25 = np.array([06.29,   30.67,  34.273])
 #C24 
-helper1 = np.array([05.82, 31.07,  33.03])
+helper1 = np.array([05.82,   31.07,   33.03])
+v2 = helper1 - C25
 #C26
-helper2 = np.array([07.80 ,  30.74 , 34.55])
+helper2 = np.array([07.80,   30.74,   34.55])
 v3 = helper2 - C25
 
 #thetal is the angle 2pi - C-C-C devided by 2
@@ -345,7 +347,7 @@ v3 = helper2 - C25
 angle_Cs = angle(helper1, C25, helper2)
 #Dans le code fortran angle_Cs est divise par 180 ? passage en rad ? 
 theta = math.pi * (2 - angle_Cs/180.) /2 
-u = normalize(np.cross(helper1, helper2))
+u = normalize(np.cross(v2, v3))
 norm_vec_H = apply_rotation(v3, u, theta)
 coor_H = 1 * norm_vec_H + C25
 
@@ -353,6 +355,7 @@ write_PDB(1, "C", helper1)
 write_PDB(2, "C", C25)
 write_PDB(3, "H", coor_H)
 write_PDB(4, "C", helper2)
+
 
 
 #####case(4) !CH3e
