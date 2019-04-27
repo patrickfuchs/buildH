@@ -184,31 +184,31 @@ def get_SP2_H(atom, helper1, helper2):
 if __name__ == "__main__":
     # read coordinates in a pandas dataframe
     df_atoms = read_pdb("POPC.pdb")
-    print(df_atoms)
+    #print(df_atoms)
     # select only atoms N4
-    print(df_atoms[ (df_atoms["resname"] == "POP") &
-                    (df_atoms["atname"] == "N4") ])
+    #print(df_atoms[ (df_atoms["resname"] == "POP") &
+    #                (df_atoms["atname"] == "N4") ])
     # select coor of atoms N4
     N4 = df_atoms[ (df_atoms["resname"] == "POP") &
                    (df_atoms["atname"] == "N4") ]
     # select coor only of N4
     N4_coor_only = N4[["x", "y", "z"]]
-    print(N4_coor_only)
+    #print(N4_coor_only)
     # convert N4_coor_only dataframe to an np 2D-array
     N4_2Darray = np.array(N4_coor_only.values.tolist())
-    print(N4_2Darray)
+    #print(N4_2Darray)
     # do the same on C5 and O11
     C5_2Darray = np.array(df_atoms[ (df_atoms["resname"] == "POP") &
                                     (df_atoms["atname"] == "C5") ] \
                           [["x", "y", "z"]].values.tolist())
     O11_2Darray = np.array(df_atoms[ (df_atoms["resname"] == "POP") &
-                                     (df_atoms["atname"] == "O11") ] \
+                                     (df_atoms["atname"] == "C6") ] \
                            [["x", "y", "z"]].values.tolist())
     index = 1
     for i in range(len(N4_2Darray)):
-        print(i, C5_2Darray[i],
-              N4_2Darray[i],
-              O11_2Darray[i])
+        #print(i, C5_2Darray[i],
+        #      N4_2Darray[i],
+        #      O11_2Darray[i])
         coor_H1, coor_H2 = get_SP2_H(C5_2Darray[i],
                                      N4_2Darray[i],
                                      O11_2Darray[i])
@@ -235,7 +235,7 @@ if __name__ == "__main__":
                         [45.59  , 77.63,  23.07],
                         [45.10 , 79.68 ,  26.62],
                         [43.94 , 78.22 , 28.27]])
-    #Tests of the news functions on simple cases 
+    #Tests of the new functions on simple cases 
     index = 1
     for i in range(len(atom)):
         (coor_H1, coor_H2) = get_SP2_H(atom[i], helper1[i], helper2[i])
@@ -248,6 +248,112 @@ if __name__ == "__main__":
 
 
 exit()
+
+######case(1) CH 
+C13 = np.array([ 45.10 , 79.68,  26.62])
+#C12 
+helper1 = np.array([45.77, 79.32, 25.29])
+#C32
+helper2 = np.array([44.82,  78.27, 27.15])
+#O14
+helper3 = np.array([45.81,   80.59,  27.47])
+helpers = np.array([[45.77, 79.32, 25.29],[44.82,  78.27, 27.15], [45.81,   80.59,  27.47]])
+v2 = 0.0
+for i in range(len(helpers)):
+    v2 = v2 + normalize(helpers[i] - C13)
+
+v2 = v2 / (len(helpers)) + C13 
+coor_H = 1 * normalize(C13 - v2)+C13
+
+
+write_PDB(1, "C", C13)
+write_PDB(2, "C", helper1)
+write_PDB(3, "C", helper2)
+write_PDB(4, "O", helper3)
+write_PDB(5, "H", coor_H)
+
+######case(2) CH double bond
+#Fonctions qui seront surement remplacées par une fonction issues de MDAnalysis
+def vect_AB(A,B):
+    """Returns a vector from point A to point B
+    """
+    return [B[0]-A[0],B[1]-A[1],B[2]-A[2]]
+    
+def scalar(A,B):
+    """Returns the scalar (or inner) product between vectors A & B
+    """
+    return (A[0]*B[0]) + (A[1]*B[1]) + (A[2]*B[2])
+
+def magnitude(A):
+    """Returns the magnitude of vector A
+    """
+    return math.sqrt(A[0]**2+A[1]**2+A[2]**2)
+
+def rad2deg(ang):
+    """Convert an angle in radians to degrees
+    """
+    return ang*(180/math.pi)
+
+
+def angle(A,B,C):
+    """Returns the angle IN RAD between 3 points A, B & C
+    """
+    # compute vector BA
+    vectBA = vect_AB(B,A) # [(A[0]-B[0]),(A[1]-B[1]),(A[2]-B[2])]
+    # compute vector BC
+    vectBC = vect_AB(B,C) # [(C[0]-B[0]),(C[1]-B[1]),(C[2]-B[2])]
+    # compute the cosine of angle ABC ( BA * BC = ba.bc.cos(theta) )
+    costheta = scalar(vectBA,vectBC)/(magnitude(vectBA)*magnitude(vectBC))
+    # compute the angle ABC
+    theta = math.acos(costheta)
+    return rad2deg(theta)
+
+
+
+#C24 
+C24 = np.array([05.82, 31.07,  33.03])
+#C23 
+helper1 = np.array([06.66,  31.71,  31.93])
+#C25
+helper2 = np.array([06.29,  30.67,  34.27])
+v3 = helper2 - C24
+
+#thetal is the angle 2pi - C-C-C devided by 2
+#to ensure equal (C-C-H) angles from both directions
+angle_Cs = angle(helper1, C24, helper2)
+#Dans le code fortran angle_Cs est divise par 180 ? passage en rad ? 
+theta = math.pi * (2 - angle_Cs/180.) /2 
+u = normalize(np.cross(helper1, helper2))
+norm_vec_H = apply_rotation(v3, u, theta)
+coor_H = 1 * norm_vec_H + C24
+
+write_PDB(1, "C", helper1)
+write_PDB(2, "C", C24)
+write_PDB(3, "H", coor_H)
+write_PDB(4, "C", helper2)
+
+#C25 
+C25 = np.array([06.29,  30.67,  34.27])
+#C24 
+helper1 = np.array([05.82, 31.07,  33.03])
+#C26
+helper2 = np.array([07.80 ,  30.74 , 34.55])
+v3 = helper2 - C25
+
+#thetal is the angle 2pi - C-C-C devided by 2
+#to ensure equal (C-C-H) angles from both directions
+angle_Cs = angle(helper1, C25, helper2)
+#Dans le code fortran angle_Cs est divise par 180 ? passage en rad ? 
+theta = math.pi * (2 - angle_Cs/180.) /2 
+u = normalize(np.cross(helper1, helper2))
+norm_vec_H = apply_rotation(v3, u, theta)
+coor_H = 1 * norm_vec_H + C25
+
+write_PDB(1, "C", helper1)
+write_PDB(2, "C", C25)
+write_PDB(3, "H", coor_H)
+write_PDB(4, "C", helper2)
+
 
 #####case(4) !CH3e
 v1 = C5
