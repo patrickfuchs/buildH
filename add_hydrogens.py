@@ -3,6 +3,8 @@
 import numpy as np
 import pandas as pd
 
+import dic_lipids
+
 """
 This script reconstructs hydrogens from BLABLABLA...
 TODO
@@ -142,7 +144,7 @@ def write_PDB(atom_num, atom_type, coor):
     # pdb format (source: http://cupnet.net/pdb-format/)
     print("{:6s}{:5d} {:^4s}{:1s}{:3s} {:1s}{:4d}{:1s}   {:8.3f}{:8.3f}{:8.3f}"
           "{:6.2f}{:6.2f}          {:>2s}{:2s}"
-          .format("ATOM", atom_num, atom_type, "", "LIP", "A", 1,"",  x, y, z,
+          .format("ATOM", atom_num, atom_type, "", "POP", "", 1,"",  x, y, z,
                   1.0, 0.0, "", ""))
    
     
@@ -182,35 +184,55 @@ def get_SP2_H(atom, helper1, helper2):
     return (hcoor_H1, hcoor_H2)
 
 
+def get_name_H(name_carbon):
+    name_H1 = name_carbon.replace("C", "H") + "1"
+    name_H2 = name_carbon.replace("C", "H") + "2"
+    return name_H1, name_H2
+
+
 if __name__ == "__main__":
     # read coordinates in a pandas dataframe
-    df_atoms = read_pdb("POPC.pdb")
+    df_atoms = read_pdb("1POPC.pdb")
     #print(df_atoms)
     # select only atoms N4
-    #print(df_atoms[ (df_atoms["resname"] == "POP") &
-    #                (df_atoms["atname"] == "N4") ])
-    # select coor of atoms N4
-    N4 = df_atoms[ (df_atoms["resname"] == "POP") &
-                   (df_atoms["atname"] == "N4") ]
+    #N4 = df_atoms[ (df_atoms["resname"] == "POP") &
+    #               (df_atoms["atname"] == "N4") ]
     # select coor only of N4
-    N4_coor_only = N4[["x", "y", "z"]]
-    #print(N4_coor_only)
+    #N4_coor_only = N4[["x", "y", "z"]]
     # convert N4_coor_only dataframe to an np 2D-array
-    N4_2Darray = N4_coor_only.values
-    #print(N4_2Darray)
+    #N4_2Darray = df_atoms[ (df_atoms["resname"] == "POP") &
+    #                       (df_atoms["atname"] == "N4") ] \
+    #                       [["x", "y", "z"]].values
     # do the same on C5 and O11
-    C5_2Darray = df_atoms[ (df_atoms["resname"] == "POP") &
-                           (df_atoms["atname"] == "C5") ] \
-                           [["x", "y", "z"]].values
-    O11_2Darray = df_atoms[ (df_atoms["resname"] == "POP") &
-                            (df_atoms["atname"] == "C6") ] \
-                            [["x", "y", "z"]].values
+    #C5_2Darray = df_atoms[ (df_atoms["resname"] == "POP") &
+    #                       (df_atoms["atname"] == "C5") ] \
+    #                       [["x", "y", "z"]].values
+    #O11_2Darray = df_atoms[ (df_atoms["resname"] == "POP") &
+    #                        (df_atoms["atname"] == "C6") ] \
+    #                        [["x", "y", "z"]].values
     index = 1
-    for i in range(len(N4_2Darray)):
-        atom, helper1, helper2 = C5_2Darray[i], N4_2Darray[i], O11_2Darray[i])
-        coor_H1, coor_H2 = get_SP2_H(atom, helper1, helper2)
-        write_PDB(index, "C", atom)
-        index += 1 
-        write_PDB(index, "H", coor_H1)
-        index += 1 
-        write_PDB(index, "H", coor_H2)
+    # loop over all carbons
+    for name_helper1, name_atom, name_helper2 in dic_lipids.POPC:
+        # select atom 2D-array (i.e. all atoms maching atom_name, thus dim = N*3)
+        atoms = df_atoms[ (df_atoms["resname"] == "POP") &
+                                 (df_atoms["atname"] == name_atom) ] \
+                                 [["x", "y", "z"]].values
+        # select helper1 2D-array
+        helpers1 = df_atoms[ (df_atoms["resname"] == "POP") &
+                                 (df_atoms["atname"] == name_helper1) ] \
+                                 [["x", "y", "z"]].values
+        # select helper2 2D-array
+        helpers2 = df_atoms[ (df_atoms["resname"] == "POP") &
+                                 (df_atoms["atname"] == name_helper2) ] \
+                                 [["x", "y", "z"]].values
+        # loop over each triplet
+        for i in range(len(atoms)):
+            atom, helper1, helper2 = atoms[i], helpers1[i], helpers2[i]
+            #print(atom, helper1, helper2)
+            coor_H1, coor_H2 = get_SP2_H(atom, helper1, helper2)
+            name_H1, name_H2 = get_name_H(name_atom)
+            write_PDB(index, name_atom, atom)
+            index += 1
+            write_PDB(index, name_H1, coor_H1)
+            index += 1 
+            write_PDB(index, name_H2, coor_H2)
