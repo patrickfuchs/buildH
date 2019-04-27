@@ -97,7 +97,8 @@ def apply_rotation(vec_to_rotate, rotational_vector, rad_angle):
 
 
 def read_pdb(pdb_filename):
-    """Doctring TODO
+    """Reads a PDB file and returns a pandas data frame.
+
     Arguments
     ---------
     pdb_filename : string
@@ -105,12 +106,12 @@ def read_pdb(pdb_filename):
     Returns
     -------
     pandas dataframe
+        The col index are: atnum, atname, resname, resnum, x, y, z
     """
     rows = []
     with open(pdb_filename, "r") as f:
         for line in f:
             if line.startswith("ATOM"):
-                #dictmp = {}
                 atnum = int(line[6:11])
                 atname = line[12:16].strip()
                 resname = line[17:20].strip()
