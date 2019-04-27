@@ -196,24 +196,20 @@ if __name__ == "__main__":
     N4_coor_only = N4[["x", "y", "z"]]
     #print(N4_coor_only)
     # convert N4_coor_only dataframe to an np 2D-array
-    N4_2Darray = np.array(N4_coor_only.values.tolist())
+    N4_2Darray = N4_coor_only.values
     #print(N4_2Darray)
     # do the same on C5 and O11
-    C5_2Darray = np.array(df_atoms[ (df_atoms["resname"] == "POP") &
-                                    (df_atoms["atname"] == "C5") ] \
-                          [["x", "y", "z"]].values.tolist())
-    O11_2Darray = np.array(df_atoms[ (df_atoms["resname"] == "POP") &
-                                     (df_atoms["atname"] == "C6") ] \
-                           [["x", "y", "z"]].values.tolist())
+    C5_2Darray = df_atoms[ (df_atoms["resname"] == "POP") &
+                           (df_atoms["atname"] == "C5") ] \
+                           [["x", "y", "z"]].values
+    O11_2Darray = df_atoms[ (df_atoms["resname"] == "POP") &
+                            (df_atoms["atname"] == "C6") ] \
+                            [["x", "y", "z"]].values
     index = 1
     for i in range(len(N4_2Darray)):
-        #print(i, C5_2Darray[i],
-        #      N4_2Darray[i],
-        #      O11_2Darray[i])
-        coor_H1, coor_H2 = get_SP2_H(C5_2Darray[i],
-                                     N4_2Darray[i],
-                                     O11_2Darray[i])
-        write_PDB(index, "C", C5_2Darray[i])
+        atom, helper1, helper2 = C5_2Darray[i], N4_2Darray[i], O11_2Darray[i])
+        coor_H1, coor_H2 = get_SP2_H(atom, helper1, helper2)
+        write_PDB(index, "C", atom)
         index += 1 
         write_PDB(index, "H", coor_H1)
         index += 1 
