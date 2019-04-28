@@ -359,25 +359,84 @@ write_PDB(4, "C", helper2)
 
 
 #####case(4) !CH3e
-v1 = C5
-#ref vectors
-#N4-C5 vector
-v2 = normalize(N4 - v1)
-#C6-C5 vector
-v3 = normalize(C6 - v1)
+theta = 1.911
+C50 = np.array([25.26 ,  08.20,   24.58])
+C49 = np.array([25.99 ,  07.97 ,  25.91])
+v2 = C49 - C50
+C48 = np.array([24.97,   07.55 ,  26.97])
+v3 = C48- C50
 
 u = normalize(np.cross(v3, v2))
+norm_vec_H = apply_rotation(v2, u, theta)
+coor_H = 1 * norm_vec_H + C50
 
-quat_N4_C5 = v2q(u, -1.911/2)
+write_PDB(1, "C", C48)
+write_PDB(2, "C", C49)
+write_PDB(3, "C", C50)
+write_PDB(4, "H", coor_H)
 
-#generate the rotational matrix 
-rot_mat_quat_N4_C5 = rotational_matrix(quat_N4_C5)
+####case(5) !CH3r
+theta = 120 * math.pi / 180.
+C50 = np.array([25.26 ,  08.20,   24.58])
+C49 = np.array([25.99 ,  07.97 ,  25.91])
+H3 = np.array([ 25.91960191,   8.47515027,  23.88055904])
+u = normalize(C49 - C50)
+v4 = normalize(H3 - C50) 
+norm_vec_H = apply_rotation(v4, u, theta)
+coor_H = 1 * norm_vec_H + C50 
 
-#Use the rotational matrix on the C5-C6 vector
-vec_H51 = np.dot(rot_mat_quat_N4_C5, v2)
+write_PDB(5, "H", coor_H)
 
-norm_vec_H51 = normalize(vec_H51)
-hcoor = 0.1 * norm_vec_H51 + C5
+####case(5) !CH3s
+theta = -120 * math.pi / 180.
+C50 = np.array([25.26 ,  08.20,   24.58])
+C49 = np.array([25.99 ,  07.97 ,  25.91])
+H3 = np.array([ 25.91960191,   8.47515027,  23.88055904])
+u = normalize(C49 - C50)
+v4 = normalize(H3 - C50) 
+norm_vec_H = apply_rotation(v4, u, theta)
+coor_H = 1 * norm_vec_H + C50 
 
+write_PDB(6, "H", coor_H)
 
+#####case(4) !CH3e
+theta = 1.911
+CA2 = np.array([07.52,   23.79,   38.89])
+CA1 = np.array([06.85,  24.93,   38.12])
+v2 = CA1 - CA2
+C31 = np.array([ 07.99,   25.93,   37.91])
+v3 = C31- CA2
+
+u = normalize(np.cross(v3, v2))
+norm_vec_H = apply_rotation(v2, u, theta)
+coor_H = 1 * norm_vec_H + CA2
+
+write_PDB(1, "C", C31)
+write_PDB(2, "C", CA1)
+write_PDB(3, "C", CA2)
+write_PDB(4, "H", coor_H)
+
+####case(5) !CH3r
+theta = 120 * math.pi / 180.
+CA2 = np.array([07.52,   23.79,   38.89])
+CA1 = np.array([06.85,  24.93,   38.12])
+H3 = np.array([ -4.758,  -2.206,  26.417])
+u = normalize(CA1 - CA2)
+v4 = normalize(H3 - CA2) 
+norm_vec_H = apply_rotation(v4, u, theta)
+coor_H = 1 * norm_vec_H + CA2 
+
+write_PDB(5, "H", coor_H)
+
+####case(5) !CH3s
+theta = -120 * math.pi / 180.
+CA2 = np.array([07.52,   23.79,   38.89])
+CA1 = np.array([06.85,  24.93,   38.12])
+H3 = np.array([ -4.758,  -2.206,  26.417])
+u = normalize(CA1 - CA2)
+v4 = normalize(H3 - CA2) 
+norm_vec_H = apply_rotation(v4, u, theta)
+coor_H = 1 * norm_vec_H + CA2 
+
+write_PDB(6, "H", coor_H)
 
