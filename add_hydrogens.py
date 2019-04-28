@@ -3,6 +3,8 @@
 import numpy as np
 import pandas as pd
 
+import dic_lipids
+
 """
 This script reconstructs hydrogens from BLABLABLA...
 TODO
@@ -97,7 +99,8 @@ def apply_rotation(vec_to_rotate, rotational_vector, rad_angle):
 
 
 def read_pdb(pdb_filename):
-    """Doctring TODO
+    """Reads a PDB file and returns a pandas data frame.
+
     Arguments
     ---------
     pdb_filename : string
@@ -105,6 +108,7 @@ def read_pdb(pdb_filename):
     Returns
     -------
     pandas dataframe
+        The col index are: atnum, atname, resname, resnum, x, y, z
     """
     rows = []
     with open(pdb_filename, "r") as f:
@@ -141,9 +145,23 @@ def write_PDB(atom_num, atom_type, coor):
     # pdb format (source: http://cupnet.net/pdb-format/)
     print("{:6s}{:5d} {:^4s}{:1s}{:3s} {:1s}{:4d}{:1s}   {:8.3f}{:8.3f}{:8.3f}"
           "{:6.2f}{:6.2f}          {:>2s}{:2s}"
-          .format("ATOM", atom_num, atom_type, "", "LIP", "A", 1,"",  x, y, z,
+          .format("ATOM", atom_num, atom_type, "", "POP", "", 1,"",  x, y, z,
                   1.0, 0.0, "", ""))
    
+def pandasdf2pdb(df):
+    """Returns a string from a pandas dataframe.
+    TODO
+    """
+    s = ""
+    chain = ""
+    for i, row_atom in df.iterrows():
+        atnum, atname, resname, resnum, x, y, z = row_atom
+        s += "{:6s}{:5d} {:^4s}{:1s}{:3s} {:1s}{:4d}{:1s}   {:8.3f}{:8.3f}{:8.3f}" \
+             "{:6.2f}{:6.2f}          {:>2s}{:2s}\n" \
+             .format("ATOM", atnum, atname, "", resname, chain, resnum, "",  x, y, z,
+                     1.0, 0.0, "", "")
+    return s
+ 
     
 def get_SP2_H(atom, helper1, helper2):
     """Reconstructs the 2 hydrogens of a SP2 carbon.
@@ -160,8 +178,8 @@ def get_SP2_H(atom, helper1, helper2):
     Returns
     -------
     tuple of numpy 1D-array
-        Coordinates of the two hydrogens, e.g. ([x_H1, y_H1, z_H1],
-        [x_H2, y_H2, z_H2]).
+        Coordinates of the two hydrogens: 
+        ([x_H1, y_H1, z_H1], [x_H2, y_H2, z_H2]).
     """
     #atom - helper1 vector
     v2 = normalize(helper1 - atom)
@@ -181,42 +199,64 @@ def get_SP2_H(atom, helper1, helper2):
     return (hcoor_H1, hcoor_H2)
 
 
+def get_name_H(name_carbon):
+    name_H1 = name_carbon.replace("C", "H") + "1"
+    name_H2 = name_carbon.replace("C", "H") + "2"
+    return name_H1, name_H2
+
+
 if __name__ == "__main__":
     # read coordinates in a pandas dataframe
-    df_atoms = read_pdb("POPC.pdb")
-    #print(df_atoms)
-    # select only atoms N4
-    #print(df_atoms[ (df_atoms["resname"] == "POP") &
-    #                (df_atoms["atname"] == "N4") ])
-    # select coor of atoms N4
-    N4 = df_atoms[ (df_atoms["resname"] == "POP") &
-                   (df_atoms["atname"] == "N4") ]
-    # select coor only of N4
-    N4_coor_only = N4[["x", "y", "z"]]
-    #print(N4_coor_only)
-    # convert N4_coor_only dataframe to an np 2D-array
-    N4_2Darray = np.array(N4_coor_only.values.tolist())
-    #print(N4_2Darray)
-    # do the same on C5 and O11
-    C5_2Darray = np.array(df_atoms[ (df_atoms["resname"] == "POP") &
-                                    (df_atoms["atname"] == "C5") ] \
-                          [["x", "y", "z"]].values.tolist())
-    O11_2Darray = np.array(df_atoms[ (df_atoms["resname"] == "POP") &
-                                     (df_atoms["atname"] == "C6") ] \
-                           [["x", "y", "z"]].values.tolist())
-    index = 1
-    for i in range(len(N4_2Darray)):
-        #print(i, C5_2Darray[i],
-        #      N4_2Darray[i],
-        #      O11_2Darray[i])
-        coor_H1, coor_H2 = get_SP2_H(C5_2Darray[i],
-                                     N4_2Darray[i],
-                                     O11_2Darray[i])
-        write_PDB(index, "C", C5_2Darray[i])
-        index += 1 
-        write_PDB(index, "H", coor_H1)
-        index += 1 
-        write_PDB(index, "H", coor_H2)
+    df_atoms = read_pdb("POPC_only.pdb")
+    # create an empty data frame to store the new mlc with added hydrogens
+    new_df_atoms = pd.DataFrame(columns=["atnum", "atname", "resname",
+                                 "resnum", "x", "y", "z"])
+    new_atom_num = 1
+    # loop over all existing atoms (the iter var row_atom is a pandas Series)
+    for i, row_atom in df_atoms.iterrows():
+        # add that atom to the new dataframe
+        new_atom = row_atom
+        new_atom["atnum"] = new_atom_num
+        new_atom.name = new_atom_num
+        new_df_atoms = new_df_atoms.append(new_atom)
+        new_atom_num += 1
+        # check whether it needs hydrogen(s) to be reconstructer
+        atom_name = row_atom["atname"]
+        if atom_name in dic_lipids.POPC:
+            # get atom info
+            atom_coor = np.array(row_atom[["x", "y", "z"]].values, dtype=float) # force to float
+            res_name, res_num = row_atom[["resname", "resnum"]]
+            # get helper atom names
+            helper1_name, helper2_name = dic_lipids.POPC[atom_name]
+            # get helper coords (needs [0] because it comes from a dataframe)
+            helper1_coor = df_atoms [ (df_atoms["resnum"] == res_num) &
+                                      (df_atoms["atname"] == helper1_name) ] \
+                                      [["x", "y", "z"]].values[0]
+            helper2_coor = df_atoms [ (df_atoms["resnum"] == res_num) &
+                                      (df_atoms["atname"] == helper2_name) ] \
+                                      [["x", "y", "z"]].values[0]
+            # construct H1 & H2
+            H1_coor, H2_coor = get_SP2_H(atom_coor, helper1_coor, helper2_coor)
+            H1_name, H2_name = get_name_H(atom_name)
+            # now create H1 & H2 as a pandas Series and append them into the new dataframe
+            H1_atom = pd.Series([new_atom_num, H1_name, res_name, res_num]
+                                + list(H1_coor),
+                                name = new_atom_num,
+                                index=["atnum", "atname", "resname", "resnum",
+                                       "x", "y", "z"])
+            new_df_atoms = new_df_atoms.append(H1_atom)
+            new_atom_num += 1   
+            H2_atom = pd.Series([new_atom_num, H2_name, res_name, res_num]
+                                + list(H2_coor),
+                                name = new_atom_num,
+                                index=["atnum", "atname", "resname", "resnum",
+                                       "x", "y", "z"])
+            new_df_atoms = new_df_atoms.append(H2_atom)
+            new_atom_num += 1
+        #if i % 100 == 0:
+        #    print("Atom {:5d} done!".format(i))
+    #print(new_df_atoms)
+    print(pandasdf2pdb(new_df_atoms))
     exit()
     #Traduction case(3) fortran subroutine add_hydrogen
     ##Tests##
