@@ -257,37 +257,12 @@ if __name__ == "__main__":
         #    print("Atom {:5d} done!".format(i))
     #print(new_df_atoms)
     print(pandasdf2pdb(new_df_atoms))
-    exit()
-    #Traduction case(3) fortran subroutine add_hydrogen
-    ##Tests##
-    #N4, C5, O11, C13
-    helper1 = np.array([[43.89, 74.55, 21.67],
-                        [44.38, 75.92, 21.85],
-                        [46.58, 78.14, 25.37],
-                        [45.10, 79.68, 26.62]])
-    #C5, C6, C12, C32
-    atom = np.array([[44.38, 75.92, 21.85],
-                     [45.16 , 76.27 , 23.12],
-                     [45.77 , 79.32 , 25.29],
-                     [44.82 , 78.27,  27.15]])
-    #C6, O7, C13, O33
-    helper2 = np.array([[45.16, 76.27, 23.12],
-                        [45.59  , 77.63,  23.07],
-                        [45.10 , 79.68 ,  26.62],
-                        [43.94 , 78.22 , 28.27]])
-    #Tests of the new functions on simple cases 
-    index = 1
-    for i in range(len(atom)):
-        (coor_H1, coor_H2) = get_SP2_H(atom[i], helper1[i], helper2[i])
-        write_PDB(index, "C", atom[i])
-        index += 1 
-        write_PDB(index, "H", coor_H1)
-        index += 1 
-        write_PDB(index, "H", coor_H2)
-    
-
 
 exit()
+#########
+# Note by P@t: 28/04/2019
+# Below is Amelie's stuff I didn't touch to
+#########
 
 ######case(1) CH 
 C13 = np.array([ 45.10 , 79.68,  26.62])
