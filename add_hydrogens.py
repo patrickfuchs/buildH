@@ -99,7 +99,7 @@ def apply_rotation(vec_to_rotate, rotational_vector, rad_angle):
     return norm_vec
 
 
-def read_pdb(pdb_filename):
+def pdb2df(pdb_filename):
     """Reads a PDB file and returns a pandas data frame.
 
     Arguments
@@ -115,7 +115,6 @@ def read_pdb(pdb_filename):
     with open(pdb_filename, "r") as f:
         for line in f:
             if line.startswith("ATOM"):
-                #dictmp = {}
                 atnum = int(line[6:11])
                 atname = line[12:16].strip()
                 resname = line[17:20].strip()
@@ -207,10 +206,8 @@ def get_name_H(name_carbon):
     name_H2 = name_carbon.replace("C", "H") + "2"
     return name_H1, name_H2
 
-
-if __name__ == "__main__":
-    # read coordinates in a pandas dataframe
-    df_atoms = read_pdb("1POPC.pdb")
+#@profile
+def reconstruct_hydrogens(df_atoms):
     # create an empty data frame to store the new mlc with added hydrogens
     new_df_atoms = pd.DataFrame(columns=["atnum", "atname", "resname",
                                  "resnum", "x", "y", "z"])
@@ -226,8 +223,8 @@ if __name__ == "__main__":
         # check whether it needs hydrogen(s) to be reconstructer
         atom_name = row_atom["atname"]
         if atom_name in dic_lipids.POPC:
-            # get atom info
-            atom_coor = np.array(row_atom[["x", "y", "z"]].values, dtype=float) # force to float
+            # get atom info (force float casting!)
+            atom_coor = np.array(row_atom[["x", "y", "z"]].values, dtype=float)
             res_name, res_num = row_atom[["resname", "resnum"]]
             # get helper atom names
             helper1_name, helper2_name = dic_lipids.POPC[atom_name]
@@ -258,7 +255,12 @@ if __name__ == "__main__":
             new_atom_num += 1
         #if i % 100 == 0:
         #    print("Atom {:5d} done!".format(i))
-    #print(new_df_atoms)
+    return new_df_atoms
+
+if __name__ == "__main__":
+    # read coordinates in a pandas dataframe
+    df_atoms = pdb2df("1POPC.pdb") #("POPC_only.pdb")
+    new_df_atoms = reconstruct_hydrogens(df_atoms)
     print(pandasdf2pdb(new_df_atoms))
 
 exit()
