@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding: utf-8
 
 import numpy as np
 import pandas as pd
@@ -156,10 +157,12 @@ def pandasdf2pdb(df):
     chain = ""
     for i, row_atom in df.iterrows():
         atnum, atname, resname, resnum, x, y, z = row_atom
-        s += "{:6s}{:5d} {:^4s}{:1s}{:3s} {:1s}{:4d}{:1s}   {:8.3f}{:8.3f}{:8.3f}" \
-             "{:6.2f}{:6.2f}          {:>2s}{:2s}\n" \
+        atnum = int(atnum)
+        resnum = int(resnum)
+        s += ("{:6s}{:5d} {:^4s}{:1s}{:3s} {:1s}{:4d}{:1s}   {:8.3f}{:8.3f}{:8.3f}"
+             "{:6.2f}{:6.2f}          {:>2s}{:2s}\n"
              .format("ATOM", atnum, atname, "", resname, chain, resnum, "",  x, y, z,
-                     1.0, 0.0, "", "")
+                     1.0, 0.0, "", ""))
     return s
  
     
@@ -181,17 +184,17 @@ def get_SP2_H(atom, helper1, helper2):
         Coordinates of the two hydrogens: 
         ([x_H1, y_H1, z_H1], [x_H2, y_H2, z_H2]).
     """
-    #atom - helper1 vector
+    # Atom -> helper1 vector.
     v2 = normalize(helper1 - atom)
-    #atom - helper2 vector
+    # Atom -> helper2 vector.
     v3 = normalize(helper2 - atom)
-    #####case(3) !CH2####
-    #Perpendicular to the helpers - atom plane
+    # Vector perpendicular to the helpers - atom plane.
     v4 = normalize(np.cross(v3, v2))
-    #Rotational vector
+    # Rotational axis vector.
     rot_vec = normalize(v2 - v3)
-    #Vector to be rotated by theta/2, perpendicular to rot_vec and v4
+    # Vector to be rotated by theta/2, perpendicular to rot_vec and v4
     vec_to_rotate = normalize(np.cross(v4, rot_vec))
+    # Reconstruct the two hydrogens.
     norm_vec_H1 = apply_rotation(vec_to_rotate, rot_vec, -1.911/2)
     hcoor_H1 = 1 * norm_vec_H1 + atom
     norm_vec_H2 = apply_rotation(vec_to_rotate, rot_vec, 1.911/2)
@@ -207,7 +210,7 @@ def get_name_H(name_carbon):
 
 if __name__ == "__main__":
     # read coordinates in a pandas dataframe
-    df_atoms = read_pdb("POPC_only.pdb")
+    df_atoms = read_pdb("1POPC.pdb")
     # create an empty data frame to store the new mlc with added hydrogens
     new_df_atoms = pd.DataFrame(columns=["atnum", "atname", "resname",
                                  "resnum", "x", "y", "z"])
