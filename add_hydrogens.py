@@ -143,11 +143,14 @@ def pdb2list_pandasdf_residues(pdb_filename):
     """
     # Put PDB rows in a list.
     rows = []
+    # This list will be used for indexing rows with atom names.
+    all_atom_names = []
     with open(pdb_filename, "r") as f:
         for line in f:
             if line.startswith("ATOM"):
                 atnum = int(line[6:11])
                 atname = line[12:16].strip()
+                all_atom_names.append(atname)
                 resname = line[17:20].strip()
                 resnum = int(line[22:26])
                 x = float(line[30:38])
@@ -160,10 +163,11 @@ def pdb2list_pandasdf_residues(pdb_filename):
                 rows.append((atnum, atname, resname, resnum, x, y, z,
                              typeofH2build, helper1_name, helper2_name))
     # Make a first dataframe with those rows.
-    df_atoms = pd.DataFrame(rows, columns=["atnum", "atname", "resname",
-                                           "resnum", "x", "y", "z",
-                                           "typeofH2build", "helper1_name",
-                                           "helper2_name"])
+    df_atoms = pd.DataFrame(rows, index=all_atom_names,
+                            columns=["atnum", "atname", "resname",
+                                     "resnum", "x", "y", "z",
+                                     "typeofH2build", "helper1_name",
+                                     "helper2_name"])
     # Make a list of dataframes (each df is a residue).
     list_df_residues = []
     for res_num in df_atoms.resnum.unique():
