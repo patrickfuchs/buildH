@@ -268,10 +268,10 @@ def reconstruct_hydrogens3(list_df_residues):
                 # Get name of helper atoms.
                 helper1_name, helper2_name = row_atom["helper1_name"], row_atom["helper2_name"]
                 # Get helper coords (needs [0] because it comes from a dataframe).
-                helper1_coor = np.array(df_residue[ df_residue["atname"] == helper1_name ] \
-                                         [["x", "y", "z"]].values[0], dtype=float)
-                helper2_coor = np.array(df_residue[ df_residue["atname"] == helper2_name ] \
-                                         [["x", "y", "z"]].values[0], dtype=float)
+                helper1_coor = np.array(df_residue.loc[helper1_name][["x", "y", "z"]]
+                                        .values, dtype=float)
+                helper2_coor = np.array(df_residue.loc[helper2_name][["x", "y", "z"]]
+                                        .values, dtype=float)
                 # Build H(s).
                 H1_coor, H2_coor = get_CH2_H(atom_coor, helper1_coor, helper2_coor)
                 # Add new H(s) to the newrows list.
