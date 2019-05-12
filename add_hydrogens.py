@@ -128,29 +128,61 @@ def pdb2pandasdf(pdb_filename):
     return df_atoms
 
 
-def write_PDB(atom_num, atom_type, coor):
-    """Prints atom coordinates in PDB format.
+def pdb2list_pandasdf_residues(pdb_filename):
+    """Reads a PDB file and returns a list of pandas dataframes for each residue.
 
-    Parameters
-    ----------
-    atom_num : int
-    atom_type : string
-    coor : numpy 1D-array
+    Arguments
+    ---------
+    pdb_filename : string
 
     Returns
     -------
-    None
+    list of pandas dataframe representing a residue
+        Each dataframe has the folowing columns: atnum, atname, resname, resnum,
+        x, y, z, typeofH2build, helper1_name, helper2_name.
     """
-    x, y, z = coor
-    # pdb format (source: http://cupnet.net/pdb-format/)
-    print("{:6s}{:5d} {:^4s}{:1s}{:3s} {:1s}{:4d}{:1s}   {:8.3f}{:8.3f}{:8.3f}"
-          "{:6.2f}{:6.2f}          {:>2s}{:2s}"
-          .format("ATOM", atom_num, atom_type, "", "POP", "", 1,"",  x, y, z,
-                  1.0, 0.0, "", ""))
-   
+    # Put PDB rows in a list.
+    rows = []
+    with open(pdb_filename, "r") as f:
+        for line in f:
+            if line.startswith("ATOM"):
+                atnum = int(line[6:11])
+                atname = line[12:16].strip()
+                resname = line[17:20].strip()
+                resnum = int(line[22:26])
+                x = float(line[30:38])
+                y = float(line[38:46])
+                z = float(line[46:54])
+                if atname in dic_lipids.POPC:
+                    typeofH2build, helper1_name, helper2_name = dic_lipids.POPC[atname]
+                else:
+                    typeofH2build, helper1_name, helper2_name = None, None, None
+                rows.append((atnum, atname, resname, resnum, x, y, z,
+                             typeofH2build, helper1_name, helper2_name))
+    # Make a first dataframe with those rows.
+    df_atoms = pd.DataFrame(rows, columns=["atnum", "atname", "resname",
+                                           "resnum", "x", "y", "z",
+                                           "typeofH2build", "helper1_name",
+                                           "helper2_name"])
+    # Make a list of dataframes (each df is a residue).
+    list_df_residues = []
+    for res_num in df_atoms.resnum.unique():
+        list_df_residues.append( df_atoms[ df_atoms["resnum"] == res_num ] )
+    return list_df_residues
+
+
 def pandasdf2pdb(df):
-    """Returns a string from a pandas dataframe.
-    TODO
+    """Returns a string in PDB format from a pandas dataframe.
+
+    Parameters
+    ----------
+    df : pandas dataframe with columns "atnum", "atname", "resname", "resnum",
+         "x", "y", "z"
+
+    Returns
+    -------
+    str
+        A string representing the PDB.
     """
     s = ""
     chain = ""
@@ -165,8 +197,8 @@ def pandasdf2pdb(df):
     return s
  
     
-def get_SP2_H(atom, helper1, helper2):
-    """Reconstructs the 2 hydrogens of a SP2 carbon.
+def get_CH2_H(atom, helper1, helper2):
+    """Reconstructs the 2 hydrogens of a sp3 carbon.
 
     Parameters
     ----------
@@ -236,7 +268,7 @@ def reconstruct_hydrogens(df_atoms):
                                       (df_atoms["atname"] == helper2_name) ] \
                                       [["x", "y", "z"]].values[0]
             # construct H1 & H2
-            H1_coor, H2_coor = get_SP2_H(atom_coor, helper1_coor, helper2_coor)
+            H1_coor, H2_coor = get_CH2_H(atom_coor, helper1_coor, helper2_coor)
             H1_name, H2_name = get_name_H(atom_name)
             # now create H1 & H2 as a pandas Series and append them into the new dataframe
             H1_atom = pd.Series([new_atom_num, H1_name, res_name, res_num]
@@ -257,7 +289,7 @@ def reconstruct_hydrogens(df_atoms):
         #    print("Atom {:5d} done!".format(i))
     return new_df_atoms
 
-@profile
+#@profile
 def reconstruct_hydrogens2(df_atoms):
     # newrows will be used to store the new molecule *with* H.
     newrows = []
@@ -304,11 +336,69 @@ def reconstruct_hydrogens2(df_atoms):
                                                   "resnum", "x", "y", "z"])
     return new_df_atoms
 
+
+#@profile
+def reconstruct_hydrogens3(list_df_residues):
+    # newrows will be used to store the new molecule *with* H.
+    newrows = []
+    # Counter for at number of the new mlc with H.
+    new_atom_num = 1
+    # Loop over all residues.
+    for df_residue in list_df_residues:
+        # Loop over all existing atoms (the iter var row_atom is a pandas Series).
+        print(df_residue);exit()
+        for i, row_atom in df_residue.iterrows():
+            # Renum atom (since we'll have additional H, atom num will change).
+            row_atom["atnum"] = new_atom_num
+            #        0      1       2        3       4  5  6
+            # order: atnum, atname, resname, resnum, x, y, z
+            # Append row_atom to the new list.
+            #####
+            #####
+            ##### !!! STUFF TODO HERE !!!
+            #####
+            #####
+            newrows.append(list(row_atom))
+            new_atom_num += 1
+            # Check whether the atom needs hydrogen(s) to be reconstructed onto.
+            atom_name = row_atom["atname"]
+            if atom_name in dic_lipids.POPC:
+                # Get atom info (force float for the coordinates!).
+                atom_coor = np.array(row_atom[["x", "y", "z"]].values, dtype=float)
+                res_name, res_num = row_atom[["resname", "resnum"]]
+            # Get name of helper atoms.
+            helper1_name, helper2_name = dic_lipids.POPC[atom_name]
+            # Get helper coords (needs [0] because it comes from a dataframe).
+            helper1_coor = df_atoms [ (df_atoms["resnum"] == res_num) &
+                                      (df_atoms["atname"] == helper1_name) ] \
+                                      [["x", "y", "z"]].values[0]
+            helper2_coor = df_atoms [ (df_atoms["resnum"] == res_num) &
+                                      (df_atoms["atname"] == helper2_name) ] \
+                                      [["x", "y", "z"]].values[0]
+            # Build H(s).
+            H1_coor, H2_coor = get_SP2_H(atom_coor, helper1_coor, helper2_coor)
+            # Add new H(s) to the newrows list.
+            H1_name, H2_name = get_name_H(atom_name)
+            newrows.append([new_atom_num, H1_name, res_name, res_num]
+                           + list(H1_coor))
+            new_atom_num += 1
+            newrows.append([new_atom_num, H2_name, res_name, res_num]
+                           + list(H2_coor))
+            new_atom_num += 1
+        #if i % 100 == 0:
+        #    print("Atom {:5d} done!".format(i))
+    # Create a dataframe to store the mlc with added hydrogens.
+    new_df_atoms = pd.DataFrame(newrows, columns=["atnum", "atname", "resname",
+                                                  "resnum", "x", "y", "z"])
+    return new_df_atoms
+
 if __name__ == "__main__":
     # read coordinates in a pandas dataframe
-    df_atoms = pdb2pandasdf("POPC_only.pdb")#("1POPC.pdb") #("POPC_only.pdb")
-    new_df_atoms = reconstruct_hydrogens2(df_atoms)
-    print(pandasdf2pdb(new_df_atoms))
+    list_df_residues = pdb2list_pandasdf_residues("POPC_only.pdb")
+    print(len(list_df_residues))
+    #df_atoms = pdb2pandasdf("POPC_only.pdb")#("1POPC.pdb") #("POPC_only.pdb")
+    #new_df_atoms = reconstruct_hydrogens2(df_atoms)
+    #print(pandasdf2pdb(new_df_atoms))
 
 exit()
 #########
