@@ -3,10 +3,12 @@
 # dic= { "atom1": ("typeofH2build", "helper1", "helper2"),
 #        "atom2": ("typeofH2build", "helper1", "helper2"),
 #        ...}
-POPC = {"C5": ("CH2", "N4", "C6"),# choline
+        # choline
+POPC = {"C5": ("CH2", "N4", "C6"),
         "C6": ("CH2", "C5", "O7"),
-        # glycerol ("CH2", C13 as only one H)
+        # glycerol
         "C12": ("CH2", "O11", "C13"),
+        "C13": ("CH", "C12", "C32", "O14"),
         "C32": ("CH2", "C13", "O33"),
         # sn2
         "C17": ("CH2", "C15", "C18"),
