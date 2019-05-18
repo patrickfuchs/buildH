@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # coding: utf-8
 
 import numpy as np
@@ -24,8 +24,46 @@ def normalize(vec):
     numpy 1D-array
         The normalized vector.
     """
-    nvec = vec / np.sqrt(np.sum(vec**2))
-    return nvec
+    return vec / magnitude(vec)
+
+
+def magnitude(vec):
+    """Returns the magnitude of a vector.
+
+    Parameters
+    ----------
+    vec : numpy 1D-array.
+
+    Returns
+    -------
+    float
+        The magniture of the vector.
+    """
+    return np.sqrt(np.sum(vec**2))
+
+
+def calc_angle(atom1, atom2, atom3):
+    """Calculate the valence angle between atom1, atom2 and atom3.
+
+    Note: atom2 is the central atom.
+
+    Parameters
+    ----------
+    atom1 : numpy 1D-array.
+    atom2 : numpy 1D-array.
+    atom3 : numpy 1D-array.
+
+    Returns
+    -------
+    float
+        The calculated angle in radians.
+    """
+    vec1 = atom1 - atom2
+    vec2 = atom3 - atom2
+    costheta = np.dot(vec1,vec2)/(magnitude(vec1)*magnitude(vec2))
+    if costheta > 1.0 or costheta < -1.0:
+        raise(ValueError, "Cosine cannot be larger than 1.0 or less than -1.0")
+    return np.arccos(costheta)
 
 
 def v2q(vec, theta):
@@ -76,13 +114,13 @@ def rotational_matrix(quaternion):
     return mat_rot
 
 
-def apply_rotation(vec_to_rotate, rotational_vector, rad_angle):
+def apply_rotation(vec_to_rotate, rotational_axis, rad_angle):
     """Rotates a vector around another vector by a given angle.
 
     Parameters
     ----------
     vec_to_rotate : numpy 1D-array.
-    vector to rotate around : numpy 1D-array.
+    rotational_axis : numpy 1D-array.
     rad_angle : float.
 
     Returns
@@ -90,14 +128,13 @@ def apply_rotation(vec_to_rotate, rotational_vector, rad_angle):
     numpy 1D-array
         The final rotated (normalized) vector.
     """
-    # Generate a quaternion of the given angle (in radian)
-    quat_rot = v2q(rotational_vector, rad_angle)
-    # Generate the rotational matrix 
-    rot_mat_quat = rotational_matrix(quat_rot)
-    # Use the rotational matrix on the vector to rotate
-    vec_rotated = np.dot(rot_mat_quat, vec_to_rotate)
-    norm_vec = normalize(vec_rotated)
-    return norm_vec
+    # Generate a quaternion of the given angle (in radian).
+    quaternion = v2q(rotational_axis, rad_angle)
+    # Generate the rotation matrix.
+    rotation_matrix = rotational_matrix(quaternion)
+    # Apply the rotational matrix on the vector to rotate.
+    vec_rotated = np.dot(rotation_matrix, vec_to_rotate)
+    return normalize(vec_rotated)
 
 
 def pdb2pandasdf(pdb_filename):
@@ -202,7 +239,7 @@ def pandasdf2pdb(df):
     return s
  
     
-def get_CH2_H(atom, helper1, helper2):
+def get_CH2(atom, helper1, helper2):
     """Reconstructs the 2 hydrogens of a sp3 carbon.
 
     Parameters
@@ -220,30 +257,46 @@ def get_CH2_H(atom, helper1, helper2):
         Coordinates of the two hydrogens: 
         ([x_H1, y_H1, z_H1], [x_H2, y_H2, z_H2]).
     """
-    # Atom -> helper1 vector.
+    # atom -> helper1 vector.
     v2 = normalize(helper1 - atom)
-    # Atom -> helper2 vector.
+    # atom -> helper2 vector.
     v3 = normalize(helper2 - atom)
-    # Vector perpendicular to the helpers - atom plane.
+    # Vector perpendicular to the helpers/atom plane.
     v4 = normalize(np.cross(v3, v2))
-    # Rotational axis vector.
-    rot_vec = normalize(v2 - v3)
-    # Vector to be rotated by theta/2, perpendicular to rot_vec and v4
-    vec_to_rotate = normalize(np.cross(v4, rot_vec))
+    # Rotational axis.
+    rotation_axis = normalize(v2 - v3)
+    # Vector to be rotated by theta/2, perpendicular to rot_vec and v4.
+    vec_to_rotate = normalize(np.cross(v4, rotation_axis))
     # Reconstruct the two hydrogens.
-    norm_vec_H1 = apply_rotation(vec_to_rotate, rot_vec, -1.911/2)
+    norm_vec_H1 = apply_rotation(vec_to_rotate, rotation_axis, -1.911/2)
     hcoor_H1 = 1 * norm_vec_H1 + atom
-    norm_vec_H2 = apply_rotation(vec_to_rotate, rot_vec, 1.911/2)
+    norm_vec_H2 = apply_rotation(vec_to_rotate, rotation_axis, 1.911/2)
     hcoor_H2 = 1 * norm_vec_H2 + atom
     return (hcoor_H1, hcoor_H2)
 
-def get_CH_H(atom, helper1, helper2, helper3):
+
+def get_CH(atom, helper1, helper2, helper3):
     helpers = np.array((helper1, helper2, helper3))
     v2 = np.zeros(3)
     for i in range(len(helpers)):
         v2 = v2 + normalize(helpers[i] - atom)
     v2 = v2 / (len(helpers)) + atom
     coor_H = 1 * normalize(atom - v2) + atom
+    return coor_H
+
+
+def get_CH_double_bond(atom, helper1, helper2):
+    # calc angle theta helper1-atom-helper2 (in rad).
+    theta = calc_angle(helper1, atom, helper2)
+    # atom -> helper1 vector.
+    v2 = helper1 - atom
+    # atom -> helper2 vector.
+    v3 = helper2 - atom
+    # The rotation axis is orthogonal to the atom/helpers plane.
+    rotation_axis = normalize(np.cross(v2, v3))
+    # Reconstruct H by rotating v3 by theta.
+    norm_vec_H = apply_rotation(v3, rotation_axis, theta)
+    coor_H = 1 * norm_vec_H + atom
     return coor_H
 
 
@@ -301,7 +354,7 @@ def reconstruct_hydrogens3(list_df_residues):
                                                        ["x", "y", "z"]]
                                         .values, dtype=float)
                 # Build H(s).
-                H1_coor, H2_coor = get_CH2_H(atom_coor, helper1_coor,
+                H1_coor, H2_coor = get_CH2(atom_coor, helper1_coor,
                                              helper2_coor)
                 # Add new H(s) to the newrows list.
                 H1_name, H2_name = get_name_H(row_atom["atname"], 2)
@@ -319,7 +372,7 @@ def reconstruct_hydrogens3(list_df_residues):
 
 def reconstruct_hydrogens_wMDanalysis(pdb_filename, return_coors=False):
     # load PDB
-    u = MDAnalysis.Universe("POPC_only.pdb")
+    u = MDAnalysis.Universe(pdb_filename)
     if return_coors:
         # The list newrows will be used to store the new molecule *with* H.
         newrows = []
@@ -331,8 +384,7 @@ def reconstruct_hydrogens_wMDanalysis(pdb_filename, return_coors=False):
             resnum = atom.resnum
             resname = atom.resname[:-1] # beware, resname must be 3 letters long in my routine
             name = atom.name
-            # Append atom to the new list (columns 0 to 6 included,
-            # we don't need the following ones).
+            # Append atom to the new list.
             # 0      1       2        3       4  5  6
             # atnum, atname, resname, resnum, x, y, z
             newrows.append( [new_atom_num, name, resname, resnum] + list(atom.position) )
@@ -346,7 +398,7 @@ def reconstruct_hydrogens_wMDanalysis(pdb_filename, return_coors=False):
                 helper1_coor = atom.residue.atoms.select_atoms("name {0}".format(helper1_name))[0].position
                 helper2_coor = atom.residue.atoms.select_atoms("name {0}".format(helper2_name))[0].position
                 # Build H(s).
-                H1_coor, H2_coor = get_CH2_H(atom.position, helper1_coor, helper2_coor)
+                H1_coor, H2_coor = get_CH2(atom.position, helper1_coor, helper2_coor)
                 ####
                 #### We could calculate here the order parameter on the fly :-D !
                 #### call_routine_op()
@@ -363,7 +415,21 @@ def reconstruct_hydrogens_wMDanalysis(pdb_filename, return_coors=False):
                 helper1_coor = atom.residue.atoms.select_atoms("name {0}".format(helper1_name))[0].position
                 helper2_coor = atom.residue.atoms.select_atoms("name {0}".format(helper2_name))[0].position
                 helper3_coor = atom.residue.atoms.select_atoms("name {0}".format(helper3_name))[0].position
-                H1_coor = get_CH_H(atom.position, helper1_coor, helper2_coor, helper3_coor)
+                H1_coor = get_CH(atom.position, helper1_coor, helper2_coor, helper3_coor)
+                ####
+                #### We could calculate here the order parameter on the fly :-D !
+                #### call_routine_op()
+                ####
+                if return_coors:
+                    # Add them to newrows.
+                    H1_name = get_name_H(atom.name, 1)
+                    newrows.append( [new_atom_num, H1_name, resname, resnum] + list(H1_coor) )
+                    new_atom_num += 1
+            elif typeofH2build == "CHdoublebond":
+                _, helper1_name, helper2_name = dic_lipids.POPC[atom.name]
+                helper1_coor = atom.residue.atoms.select_atoms("name {0}".format(helper1_name))[0].position
+                helper2_coor = atom.residue.atoms.select_atoms("name {0}".format(helper2_name))[0].position
+                H1_coor = get_CH_double_bond(atom.position, helper1_coor, helper2_coor)
                 ####
                 #### We could calculate here the order parameter on the fly :-D !
                 #### call_routine_op()
@@ -378,10 +444,11 @@ def reconstruct_hydrogens_wMDanalysis(pdb_filename, return_coors=False):
         new_df_atoms = pd.DataFrame(newrows, columns=["atnum", "atname", "resname",
                                                       "resnum", "x", "y", "z"])
         return new_df_atoms
-            
+
+
 if __name__ == "__main__":
     use_pandas = False
-    pdb_filename = "POPC_only.pdb"
+    pdb_filename = "POPC_only.pdb"#"1POPC.pdb"
     if use_pandas:
         # read coordinates in a pandas dataframe
         list_df_residues = pdb2list_pandasdf_residues(pdb_filename)
@@ -397,45 +464,25 @@ exit()
 # Below is Amelie's stuff I didn't touch to
 #########
 
-######case(1) CH 
-C13 = np.array([ 45.10 , 79.68,  26.62])
-#C12 
-helper1 = np.array([45.77, 79.32, 25.29])
-#C32
-helper2 = np.array([44.82,  78.27, 27.15])
-#O14
-helper3 = np.array([45.81,   80.59,  27.47])
-helpers = np.array([[45.77, 79.32, 25.29],[44.82,  78.27, 27.15], [45.81,   80.59,  27.47]])
-v2 = 0.0
-for i in range(len(helpers)):
-    v2 = v2 + normalize(helpers[i] - C13)
-
-v2 = v2 / (len(helpers)) + C13 
-coor_H = 1 * normalize(C13 - v2)+C13
-
-
-write_PDB(1, "C", C13)
-write_PDB(2, "C", helper1)
-write_PDB(3, "C", helper2)
-write_PDB(4, "O", helper3)
-write_PDB(5, "H", coor_H)
-
 ######case(2) CH double bond
 #Fonctions qui seront surement remplacées par une fonction issues de MDAnalysis
 def vect_AB(A,B):
     """Returns a vector from point A to point B
     """
     return [B[0]-A[0],B[1]-A[1],B[2]-A[2]]
-    
+
+
 def scalar(A,B):
     """Returns the scalar (or inner) product between vectors A & B
     """
     return (A[0]*B[0]) + (A[1]*B[1]) + (A[2]*B[2])
 
-def magnitude(A):
+
+def oldmagnitude(A):
     """Returns the magnitude of vector A
     """
     return math.sqrt(A[0]**2+A[1]**2+A[2]**2)
+
 
 def rad2deg(ang):
     """Convert an angle in radians to degrees
@@ -451,12 +498,10 @@ def angle(A,B,C):
     # compute vector BC
     vectBC = vect_AB(B,C) # [(C[0]-B[0]),(C[1]-B[1]),(C[2]-B[2])]
     # compute the cosine of angle ABC ( BA * BC = ba.bc.cos(theta) )
-    costheta = scalar(vectBA,vectBC)/(magnitude(vectBA)*magnitude(vectBC))
+    costheta = scalar(vectBA,vectBC)/(oldmagnitude(vectBA)*oldmagnitude(vectBC))
     # compute the angle ABC
     theta = math.acos(costheta)
-    return rad2deg(theta)
-
-
+    return rad2deg(theta)    
 
 #C24 
 C24 = np.array([05.82, 31.07,  33.03])
