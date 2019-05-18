@@ -115,7 +115,7 @@ def rotational_matrix(quaternion):
 
 
 def apply_rotation(vec_to_rotate, rotational_axis, rad_angle):
-    """Rotates a vector around another vector by a given angle.
+    """Rotates a vector around an axis by a given angle.
 
     Parameters
     ----------
@@ -232,7 +232,7 @@ def pandasdf2pdb(df):
         atnum, atname, resname, resnum, x, y, z = row_atom
         atnum = int(atnum)
         resnum = int(resnum)
-        s += ("{:6s}{:5d} {:^4s}{:1s}{:3s} {:1s}{:4d}{:1s}   {:8.3f}{:8.3f}"
+        s += ("{:6s}{:5d} {:>4s}{:1s}{:3s} {:1s}{:4d}{:1s}   {:8.3f}{:8.3f}"
               "{:8.3f}{:6.2f}{:6.2f}          {:>2s}{:2s}\n"
               .format("ATOM", atnum, atname, "", resname, chain, resnum, "",
                       x, y, z, 1.0, 0.0, "", ""))
@@ -300,14 +300,42 @@ def get_CH_double_bond(atom, helper1, helper2):
     return coor_H
 
 
+def get_CH3(atom, helper1, helper2):
+    # Reconstruct 3 H on atom.
+    # !!! WARNING !!!
+    # helper1 is connected to atom, helper2 is two atoms away.
+    # CH3e
+    theta = 1.911 # in rad (~ 109.5 deg)
+    v2 = helper1 - atom
+    v3 = helper2 - atom
+    rotation_axis = normalize(np.cross(v3, v2))
+    norm_vec_He = apply_rotation(v2, rotation_axis, theta)
+    coor_He = 1 * norm_vec_He + atom
+    # CH3r
+    theta = (2/3) * np.pi
+    rotation_axis = normalize(helper1 - atom)
+    v4 = normalize(coor_He - atom)
+    norm_vec_Hr = apply_rotation(v4, rotation_axis, theta)
+    coor_Hr = 1 * norm_vec_Hr + atom
+    # CH3s
+    theta = -(2/3) * np.pi
+    rotation_axis = normalize(helper1 - atom)
+    v5 = normalize(coor_He - atom) 
+    norm_vec_Hs = apply_rotation(v5, rotation_axis, theta)
+    coor_Hs = 1 * norm_vec_Hs + atom 
+    return coor_He, coor_Hr, coor_Hs
+
+
 def get_name_H(name_carbon, nb_of_H):
+    name_H1 = name_carbon.replace("C", "H") + "1"
+    name_H2 = name_carbon.replace("C", "H") + "2"
+    name_H3 = name_carbon.replace("C", "H") + "3"
     if nb_of_H == 1:
-        name_H1 = name_carbon.replace("C", "H") + "1"
         return name_H1
     elif nb_of_H == 2:
-        name_H1 = name_carbon.replace("C", "H") + "1"
-        name_H2 = name_carbon.replace("C", "H") + "2"
         return name_H1, name_H2
+    elif nb_of_H == 3:
+        return name_H1, name_H2, name_H3
 
 
 #@profile
@@ -439,6 +467,24 @@ def reconstruct_hydrogens_wMDanalysis(pdb_filename, return_coors=False):
                     H1_name = get_name_H(atom.name, 1)
                     newrows.append( [new_atom_num, H1_name, resname, resnum] + list(H1_coor) )
                     new_atom_num += 1
+            elif typeofH2build == "CH3":
+                _, helper1_name, helper2_name = dic_lipids.POPC[atom.name]
+                helper1_coor = atom.residue.atoms.select_atoms("name {0}".format(helper1_name))[0].position
+                helper2_coor = atom.residue.atoms.select_atoms("name {0}".format(helper2_name))[0].position
+                H1_coor, H2_coor, H3_coor = get_CH3(atom.position, helper1_coor, helper2_coor)
+                ####
+                #### We could calculate here the order parameter on the fly :-D !
+                #### call_routine_op()
+                ####
+                if return_coors:
+                    # Add them to newrows.
+                    H1_name, H2_name, H3_name = get_name_H(atom.name, 3)
+                    newrows.append( [new_atom_num, H1_name, resname, resnum] + list(H1_coor) )
+                    new_atom_num += 1
+                    newrows.append( [new_atom_num, H2_name, resname, resnum] + list(H2_coor) )
+                    new_atom_num += 1
+                    newrows.append( [new_atom_num, H3_name, resname, resnum] + list(H3_coor) )
+                    new_atom_num += 1
     if return_coors:
         # Create a dataframe to store the mlc with added hydrogens.
         new_df_atoms = pd.DataFrame(newrows, columns=["atnum", "atname", "resname",
@@ -448,7 +494,7 @@ def reconstruct_hydrogens_wMDanalysis(pdb_filename, return_coors=False):
 
 if __name__ == "__main__":
     use_pandas = False
-    pdb_filename = "POPC_only.pdb"#"1POPC.pdb"
+    pdb_filename = "POPC_only.pdb"
     if use_pandas:
         # read coordinates in a pandas dataframe
         list_df_residues = pdb2list_pandasdf_residues(pdb_filename)
@@ -457,179 +503,3 @@ if __name__ == "__main__":
     else:
         new_df_atoms = reconstruct_hydrogens_wMDanalysis(pdb_filename, return_coors=True)
         print(pandasdf2pdb(new_df_atoms))
-
-exit()
-#########
-# Note by P@t: 28/04/2019
-# Below is Amelie's stuff I didn't touch to
-#########
-
-######case(2) CH double bond
-#Fonctions qui seront surement remplacées par une fonction issues de MDAnalysis
-def vect_AB(A,B):
-    """Returns a vector from point A to point B
-    """
-    return [B[0]-A[0],B[1]-A[1],B[2]-A[2]]
-
-
-def scalar(A,B):
-    """Returns the scalar (or inner) product between vectors A & B
-    """
-    return (A[0]*B[0]) + (A[1]*B[1]) + (A[2]*B[2])
-
-
-def oldmagnitude(A):
-    """Returns the magnitude of vector A
-    """
-    return math.sqrt(A[0]**2+A[1]**2+A[2]**2)
-
-
-def rad2deg(ang):
-    """Convert an angle in radians to degrees
-    """
-    return ang*(180/math.pi)
-
-
-def angle(A,B,C):
-    """Returns the angle IN RAD between 3 points A, B & C
-    """
-    # compute vector BA
-    vectBA = vect_AB(B,A) # [(A[0]-B[0]),(A[1]-B[1]),(A[2]-B[2])]
-    # compute vector BC
-    vectBC = vect_AB(B,C) # [(C[0]-B[0]),(C[1]-B[1]),(C[2]-B[2])]
-    # compute the cosine of angle ABC ( BA * BC = ba.bc.cos(theta) )
-    costheta = scalar(vectBA,vectBC)/(oldmagnitude(vectBA)*oldmagnitude(vectBC))
-    # compute the angle ABC
-    theta = math.acos(costheta)
-    return rad2deg(theta)    
-
-#C24 
-C24 = np.array([05.82, 31.07,  33.03])
-#C23 
-helper1 = np.array([06.66,  31.71,  31.93])
-v2 = helper1 - C24
-#C25
-helper2 = np.array([06.29,  30.67,  34.27])
-v3 = helper2 - C24
-
-#thetal is the angle 2pi - C-C-C devided by 2
-#to ensure equal (C-C-H) angles from both directions
-angle_Cs = angle(helper1, C24, helper2)
-#Dans le code fortran angle_Cs est divise par 180 ? passage en rad ? 
-theta = math.pi * (2 - angle_Cs/180.) /2 
-u = normalize(np.cross(v2, v3))
-norm_vec_H = apply_rotation(v3, u, theta)
-coor_H = 1 * norm_vec_H + C24
-
-write_PDB(1, "C", helper1)
-write_PDB(2, "C", C24)
-write_PDB(3, "H", coor_H)
-write_PDB(4, "C", helper2)
-
-#C25 
-C25 = np.array([06.29,   30.67,  34.273])
-#C24 
-helper1 = np.array([05.82,   31.07,   33.03])
-v2 = helper1 - C25
-#C26
-helper2 = np.array([07.80,   30.74,   34.55])
-v3 = helper2 - C25
-
-#thetal is the angle 2pi - C-C-C devided by 2
-#to ensure equal (C-C-H) angles from both directions
-angle_Cs = angle(helper1, C25, helper2)
-#Dans le code fortran angle_Cs est divise par 180 ? passage en rad ? 
-theta = math.pi * (2 - angle_Cs/180.) /2 
-u = normalize(np.cross(v2, v3))
-norm_vec_H = apply_rotation(v3, u, theta)
-coor_H = 1 * norm_vec_H + C25
-
-write_PDB(1, "C", helper1)
-write_PDB(2, "C", C25)
-write_PDB(3, "H", coor_H)
-write_PDB(4, "C", helper2)
-
-
-
-#####case(4) !CH3e
-theta = 1.911
-C50 = np.array([25.26 ,  08.20,   24.58])
-C49 = np.array([25.99 ,  07.97 ,  25.91])
-v2 = C49 - C50
-C48 = np.array([24.97,   07.55 ,  26.97])
-v3 = C48- C50
-
-u = normalize(np.cross(v3, v2))
-norm_vec_H = apply_rotation(v2, u, theta)
-coor_H = 1 * norm_vec_H + C50
-
-write_PDB(1, "C", C48)
-write_PDB(2, "C", C49)
-write_PDB(3, "C", C50)
-write_PDB(4, "H", coor_H)
-
-####case(5) !CH3r
-theta = 120 * math.pi / 180.
-C50 = np.array([25.26 ,  08.20,   24.58])
-C49 = np.array([25.99 ,  07.97 ,  25.91])
-H3 = np.array([ 25.91960191,   8.47515027,  23.88055904])
-u = normalize(C49 - C50)
-v4 = normalize(H3 - C50) 
-norm_vec_H = apply_rotation(v4, u, theta)
-coor_H = 1 * norm_vec_H + C50 
-
-write_PDB(5, "H", coor_H)
-
-####case(5) !CH3s
-theta = -120 * math.pi / 180.
-C50 = np.array([25.26 ,  08.20,   24.58])
-C49 = np.array([25.99 ,  07.97 ,  25.91])
-H3 = np.array([ 25.91960191,   8.47515027,  23.88055904])
-u = normalize(C49 - C50)
-v4 = normalize(H3 - C50) 
-norm_vec_H = apply_rotation(v4, u, theta)
-coor_H = 1 * norm_vec_H + C50 
-
-write_PDB(6, "H", coor_H)
-
-#####case(4) !CH3e
-theta = 1.911
-CA2 = np.array([07.52,   23.79,   38.89])
-CA1 = np.array([06.85,  24.93,   38.12])
-v2 = CA1 - CA2
-C31 = np.array([ 07.99,   25.93,   37.91])
-v3 = C31- CA2
-
-u = normalize(np.cross(v3, v2))
-norm_vec_H = apply_rotation(v2, u, theta)
-coor_H = 1 * norm_vec_H + CA2
-
-write_PDB(1, "C", C31)
-write_PDB(2, "C", CA1)
-write_PDB(3, "C", CA2)
-write_PDB(4, "H", coor_H)
-
-####case(5) !CH3r
-theta = 120 * math.pi / 180.
-CA2 = np.array([07.52,   23.79,   38.89])
-CA1 = np.array([06.85,  24.93,   38.12])
-H3 = np.array([ -4.758,  -2.206,  26.417])
-u = normalize(CA1 - CA2)
-v4 = normalize(H3 - CA2) 
-norm_vec_H = apply_rotation(v4, u, theta)
-coor_H = 1 * norm_vec_H + CA2 
-
-write_PDB(5, "H", coor_H)
-
-####case(5) !CH3s
-theta = -120 * math.pi / 180.
-CA2 = np.array([07.52,   23.79,   38.89])
-CA1 = np.array([06.85,  24.93,   38.12])
-H3 = np.array([ -4.758,  -2.206,  26.417])
-u = normalize(CA1 - CA2)
-v4 = normalize(H3 - CA2) 
-norm_vec_H = apply_rotation(v4, u, theta)
-coor_H = 1 * norm_vec_H + CA2 
-
-write_PDB(6, "H", coor_H)
-
