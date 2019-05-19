@@ -1,23 +1,44 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
+"""
+This script reconstructs hydrogens from a united-atom trajectory.
+
+BLABLABLA TODO
+
+This code is inspired from that of Jon Kapla originally written in fortran
+(https://github.com/kaplajon/trajman/blob/master/module_trajop.f90#L242).
+
+Note, that all coordinates in this script are handled using numpy 1D-arrays
+of 3 elements, e.g. atom_coor = np.array((x, y, z)).
+"""
+
+__authors__ = ("Patrick Fuchs", "Amélie Bâcle", "Hubert Santuz",
+               "Pierre Poulain")
+__contact__ = ("patrickfuchs", "abacle", "hublot", "pierrepo") # on github
+__version__ = "1.0.0"
+__copyright__ = "copyleft"
+__date__ = "2019/05"
+
+# Modules.
 import numpy as np
 import pandas as pd
-import MDAnalysis
+import MDAnalysis as mda
 
 import dic_lipids
 
-"""
-This script reconstructs hydrogens from BLABLABLA...
-TODO
-"""
+# Constants.
+LENGTH_CH_BOND = 1.0 # in Angst
+# From https://en.wikipedia.org/wiki/Tetrahedron, tetrahedral angle equals
+# arccos(-1/3) ~ 1.9106 rad or 109.47 deg.
+TETRAHEDRAL_ANGLE = np.arccos(-1/3)
 
 def normalize(vec):
     """Normalizes a vector.
 
     Parameters
     ----------
-    vec : numpy 1D-array.
+    vec : numpy 1D-array
 
     Returns
     -------
@@ -32,7 +53,7 @@ def magnitude(vec):
 
     Parameters
     ----------
-    vec : numpy 1D-array.
+    vec : numpy 1D-array
 
     Returns
     -------
@@ -43,7 +64,7 @@ def magnitude(vec):
 
 
 def calc_angle(atom1, atom2, atom3):
-    """Calculate the valence angle between atom1, atom2 and atom3.
+    """Calculates the valence angle between atom1, atom2 and atom3.
 
     Note: atom2 is the central atom.
 
@@ -66,8 +87,8 @@ def calc_angle(atom1, atom2, atom3):
     return np.arccos(costheta)
 
 
-def v2q(vec, theta):
-    """Translates a 3-D vector and angle theta in a quaternion.
+def vec2quaternion(vec, theta):
+    """Translates a vector of 3 elements and angle theta to a quaternion.
 
     Parameters
     ----------
@@ -82,13 +103,13 @@ def v2q(vec, theta):
         The full quaternion (4 elements).
     """
     w = np.cos(theta/2)
-    x, y, z = np.sin(theta/2)*normalize(vec)
+    x, y, z = np.sin(theta/2) * normalize(vec)
     q = np.array([w, x, y, z])
     return q
 
 
-def rotational_matrix(quaternion):
-    """Translates a quaternion to a rotational matrix.
+def calc_rotation_matrix(quaternion):
+    """Translates a quaternion to a rotation matrix.
 
     Parameters
     ----------
@@ -97,31 +118,35 @@ def rotational_matrix(quaternion):
     Returns
     -------
     numpy 2D-array (dimension [3, 3])
-        The rotational matrix.
+        The rotation matrix.
     """
-    #init mat_rot np.array of dim 3,3 default values set to 0
-    mat_rot = np.zeros([3, 3])
+    # Initialize rotation matrix.
+    matrix = np.zeros([3, 3])
+    # Get quaternion elements.
     w, x, y, z = quaternion
-    mat_rot[0,0] = w**2 + x**2 - y**2 - z**2
-    mat_rot[1,0] = 2*(x*y + w*z)
-    mat_rot[2,0] = 2*(x*z - w*y)
-    mat_rot[0,1] = 2*(x*y - w*z)
-    mat_rot[1,1] = w**2 - x**2 + y**2 - z**2
-    mat_rot[2,1] = 2*(y*z + w*x)
-    mat_rot[0,2] = 2*(x*z + w*y)
-    mat_rot[1,2] = 2*(y*z - w*x)
-    mat_rot[2,2] = w**2 - x**2 - y**2 + z**2
-    return mat_rot
+    # Compute rotation matrix.
+    matrix[0,0] = w**2 + x**2 - y**2 - z**2
+    matrix[1,0] = 2 * (x*y + w*z)
+    matrix[2,0] = 2 * (x*z - w*y)
+    matrix[0,1] = 2 * (x*y - w*z)
+    matrix[1,1] = w**2 - x**2 + y**2 - z**2
+    matrix[2,1] = 2 * (y*z + w*x)
+    matrix[0,2] = 2 * (x*z + w*y)
+    matrix[1,2] = 2 * (y*z - w*x)
+    matrix[2,2] = w**2 - x**2 - y**2 + z**2
+    return matrix
 
 
-def apply_rotation(vec_to_rotate, rotational_axis, rad_angle):
+def apply_rotation(vec_to_rotate, rotation_axis, rad_angle):
     """Rotates a vector around an axis by a given angle.
+
+    Note: the rotation axis is a vector of 3 elements.
 
     Parameters
     ----------
-    vec_to_rotate : numpy 1D-array.
-    rotational_axis : numpy 1D-array.
-    rad_angle : float.
+    vec_to_rotate : numpy 1D-array
+    rotation_axis : numpy 1D-array
+    rad_angle : float
 
     Returns
     -------
@@ -129,10 +154,10 @@ def apply_rotation(vec_to_rotate, rotational_axis, rad_angle):
         The final rotated (normalized) vector.
     """
     # Generate a quaternion of the given angle (in radian).
-    quaternion = v2q(rotational_axis, rad_angle)
+    quaternion = vec2quaternion(rotation_axis, rad_angle)
     # Generate the rotation matrix.
-    rotation_matrix = rotational_matrix(quaternion)
-    # Apply the rotational matrix on the vector to rotate.
+    rotation_matrix = calc_rotation_matrix(quaternion)
+    # Apply the rotation matrix on the vector to rotate.
     vec_rotated = np.dot(rotation_matrix, vec_to_rotate)
     return normalize(vec_rotated)
 
@@ -240,7 +265,7 @@ def pandasdf2pdb(df):
  
     
 def get_CH2(atom, helper1, helper2):
-    """Reconstructs the 2 hydrogens of a sp3 carbon.
+    """Reconstructs the 2 hydrogens of a sp3 carbon (methylene group).
 
     Parameters
     ----------
@@ -253,80 +278,153 @@ def get_CH2(atom, helper1, helper2):
 
     Returns
     -------
-    tuple of numpy 1D-array
+    tuple of numpy 1D-arrays
         Coordinates of the two hydrogens: 
         ([x_H1, y_H1, z_H1], [x_H2, y_H2, z_H2]).
     """
-    # atom -> helper1 vector.
+    # atom->helper1 vector.
     v2 = normalize(helper1 - atom)
-    # atom -> helper2 vector.
+    # atom->helper2 vector.
     v3 = normalize(helper2 - atom)
-    # Vector perpendicular to the helpers/atom plane.
+    # Vector orthogonal to the helpers/atom plane.
     v4 = normalize(np.cross(v3, v2))
-    # Rotational axis.
+    # Rotation axis is atom->helper1 vec minus atom->helper2 vec.
     rotation_axis = normalize(v2 - v3)
-    # Vector to be rotated by theta/2, perpendicular to rot_vec and v4.
+    # Vector to be rotated by theta/2, perpendicular to rotation axis and v4.
     vec_to_rotate = normalize(np.cross(v4, rotation_axis))
     # Reconstruct the two hydrogens.
-    norm_vec_H1 = apply_rotation(vec_to_rotate, rotation_axis, -1.911/2)
-    hcoor_H1 = 1 * norm_vec_H1 + atom
-    norm_vec_H2 = apply_rotation(vec_to_rotate, rotation_axis, 1.911/2)
-    hcoor_H2 = 1 * norm_vec_H2 + atom
+    norm_vec_H1 = apply_rotation(vec_to_rotate, rotation_axis,
+                                 -TETRAHEDRAL_ANGLE/2)
+    hcoor_H1 = LENGTH_CH_BOND * norm_vec_H1 + atom
+    norm_vec_H2 = apply_rotation(vec_to_rotate, rotation_axis,
+                                 TETRAHEDRAL_ANGLE/2)
+    hcoor_H2 = LENGTH_CH_BOND * norm_vec_H2 + atom
     return (hcoor_H1, hcoor_H2)
 
 
 def get_CH(atom, helper1, helper2, helper3):
+    """Reconstructs the unique hydrogen of a sp3 carbon.
+
+    Parameters
+    ----------
+    atom : numpy 1D-array
+        Central atom on which we want to reconstruct the hydrogen.
+    helper1 : numpy 1D-array
+        First neighbor of central atom.
+    helper2 : numpy 1D-array
+        Second neighbor of central atom.
+    helper3 : numpy 1D-array
+        Third neighbor of central atom.
+
+    Returns
+    -------
+    numpy 1D-array
+        Coordinates of the rebuilt hydrogen: ([x_H, y_H, z_H]).
+    """
     helpers = np.array((helper1, helper2, helper3))
     v2 = np.zeros(3)
     for i in range(len(helpers)):
         v2 = v2 + normalize(helpers[i] - atom)
     v2 = v2 / (len(helpers)) + atom
-    coor_H = 1 * normalize(atom - v2) + atom
+    coor_H = LENGTH_CH_BOND * normalize(atom - v2) + atom
     return coor_H
 
 
 def get_CH_double_bond(atom, helper1, helper2):
+    """Reconstructs the hydrogen of a sp2 carbon.
+
+    Parameters
+    ----------
+    atom : numpy 1D-array
+        Central atom on which we want to reconstruct the hydrogen.
+    helper1 : numpy 1D-array
+        Heavy atom before central atom.
+    helper2 : numpy 1D-array
+        Heavy atom after central atom.
+
+    Returns
+    -------
+    tuple of numpy 1D-arrays
+        Coordinates of the rebuilt hydrogen: ([x_H, y_H, z_H]).
+    """
     # calc angle theta helper1-atom-helper2 (in rad).
     theta = calc_angle(helper1, atom, helper2)
-    # atom -> helper1 vector.
+    # atom->helper1 vector.
     v2 = helper1 - atom
-    # atom -> helper2 vector.
+    # atom->helper2 vector.
     v3 = helper2 - atom
     # The rotation axis is orthogonal to the atom/helpers plane.
     rotation_axis = normalize(np.cross(v2, v3))
     # Reconstruct H by rotating v3 by theta.
     norm_vec_H = apply_rotation(v3, rotation_axis, theta)
-    coor_H = 1 * norm_vec_H + atom
+    coor_H = LENGTH_CH_BOND * norm_vec_H + atom
     return coor_H
 
 
 def get_CH3(atom, helper1, helper2):
-    # Reconstruct 3 H on atom.
-    # !!! WARNING !!!
-    # helper1 is connected to atom, helper2 is two atoms away.
-    # CH3e
-    theta = 1.911 # in rad (~ 109.5 deg)
+    """Reconstructs the 3 hydrogens of a sp3 carbon (methyl group).
+
+    Parameters
+    ----------
+    atom : numpy 1D-array
+        Central atom on which we want to reconstruct hydrogens.
+    helper1 : numpy 1D-array
+        Heavy atom before central atom.
+    helper2 : numpy 1D-array
+        Heavy atom before helper1 (two atoms away from central atom).
+
+    Returns
+    -------
+    tuple of numpy 1D-arrays
+        Coordinates of the 3 hydrogens: 
+        ([x_H1, y_H1, z_H1], [x_H2, y_H2, z_H2], [x_H3, y_H3, z_H3]).
+    """
+    ### Build CH3e.
+    theta = TETRAHEDRAL_ANGLE
+    # atom->helper1 vector.
     v2 = helper1 - atom
+    # atom->helper2 vector.
     v3 = helper2 - atom
+    # Rotation axis is perpendicular to the atom/helpers plane.
     rotation_axis = normalize(np.cross(v3, v2))
+    # Rotate v2 by tetrahedral angle. New He will be in the same plane
+    # as atom and helpers.
     norm_vec_He = apply_rotation(v2, rotation_axis, theta)
-    coor_He = 1 * norm_vec_He + atom
-    # CH3r
+    coor_He = LENGTH_CH_BOND * norm_vec_He + atom
+    ### Build CH3r.
     theta = (2/3) * np.pi
     rotation_axis = normalize(helper1 - atom)
     v4 = normalize(coor_He - atom)
+    # Now we rotate atom->He bond around atom->helper1 bond by 2pi/3.
     norm_vec_Hr = apply_rotation(v4, rotation_axis, theta)
-    coor_Hr = 1 * norm_vec_Hr + atom
-    # CH3s
+    coor_Hr = LENGTH_CH_BOND * norm_vec_Hr + atom
+    ### Build CH3s.
     theta = -(2/3) * np.pi
     rotation_axis = normalize(helper1 - atom)
-    v5 = normalize(coor_He - atom) 
+    v5 = normalize(coor_He - atom)
+    # Last we rotate atom->He bond around atom->helper1 bond by -2pi/3.
     norm_vec_Hs = apply_rotation(v5, rotation_axis, theta)
-    coor_Hs = 1 * norm_vec_Hs + atom 
+    coor_Hs = LENGTH_CH_BOND * norm_vec_Hs + atom 
     return coor_He, coor_Hr, coor_Hs
 
 
 def get_name_H(name_carbon, nb_of_H):
+    """Returns the name of newly built hydrogens.
+
+    Parameters
+    ----------
+    name_carbon : string
+        The name of the carbon atom holding the hydrogen(s).
+    nb_of_H : int
+        Number of names to generate.
+
+    Returns
+    -------
+    str
+        The name of the unique H if nb_of_H equals 1.
+    or tuple of str
+        The names of the 2 or 3 rebuilt H if nb_of_H > 1.
+    """
     name_H1 = name_carbon.replace("C", "H") + "1"
     name_H2 = name_carbon.replace("C", "H") + "2"
     name_H3 = name_carbon.replace("C", "H") + "3"
@@ -398,108 +496,127 @@ def reconstruct_hydrogens3(list_df_residues):
     return new_df_atoms
 
 
-def reconstruct_hydrogens_wMDanalysis(pdb_filename, return_coors=False):
+def buildH_wMDanalysis(pdb_filename, return_coors=False):
     # load PDB
-    u = MDAnalysis.Universe(pdb_filename)
+    universe = mda.Universe(pdb_filename)
     if return_coors:
         # The list newrows will be used to store the new molecule *with* H.
         newrows = []
         # Counter for numbering the new mlcs with H.
         new_atom_num = 1
     # Loop over all atoms.
-    for atom in u.atoms:
+    for atom in universe.atoms:
         if return_coors:
             resnum = atom.resnum
-            resname = atom.resname[:-1] # beware, resname must be 3 letters long in my routine
+            # beware, resname must be 3 letters long in my routine
+            resname = atom.resname[:-1]
             name = atom.name
             # Append atom to the new list.
             # 0      1       2        3       4  5  6
             # atnum, atname, resname, resnum, x, y, z
-            newrows.append( [new_atom_num, name, resname, resnum] + list(atom.position) )
+            newrows.append([new_atom_num, name, resname, resnum]
+                           + list(atom.position))
             new_atom_num += 1
         if atom.name in dic_lipids.POPC:
             typeofH2build = dic_lipids.POPC[atom.name][0]
             if typeofH2build == "CH2":
                 _, helper1_name, helper2_name = dic_lipids.POPC[atom.name]
-                # atom is a Atom object : atom.residue.atoms is a list of its atom we can select.
-                # [0] is because select_atoms return a AtomGroup which contains only 1 atom.
-                helper1_coor = atom.residue.atoms.select_atoms("name {0}".format(helper1_name))[0].position
-                helper2_coor = atom.residue.atoms.select_atoms("name {0}".format(helper2_name))[0].position
+                # atom is a Atom object.
+                # atom.residue.atoms is a list of atoms we can select with
+                # method .select_atoms().
+                # To avoid too long line, we shorten its name to `sel`.
+                sel = atom.residue.atoms.select_atoms
+                # [0] is because select_atoms returns a AtomGroup which
+                # contains only 1 atom.
+                helper1_coor = sel("name {0}".format(helper1_name))[0].position
+                helper2_coor = sel("name {0}".format(helper2_name))[0].position
                 # Build H(s).
-                H1_coor, H2_coor = get_CH2(atom.position, helper1_coor, helper2_coor)
+                H1_coor, H2_coor = get_CH2(atom.position, helper1_coor,
+                                           helper2_coor)
                 ####
-                #### We could calculate here the order parameter on the fly :-D !
-                #### call_routine_op()
+                #### We could calculate here the order param on the fly :-D !
                 ####
                 if return_coors:
                     # Add them to newrows.
                     H1_name, H2_name = get_name_H(atom.name, 2)
-                    newrows.append( [new_atom_num, H1_name, resname, resnum] + list(H1_coor) )
+                    newrows.append([new_atom_num, H1_name, resname, resnum]
+                                   + list(H1_coor))
                     new_atom_num += 1
-                    newrows.append( [new_atom_num, H2_name, resname, resnum] + list(H2_coor) )
+                    newrows.append([new_atom_num, H2_name, resname, resnum]
+                                   + list(H2_coor) )
                     new_atom_num += 1
             elif typeofH2build == "CH":
-                _, helper1_name, helper2_name, helper3_name = dic_lipids.POPC[atom.name]
-                helper1_coor = atom.residue.atoms.select_atoms("name {0}".format(helper1_name))[0].position
-                helper2_coor = atom.residue.atoms.select_atoms("name {0}".format(helper2_name))[0].position
-                helper3_coor = atom.residue.atoms.select_atoms("name {0}".format(helper3_name))[0].position
-                H1_coor = get_CH(atom.position, helper1_coor, helper2_coor, helper3_coor)
+                _, helper1_name, helper2_name, helper3_name = (dic_lipids
+                                                               .POPC[atom.name])
+                sel = atom.residue.atoms.select_atoms
+                helper1_coor = sel("name {0}".format(helper1_name))[0].position
+                helper2_coor = sel("name {0}".format(helper2_name))[0].position
+                helper3_coor = sel("name {0}".format(helper3_name))[0].position
+                H1_coor = get_CH(atom.position, helper1_coor, helper2_coor,
+                                 helper3_coor)
                 ####
-                #### We could calculate here the order parameter on the fly :-D !
-                #### call_routine_op()
+                #### We could calculate here the order param on the fly :-D !
                 ####
                 if return_coors:
                     # Add them to newrows.
                     H1_name = get_name_H(atom.name, 1)
-                    newrows.append( [new_atom_num, H1_name, resname, resnum] + list(H1_coor) )
+                    newrows.append([new_atom_num, H1_name, resname, resnum]
+                                   + list(H1_coor))
                     new_atom_num += 1
             elif typeofH2build == "CHdoublebond":
                 _, helper1_name, helper2_name = dic_lipids.POPC[atom.name]
-                helper1_coor = atom.residue.atoms.select_atoms("name {0}".format(helper1_name))[0].position
-                helper2_coor = atom.residue.atoms.select_atoms("name {0}".format(helper2_name))[0].position
-                H1_coor = get_CH_double_bond(atom.position, helper1_coor, helper2_coor)
+                sel = atom.residue.atoms.select_atoms
+                helper1_coor = sel("name {0}".format(helper1_name))[0].position
+                helper2_coor = sel("name {0}".format(helper2_name))[0].position
+                H1_coor = get_CH_double_bond(atom.position, helper1_coor,
+                                             helper2_coor)
                 ####
-                #### We could calculate here the order parameter on the fly :-D !
-                #### call_routine_op()
+                #### We could calculate here the order param on the fly :-D !
                 ####
                 if return_coors:
                     # Add them to newrows.
                     H1_name = get_name_H(atom.name, 1)
-                    newrows.append( [new_atom_num, H1_name, resname, resnum] + list(H1_coor) )
+                    newrows.append([new_atom_num, H1_name, resname, resnum]
+                                   + list(H1_coor))
                     new_atom_num += 1
             elif typeofH2build == "CH3":
                 _, helper1_name, helper2_name = dic_lipids.POPC[atom.name]
-                helper1_coor = atom.residue.atoms.select_atoms("name {0}".format(helper1_name))[0].position
-                helper2_coor = atom.residue.atoms.select_atoms("name {0}".format(helper2_name))[0].position
-                H1_coor, H2_coor, H3_coor = get_CH3(atom.position, helper1_coor, helper2_coor)
+                sel = atom.residue.atoms.select_atoms
+                helper1_coor = sel("name {0}".format(helper1_name))[0].position
+                helper2_coor = sel("name {0}".format(helper2_name))[0].position
+                H1_coor, H2_coor, H3_coor = get_CH3(atom.position,
+                                                    helper1_coor, helper2_coor)
                 ####
-                #### We could calculate here the order parameter on the fly :-D !
-                #### call_routine_op()
+                #### We could calculate here the order param on the fly :-D !
                 ####
                 if return_coors:
                     # Add them to newrows.
                     H1_name, H2_name, H3_name = get_name_H(atom.name, 3)
-                    newrows.append( [new_atom_num, H1_name, resname, resnum] + list(H1_coor) )
+                    newrows.append([new_atom_num, H1_name, resname, resnum]
+                                   + list(H1_coor))
                     new_atom_num += 1
-                    newrows.append( [new_atom_num, H2_name, resname, resnum] + list(H2_coor) )
+                    newrows.append([new_atom_num, H2_name, resname, resnum]
+                                   + list(H2_coor))
                     new_atom_num += 1
-                    newrows.append( [new_atom_num, H3_name, resname, resnum] + list(H3_coor) )
+                    newrows.append([new_atom_num, H3_name, resname, resnum]
+                                   + list(H3_coor))
                     new_atom_num += 1
     if return_coors:
         # Create a dataframe to store the mlc with added hydrogens.
-        new_df_atoms = pd.DataFrame(newrows, columns=["atnum", "atname", "resname",
-                                                      "resnum", "x", "y", "z"])
+        new_df_atoms = pd.DataFrame(newrows, columns=["atnum", "atname",
+                                                      "resname", "resnum",
+                                                      "x", "y", "z"])
         return new_df_atoms
 
 
 if __name__ == "__main__":
     use_pandas = False
-    pdb_filename = "POPC_only.pdb"
+    pdb_filename = "1POPC.pdb" #"POPC_only.pdb"
     if use_pandas:
         # read coordinates in a pandas dataframe
         list_df_residues = pdb2list_pandasdf_residues(pdb_filename)
         new_df_atoms = reconstruct_hydrogens3(list_df_residues)
         print(pandasdf2pdb(new_df_atoms))
     else:
-        new_df_atoms = reconstruct_hydrogens_wMDanalysis(pdb_filename, return_coors=True)
+        new_df_atoms = buildH_wMDanalysis(pdb_filename, return_coors=True)
         print(pandasdf2pdb(new_df_atoms))
