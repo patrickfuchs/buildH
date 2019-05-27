@@ -30,7 +30,7 @@ import dic_lipids
 # Constants.
 LENGTH_CH_BOND = 1.0 # in Angst
 # From https://en.wikipedia.org/wiki/Tetrahedron, tetrahedral angle equals
-# arccos(-1/3) ~ 1.9106 rad or 109.47 deg.
+# arccos(-1/3) ~ 1.9106 rad ~ 109.47 deg.
 TETRAHEDRAL_ANGLE = np.arccos(-1/3)
 
 def normalize(vec):
@@ -45,11 +45,11 @@ def normalize(vec):
     numpy 1D-array
         The normalized vector.
     """
-    return vec / magnitude(vec)
+    return vec / norm(vec)
 
 
-def magnitude(vec):
-    """Returns the magnitude of a vector.
+def norm(vec):
+    """Returns the norm of a vector.
 
     Parameters
     ----------
@@ -81,7 +81,7 @@ def calc_angle(atom1, atom2, atom3):
     """
     vec1 = atom1 - atom2
     vec2 = atom3 - atom2
-    costheta = np.dot(vec1,vec2)/(magnitude(vec1)*magnitude(vec2))
+    costheta = np.dot(vec1,vec2)/(norm(vec1)*norm(vec2))
     if costheta > 1.0 or costheta < -1.0:
         raise(ValueError, "Cosine cannot be larger than 1.0 or less than -1.0")
     return np.arccos(costheta)
@@ -189,53 +189,6 @@ def pdb2pandasdf(pdb_filename):
     df_atoms = pd.DataFrame(rows, columns=["atnum", "atname", "resname",
                                            "resnum", "x", "y", "z"])
     return df_atoms
-
-
-def pdb2list_pandasdf_residues(pdb_filename):
-    """Reads a PDB file and returns a list of pandas dataframes for each residue.
-
-    Arguments
-    ---------
-    pdb_filename : string
-
-    Returns
-    -------
-    list of pandas dataframe representing a residue
-        Each dataframe has the folowing columns: atnum, atname, resname, resnum,
-        x, y, z, typeofH2build, helper1_name, helper2_name.
-    """
-    # Put PDB rows in a list.
-    rows = []
-    # This list will be used for indexing rows with atom names.
-    all_atom_names = []
-    with open(pdb_filename, "r") as f:
-        for line in f:
-            if line.startswith("ATOM"):
-                atnum = int(line[6:11])
-                atname = line[12:16].strip()
-                all_atom_names.append(atname)
-                resname = line[17:20].strip()
-                resnum = int(line[22:26])
-                x = float(line[30:38])
-                y = float(line[38:46])
-                z = float(line[46:54])
-                if atname in dic_lipids.POPC:
-                    typeofH2build, helper1_name, helper2_name = dic_lipids.POPC[atname]
-                else:
-                    typeofH2build, helper1_name, helper2_name = None, None, None
-                rows.append((atnum, atname, resname, resnum, x, y, z,
-                             typeofH2build, helper1_name, helper2_name))
-    # Make a first dataframe with those rows.
-    df_atoms = pd.DataFrame(rows, index=all_atom_names,
-                            columns=["atnum", "atname", "resname",
-                                     "resnum", "x", "y", "z",
-                                     "typeofH2build", "helper1_name",
-                                     "helper2_name"])
-    # Make a list of dataframes (each df is a residue).
-    list_df_residues = []
-    for res_num in df_atoms.resnum.unique():
-        list_df_residues.append( df_atoms[ df_atoms["resnum"] == res_num ] )
-    return list_df_residues
 
 
 def pandasdf2pdb(df):
@@ -559,7 +512,7 @@ def buildH_wMDanalysis(pdb_filename, return_coors=False):
 
 if __name__ == "__main__":
     use_pandas = False
-    pdb_filename = "1POPC.pdb" #"POPC_only.pdb"
+    pdb_filename = "POPC_only.pdb" # "1POPC.pdb"
     if use_pandas:
         # read coordinates in a pandas dataframe
         list_df_residues = pdb2list_pandasdf_residues(pdb_filename)
