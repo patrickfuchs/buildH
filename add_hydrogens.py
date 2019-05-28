@@ -391,19 +391,24 @@ def get_name_H(name_carbon, nb_of_H):
 
 
 def buildH_on_1C(atom):
-    """Reconstruct 1, 2 or 3 H on a given carbon.
+    """Reconstructs 1, 2 or 3 H on a given carbon.
 
-    BLABLABLA
+    This function is a wrapper BLABLABLA
 
     Parameters
     ----------
     atom is a MDAnalysis BLABLABLA instance
+    (see https://www.mdanalysis.org/docs/documentation_pages/core/groups.html?highlight=atom%20class#MDAnalysis.core.groups.Atom
+    for class definition)
+
+    BLABLABLA
 
     Returns
     -------
     BLABLABLA
     !!! IMPORTANT !!! It *should* return a tuple even if there's 1 element!!!
     """
+    print(type(atom)) ; exit()
     # Get nb of H to build and helper names (we can have 2 or 3 helpers).
     if len(dic_lipids.POPC[atom.name]) == 3:
         typeofH2build, helper1_name, helper2_name = dic_lipids.POPC[atom.name]
@@ -440,10 +445,47 @@ def buildH_on_1C(atom):
 
 
 def build_all_H(universe_woH, universe_wH=None, return_coors=False):
-    """BLABLABLA
+    """Main function that reconstruct hyddrogens.
 
-    BLABLIBLU
+    This function shall be used in two modes :
+
+    1) The first time this function is called, we have to construct a new 
+    universe with hydrogens. One shall call it like this :
+
+    new_data_frame = build_all_H(universe_woH, universe_wH=None, return_coors=False)
+
+    This dataframe will be used to write a pdb with H, which will allow to build
+    a new universe with H.
+
+    2) For all the other frames, we just need to update the coordinates in the 
+    universe *with* hydrogens. One shall call it like this :
+
+    build_all_H(universe_woH, universe_wH=universe_wH)
+
+    The function returns nothing and the coordinates of the universe *with* H
+    are changed in place.
+
+    Parameters
+    ----------
+    universe_woH : MDAnalysis universe
+        This is the universe *without* hydrogen.
+    universe_wH : MDAnalysis universe (optional)
+        This is the universe *with* hydrogens.
+    return_coors : boolean (optional)
+        If True, the function will return a pandas dataframe containing the system *with* hydrogens.
+
+    Returns
+    -------
+    pandas dataframe (optional)
+        If parameter return_coors is True, this dataframe  containing the 
+        system *with* hydrogens is returned.
+    None
+        If parameter return_coors is False, the function returns nothing.
     """
+    if universe_wH:
+        # We will need the index in the numpy array for updating coordinates
+        # in the universe with H.
+        atom_index_in_nparray = 0
     if return_coors:
         # The list newrows will be used to store the new molecule *with* H.
         newrows = []
@@ -451,6 +493,10 @@ def build_all_H(universe_woH, universe_wH=None, return_coors=False):
         new_atom_num = 1
     # Loop over all atoms.
     for atom in universe_woH.atoms:
+        if universe_wH:
+            # Update the position of the current atom in the universe with H.
+            universe_wH.coord.positions[atom_index_in_nparray, :] = atom.position
+            atom_index_in_nparray += 1
         if return_coors:
             resnum = atom.resnum
             # beware, resname must be 3 letters long in my routine
@@ -464,7 +510,7 @@ def build_all_H(universe_woH, universe_wH=None, return_coors=False):
             new_atom_num += 1
         # Build new H(s)?
         if atom.name in dic_lipids.POPC:
-            # Build H and store them in a list of numpy 1D-arrays Hs_coor
+            # Build Hs and store them in a list of numpy 1D-arrays Hs_coor.
             # The "s" in Hs_coor means there can be more than 1 H:
             # For CH2, Hs_coor will contain: [H1_coor, H2_coor].
             # For CH3, Hs_coor will contain: [H1_coor, H2_coor, H3_coor].
@@ -484,91 +530,16 @@ def build_all_H(universe_woH, universe_wH=None, return_coors=False):
                     newrows.append([new_atom_num, H_name, resname, resnum]
                                    + list(H_coor))
                     new_atom_num += 1
+                if universe_wH:
+                    # Update the position of the current H in the universe with H.
+                    universe_wH.coord.positions[atom_index_in_nparray, :] = H_coor
+                    atom_index_in_nparray += 1
     if return_coors:
         # Create a dataframe to store the mlc with added hydrogens.
         new_df_atoms = pd.DataFrame(newrows, columns=["atnum", "atname",
                                                       "resname", "resnum",
                                                       "x", "y", "z"])
         return new_df_atoms
-
-
-def buildH2(universe_woH, universe_wH):
-    """This function reconstructs hydrogen and update their position in universe_wH.
-    This is a first try, it is identical to buildH(). The only difference is that there's no
-    pandas dataframe construction.
-
-    TODO Merge this one with buildH()
-    """
-    new_atom_num = 0
-    # Loop over all atoms.
-    for atom in universe_woH.atoms:
-        universe_wH.coord.positions[new_atom_num, :] = atom.position
-        new_atom_num += 1
-        if atom.name in dic_lipids.POPC:
-            typeofH2build = dic_lipids.POPC[atom.name][0]
-            if typeofH2build == "CH2":
-                _, helper1_name, helper2_name = dic_lipids.POPC[atom.name]
-                # atom is a Atom object.
-                # atom.residue.atoms is a list of atoms we can select with
-                # method .select_atoms().
-                # To avoid too long line, we shorten its name to `sel`.
-                sel = atom.residue.atoms.select_atoms
-                # [0] is because select_atoms returns a AtomGroup which
-                # contains only 1 atom.
-                helper1_coor = sel("name {0}".format(helper1_name))[0].position
-                helper2_coor = sel("name {0}".format(helper2_name))[0].position
-                # Build H(s).
-                H1_coor, H2_coor = get_CH2(atom.position, helper1_coor,
-                                           helper2_coor)
-                ####
-                #### We could calculate here the order param on the fly :-D !
-                ####
-                universe_wH.coord.positions[new_atom_num, :] = H1_coor
-                new_atom_num += 1
-                universe_wH.coord.positions[new_atom_num, :] = H2_coor
-                new_atom_num += 1
-            elif typeofH2build == "CH":
-                _, helper1_name, helper2_name, helper3_name = (dic_lipids
-                                                               .POPC[atom.name])
-                sel = atom.residue.atoms.select_atoms
-                helper1_coor = sel("name {0}".format(helper1_name))[0].position
-                helper2_coor = sel("name {0}".format(helper2_name))[0].position
-                helper3_coor = sel("name {0}".format(helper3_name))[0].position
-                H1_coor = get_CH(atom.position, helper1_coor, helper2_coor,
-                                 helper3_coor)
-                ####
-                #### We could calculate here the order param on the fly :-D !
-                ####
-                universe_wH.coord.positions[new_atom_num, :] = H1_coor
-                new_atom_num += 1
-            elif typeofH2build == "CHdoublebond":
-                _, helper1_name, helper2_name = dic_lipids.POPC[atom.name]
-                sel = atom.residue.atoms.select_atoms
-                helper1_coor = sel("name {0}".format(helper1_name))[0].position
-                helper2_coor = sel("name {0}".format(helper2_name))[0].position
-                H1_coor = get_CH_double_bond(atom.position, helper1_coor,
-                                             helper2_coor)
-                ####
-                #### We could calculate here the order param on the fly :-D !
-                ####
-                universe_wH.coord.positions[new_atom_num, :] = H1_coor
-                new_atom_num += 1
-            elif typeofH2build == "CH3":
-                _, helper1_name, helper2_name = dic_lipids.POPC[atom.name]
-                sel = atom.residue.atoms.select_atoms
-                helper1_coor = sel("name {0}".format(helper1_name))[0].position
-                helper2_coor = sel("name {0}".format(helper2_name))[0].position
-                H1_coor, H2_coor, H3_coor = get_CH3(atom.position,
-                                                    helper1_coor, helper2_coor)
-                ####
-                #### We could calculate here the order param on the fly :-D !
-                ####
-                universe_wH.coord.positions[new_atom_num, :] = H1_coor
-                new_atom_num += 1
-                universe_wH.coord.positions[new_atom_num, :] = H2_coor
-                new_atom_num += 1
-                universe_wH.coord.positions[new_atom_num, :] = H3_coor
-                new_atom_num += 1
 
 
 if __name__ == "__main__":
@@ -582,7 +553,7 @@ if __name__ == "__main__":
     print("Writing first frame.")
     with open("GOGO.pdb", "w") as f:
         f.write(pandasdf2pdb(new_df_atoms))
-    # Create new universe with H.
+    # Create a new universe with H.
     universe_wH = mda.Universe("GOGO.pdb")
     # Create an xtc writer.
     newxtc = XTC.XTCWriter("GOGO.xtc", len(universe_wH.atoms))
@@ -593,7 +564,7 @@ if __name__ == "__main__":
     for ts in universe_woH.trajectory:
         print("Dealing with frame {} at {} ps.".format(ts.frame, universe_woH.trajectory.time))
         # Build H and update positions in the universe *with* H.
-        buildH2(universe_woH, universe_wH)
+        build_all_H(universe_woH, universe_wH=universe_wH)
         # Write new frame to xtc.
         newxtc.write(universe_wH)
     # Close xtc.
