@@ -390,14 +390,59 @@ def get_name_H(name_carbon, nb_of_H):
         return name_H1, name_H2, name_H3
 
 
-def buildH(universe_woH, return_coors=False):
-    """Builds hydrogens from a united atom frame.
-    
-    TODO This function gets big, divide it in 2: actual func reads the traj 
-         frame by frame and then calls another one which builds H.
-    TODO2 Implement same stuff with a trajectory instead of single PDB frame.
-    TODO3 Implement order parameter calculation.
-    TODO4 BLABLABLA.
+def buildH_on_1C(atom):
+    """Reconstruct 1, 2 or 3 H on a given carbon.
+
+    BLABLABLA
+
+    Parameters
+    ----------
+    atom is a MDAnalysis BLABLABLA instance
+
+    Returns
+    -------
+    BLABLABLA
+    !!! IMPORTANT !!! It *should* return a tuple even if there's 1 element!!!
+    """
+    # Get nb of H to build and helper names (we can have 2 or 3 helpers).
+    if len(dic_lipids.POPC[atom.name]) == 3:
+        typeofH2build, helper1_name, helper2_name = dic_lipids.POPC[atom.name]
+    else:
+        (typeofH2build, helper1_name, helper2_name,
+         helper3_name) = dic_lipids.POPC[atom.name]
+    # Get helper coordinates using atom, which an instance from Atom class.
+    # atom.residue.atoms is a list of atoms we can select with
+    # method .select_atoms().
+    # To avoid too long line, we shorten its name to `sel`.
+    sel = atom.residue.atoms.select_atoms
+    helper1_coor = sel("name {0}".format(helper1_name))[0].position
+    helper2_coor = sel("name {0}".format(helper2_name))[0].position
+    if typeofH2build == "CH2":
+        H1_coor, H2_coor = get_CH2(atom.position, helper1_coor, helper2_coor)
+        return (H1_coor, H2_coor)
+    elif typeofH2build == "CH":
+        # If we reconstruct a single H, we have a 3rd helper.
+        helper3_coor = sel("name {0}".format(helper3_name))[0].position
+        H1_coor = get_CH(atom.position, helper1_coor, helper2_coor,
+                         helper3_coor)
+        return (H1_coor,)
+    elif typeofH2build == "CHdoublebond":
+        H1_coor = get_CH_double_bond(atom.position, helper1_coor, helper2_coor)
+        return (H1_coor,)
+    elif typeofH2build == "CH3":
+        H1_coor, H2_coor, H3_coor = get_CH3(atom.position,
+                                            helper1_coor, helper2_coor)
+        return (H1_coor, H2_coor, H3_coor)
+    else:
+        raise UserWarning("Wrong code for typeofH2build, expect 'CH2', 'CH', "
+                          "'CHdoublebond' or 'CH3', got {}"
+                          .format(typeofH2build))
+
+
+def build_all_H(universe_woH, universe_wH=None, return_coors=False):
+    """BLABLABLA
+
+    BLABLIBLU
     """
     if return_coors:
         # The list newrows will be used to store the new molecule *with* H.
@@ -417,89 +462,27 @@ def buildH(universe_woH, return_coors=False):
             newrows.append([new_atom_num, name, resname, resnum]
                            + list(atom.position))
             new_atom_num += 1
+        # Build new H(s)?
         if atom.name in dic_lipids.POPC:
-            typeofH2build = dic_lipids.POPC[atom.name][0]
-            if typeofH2build == "CH2":
-                _, helper1_name, helper2_name = dic_lipids.POPC[atom.name]
-                # atom is a Atom object.
-                # atom.residue.atoms is a list of atoms we can select with
-                # method .select_atoms().
-                # To avoid too long line, we shorten its name to `sel`.
-                sel = atom.residue.atoms.select_atoms
-                # [0] is because select_atoms returns a AtomGroup which
-                # contains only 1 atom.
-                helper1_coor = sel("name {0}".format(helper1_name))[0].position
-                helper2_coor = sel("name {0}".format(helper2_name))[0].position
-                # Build H(s).
-                H1_coor, H2_coor = get_CH2(atom.position, helper1_coor,
-                                           helper2_coor)
+            # Build H and store them in a list of numpy 1D-arrays Hs_coor
+            # The "s" in Hs_coor means there can be more than 1 H:
+            # For CH2, Hs_coor will contain: [H1_coor, H2_coor].
+            # For CH3, Hs_coor will contain: [H1_coor, H2_coor, H3_coor].
+            # For CH, Hs_coor will contain: [H1_coor].
+            # For CHdoublebond, Hs_coor will contain: [H1_coor].
+            Hs_coor = buildH_on_1C(atom)
+            # Loop over Hs_coor (H_coor is a 1D-array with the 3 coors of 1 H).
+            for i, H_coor in enumerate(Hs_coor):
+                # Give a name to newly built H
+                # (e.g. if C18 has 3 H, their name will be H181, H182 & H183).
+                H_name = atom.name.replace("C", "H") + str(i+1)
                 ####
-                #### We could calculate here the order param on the fly :-D !
+                #### We calculate here the order param on the fly :-D !
                 ####
                 if return_coors:
                     # Add them to newrows.
-                    H1_name, H2_name = get_name_H(atom.name, 2)
-                    newrows.append([new_atom_num, H1_name, resname, resnum]
-                                   + list(H1_coor))
-                    new_atom_num += 1
-                    newrows.append([new_atom_num, H2_name, resname, resnum]
-                                   + list(H2_coor) )
-                    new_atom_num += 1
-            elif typeofH2build == "CH":
-                _, helper1_name, helper2_name, helper3_name = (dic_lipids
-                                                               .POPC[atom.name])
-                sel = atom.residue.atoms.select_atoms
-                helper1_coor = sel("name {0}".format(helper1_name))[0].position
-                helper2_coor = sel("name {0}".format(helper2_name))[0].position
-                helper3_coor = sel("name {0}".format(helper3_name))[0].position
-                H1_coor = get_CH(atom.position, helper1_coor, helper2_coor,
-                                 helper3_coor)
-                ####
-                #### We could calculate here the order param on the fly :-D !
-                ####
-                if return_coors:
-                    # Add them to newrows.
-                    H1_name = get_name_H(atom.name, 1)
-                    newrows.append([new_atom_num, H1_name, resname, resnum]
-                                   + list(H1_coor))
-                    new_atom_num += 1
-            elif typeofH2build == "CHdoublebond":
-                _, helper1_name, helper2_name = dic_lipids.POPC[atom.name]
-                sel = atom.residue.atoms.select_atoms
-                helper1_coor = sel("name {0}".format(helper1_name))[0].position
-                helper2_coor = sel("name {0}".format(helper2_name))[0].position
-                H1_coor = get_CH_double_bond(atom.position, helper1_coor,
-                                             helper2_coor)
-                ####
-                #### We could calculate here the order param on the fly :-D !
-                ####
-                if return_coors:
-                    # Add them to newrows.
-                    H1_name = get_name_H(atom.name, 1)
-                    newrows.append([new_atom_num, H1_name, resname, resnum]
-                                   + list(H1_coor))
-                    new_atom_num += 1
-            elif typeofH2build == "CH3":
-                _, helper1_name, helper2_name = dic_lipids.POPC[atom.name]
-                sel = atom.residue.atoms.select_atoms
-                helper1_coor = sel("name {0}".format(helper1_name))[0].position
-                helper2_coor = sel("name {0}".format(helper2_name))[0].position
-                H1_coor, H2_coor, H3_coor = get_CH3(atom.position,
-                                                    helper1_coor, helper2_coor)
-                ####
-                #### We could calculate here the order param on the fly :-D !
-                ####
-                if return_coors:
-                    # Add them to newrows.
-                    H1_name, H2_name, H3_name = get_name_H(atom.name, 3)
-                    newrows.append([new_atom_num, H1_name, resname, resnum]
-                                   + list(H1_coor))
-                    new_atom_num += 1
-                    newrows.append([new_atom_num, H2_name, resname, resnum]
-                                   + list(H2_coor))
-                    new_atom_num += 1
-                    newrows.append([new_atom_num, H3_name, resname, resnum]
-                                   + list(H3_coor))
+                    newrows.append([new_atom_num, H_name, resname, resnum]
+                                   + list(H_coor))
                     new_atom_num += 1
     if return_coors:
         # Create a dataframe to store the mlc with added hydrogens.
@@ -593,8 +576,8 @@ if __name__ == "__main__":
     print("Constructing the system...")
     universe_woH = mda.Universe("popc407.tpr", "popc0-25ns_dt1000.xtc")
     print("System has {} atoms".format(len(universe_woH.coord)))
-    # Build a pandas df with H?
-    new_df_atoms = buildH(universe_woH, return_coors=True)
+    # Build a pandas df with H.
+    new_df_atoms = build_all_H(universe_woH, return_coors=True)
     # Write pdb with H to disk.
     print("Writing first frame.")
     with open("GOGO.pdb", "w") as f:
