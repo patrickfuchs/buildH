@@ -365,20 +365,25 @@ def get_CH3(atom, helper1, helper2):
 def buildH_on_1C(atom):
     """Reconstructs 1, 2 or 3 H on a given carbon.
 
-    This function is a wrapper BLABLABLA
+    This function is a wrapper which gathers the coordinates of the helpers and
+    call the function that build 1, 2 or 3 H.
+
+    The name of the helpers as well as the type of H to build are described in
+    a dictionnary stored in dic_lipids.py.
 
     Parameters
     ----------
-    atom is a MDAnalysis BLABLABLA instance
-    (see https://www.mdanalysis.org/docs/documentation_pages/core/groups.html?highlight=atom%20class#MDAnalysis.core.groups.Atom
-    for class definition)
-
-    BLABLABLA
+    atom : MDAnalysis Atom instance
+        (see https://www.mdanalysis.org/docs/documentation_pages/core/groups.html?highlight=atom%20class#MDAnalysis.core.groups.Atom
+        for class definition)
 
     Returns
     -------
-    BLABLABLA
-    !!! IMPORTANT !!! It *should* return a tuple even if there's 1 element!!!
+    tuple of numpy 1D-arrays
+        Each element of the tuple is a numpy 1D-array containing 1, 2 or 3 
+        reconstructed hydrogen(s).
+        !!! IMPORTANT !!! This function *should* return a tuple even if there's
+        only one H that has been rebuilt.
     """
     print(type(atom)) ; exit()
     # Get nb of H to build and helper names (we can have 2 or 3 helpers).
