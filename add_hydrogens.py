@@ -362,34 +362,6 @@ def get_CH3(atom, helper1, helper2):
     return coor_He, coor_Hr, coor_Hs
 
 
-def get_name_H(name_carbon, nb_of_H):
-    """Returns the name of newly built hydrogens.
-
-    Parameters
-    ----------
-    name_carbon : string
-        The name of the carbon atom holding the hydrogen(s).
-    nb_of_H : int
-        Number of names to generate.
-
-    Returns
-    -------
-    str
-        The name of the unique H if nb_of_H equals 1.
-    or tuple of str
-        The names of the 2 or 3 rebuilt H if nb_of_H > 1.
-    """
-    name_H1 = name_carbon.replace("C", "H") + "1"
-    name_H2 = name_carbon.replace("C", "H") + "2"
-    name_H3 = name_carbon.replace("C", "H") + "3"
-    if nb_of_H == 1:
-        return name_H1
-    elif nb_of_H == 2:
-        return name_H1, name_H2
-    elif nb_of_H == 3:
-        return name_H1, name_H2, name_H3
-
-
 def buildH_on_1C(atom):
     """Reconstructs 1, 2 or 3 H on a given carbon.
 
