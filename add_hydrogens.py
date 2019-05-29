@@ -568,6 +568,7 @@ if __name__ == "__main__":
         ###
         ### !!!FIX ME !!! So far when using StringIO stream, an exception is
         ### raised which is not neat.
+        ### See https://github.com/MDAnalysis/mdanalysis/issues/2089.
         ###
         # In this else we don't want to create a pdb file, use a stream instead.
         pdb_s = pandasdf2pdb(new_df_atoms)
