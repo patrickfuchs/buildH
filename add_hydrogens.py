@@ -36,6 +36,42 @@ LENGTH_CH_BOND = 1.0 # in Angst
 # arccos(-1/3) ~ 1.9106 rad ~ 109.47 deg.
 TETRAHEDRAL_ANGLE = np.arccos(-1/3)
 
+
+def calc_OP(C, H):
+    """Returns the Order Parameter of a CH bond (OP).
+
+    OP is calculated according to equation:
+
+    S = 1/2 * (3*cos(theta)^2 -1)
+
+    theta is the angle between CH bond and the z(vertical) axis:
+    z
+    ^  H 
+    | /
+    |/
+    C
+
+    This function was initially written by @jmelcr.
+    
+    Parameters
+    ----------
+    C : numpy 1D-array
+        Coordinates of C atom.
+    H : numpy 1D-array
+        Coordinates of H atom.
+
+    Returns
+    -------
+    float
+        The normalized vector.
+    """
+    vec = C.position - H.position
+    d2 = np.square(vec).sum()
+    cos2 = vec[2]**2/d2
+    S = 0.5*(3.0*cos2 - 1.0)
+    return S
+
+
 def normalize(vec):
     """Normalizes a vector.
 
