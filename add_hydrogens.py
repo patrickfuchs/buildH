@@ -21,6 +21,8 @@ __copyright__ = "copyleft"
 __date__ = "2019/05"
 
 # Modules.
+import argparse
+import io
 import numpy as np
 import pandas as pd
 import MDAnalysis as mda
@@ -385,7 +387,6 @@ def buildH_on_1C(atom):
         !!! IMPORTANT !!! This function *should* return a tuple even if there's
         only one H that has been rebuilt.
     """
-    print(type(atom)) ; exit()
     # Get nb of H to build and helper names (we can have 2 or 3 helpers).
     if len(dic_lipids.POPC[atom.name]) == 3:
         typeofH2build, helper1_name, helper2_name = dic_lipids.POPC[atom.name]
@@ -422,7 +423,7 @@ def buildH_on_1C(atom):
 
 
 def build_all_H(universe_woH, universe_wH=None, return_coors=False):
-    """Main function that reconstruct hyddrogens.
+    """Main function that reconstructs hyddrogens.
 
     This function shall be used in two modes :
 
@@ -518,31 +519,70 @@ def build_all_H(universe_woH, universe_wH=None, return_coors=False):
                                                       "x", "y", "z"])
         return new_df_atoms
 
+    
 
 if __name__ == "__main__":
+    # Parse arguments.
+    parser = argparse.ArgumentParser(description="Reconstruct hydrogens and calculate order parameter from a united-atom trajectory.")
+    # Avoid tpr for topology cause there's no .coord there!
+    parser.add_argument("topfile", type=str, help="topology file (pdb or gro)")
+    parser.add_argument("--xtc", help="input trajectory file in xtc format")
+    parser.add_argument("--pdbout", help="output pdb file name with hydrogens (default takes topology name + \"H\")")
+    parser.add_argument("--xtcout", help="output xtc file name with hydrogens (default takes topology name + \"H\")")
+    args = parser.parse_args()
+    # Top file is "args.topfile", xtc file is "args.xtc", pdb output file is
+    # "args.pdbout", xtc output file is "args.xtcout".
+    # Check topology file extension.
+    if not args.topfile.endswith("pdb") and not args.topfile.endswith("gro"):
+        raise argparse.ArgumentTypeError("Topology must be given in pdb"
+                                         " or gro format")
+    # Check other extensions.
+    if args.pdbout:
+        if not args.pdbout.endswith("pdb"):
+            raise argparse.ArgumentTypeError("pdbout must have a pdb extension")
+    if args.xtcout:
+        if not args.xtcout.endswith("xtc"):
+            raise argparse.ArgumentTypeError("xtcout must have an xtc extension")
     # Create universe.
     print("Constructing the system...")
-    universe_woH = mda.Universe("popc407.tpr", "popc0-25ns_dt1000.xtc")
+    if args.xtc:
+        universe_woH = mda.Universe(args.topfile, args.xtc)
+    else:
+        universe_woH = mda.Universe(args.topfile)
     print("System has {} atoms".format(len(universe_woH.coord)))
     # Build a pandas df with H.
     new_df_atoms = build_all_H(universe_woH, return_coors=True)
-    # Write pdb with H to disk.
-    print("Writing first frame.")
-    with open("GOGO.pdb", "w") as f:
-        f.write(pandasdf2pdb(new_df_atoms))
     # Create a new universe with H.
-    universe_wH = mda.Universe("GOGO.pdb")
-    # Create an xtc writer.
-    newxtc = XTC.XTCWriter("GOGO.xtc", len(universe_wH.atoms))
-    # Write 1st frame.
-    newxtc.write(universe_wH)
+    if args.pdbout:
+        print("Writing first frame.")
+        # Write pdb with H to disk.
+        with open(args.pdbout, "w") as f:
+            f.write(pandasdf2pdb(new_df_atoms))
+        # Then create the universe with H from that pdb.
+        universe_wH = mda.Universe(args.pdbout)
+    else:
+        exit("For now please specify --pdbout argument.")
+        ###
+        ### !!!FIX ME !!! So far when using StringIO stream, it complains.
+        ###
+        # We don't want to create a pdb file, use a stream instead.
+        #pdb_s = pandasdf2pdb(new_df_atoms)
+        #universe_wH = mda.Universe(io.StringIO(pdb_s), format="pdb")
+    if args.xtcout:
+        # Create an xtc writer.
+        newxtc = XTC.XTCWriter(args.xtcout, len(universe_wH.atoms))
+        # Write 1st frame.
+        newxtc.write(universe_wH)
     # Loop over all frames of the traj *without* H.
     # (ts is a timestep object).
     for ts in universe_woH.trajectory:
-        print("Dealing with frame {} at {} ps.".format(ts.frame, universe_woH.trajectory.time))
+        print("Dealing with frame {} at {} ps."
+              .format(ts.frame, universe_woH.trajectory.time))
         # Build H and update positions in the universe *with* H.
         build_all_H(universe_woH, universe_wH=universe_wH)
-        # Write new frame to xtc.
-        newxtc.write(universe_wH)
-    # Close xtc.
-    newxtc.close()
+        if args.xtcout:
+            # Write new frame to xtc.
+            newxtc.write(universe_wH)
+    if args.xtcout:
+        # Close xtc.
+        newxtc.close()
