@@ -527,8 +527,10 @@ if __name__ == "__main__":
     # Avoid tpr for topology cause there's no .coord there!
     parser.add_argument("topfile", type=str, help="topology file (pdb or gro)")
     parser.add_argument("--xtc", help="input trajectory file in xtc format")
-    parser.add_argument("--pdbout", help="output pdb file name with hydrogens (default takes topology name + \"H\")")
-    parser.add_argument("--xtcout", help="output xtc file name with hydrogens (default takes topology name + \"H\")")
+    parser.add_argument("--pdbout", help="output pdb file name with hydrogens "
+                        "(default takes topology name + \"H\")")
+    parser.add_argument("--xtcout", help="output xtc file name with hydrogens "
+                        "(default takes topology name + \"H\")")
     args = parser.parse_args()
     # Top file is "args.topfile", xtc file is "args.xtc", pdb output file is
     # "args.pdbout", xtc output file is "args.xtcout".
