@@ -3,8 +3,11 @@
 # dic= { "atom1": ("typeofH2build", "helper1", "helper2"),
 #        "atom2": ("typeofH2build", "helper1", "helper2"),
 #        ...}
+
+        # First store residue name.
+POPC = {"resname": "POPC",
         # choline
-POPC = {"C1": ("CH3", "N4", "C5"),
+        "C1": ("CH3", "N4", "C5"),
         "C2": ("CH3", "N4", "C5"),
         "C3": ("CH3", "N4", "C5"),
         "C5": ("CH2", "N4", "C6"),

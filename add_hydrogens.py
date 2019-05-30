@@ -542,7 +542,8 @@ def build_all_H(universe_woH, universe_wH=None, dic_OP=None, return_coors=False)
                            + list(atom.position))
             new_atom_num += 1
         # Build new H(s)?
-        if atom.name in dic_lipids.POPC:
+        if (atom.name in dic_lipids.POPC and
+            atom.residue.resname == dic_lipids.POPC["resname"]):
             # Build Hs and store them in a list of numpy 1D-arrays Hs_coor.
             # The "s" in Hs_coor means there can be more than 1 H:
             # For CH2, Hs_coor will contain: [H1_coor, H2_coor].
