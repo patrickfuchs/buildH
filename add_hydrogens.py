@@ -23,6 +23,7 @@ __date__ = "2019/05"
 # Modules.
 import argparse
 import io
+import pickle
 import numpy as np
 import pandas as pd
 import MDAnalysis as mda
@@ -65,7 +66,7 @@ def calc_OP(C, H):
     float
         The normalized vector.
     """
-    vec = C.position - H.position
+    vec = C - H
     d2 = np.square(vec).sum()
     cos2 = vec[2]**2/d2
     S = 0.5*(3.0*cos2 - 1.0)
@@ -458,7 +459,7 @@ def buildHs_on_1C(atom):
                           .format(typeofH2build))
 
 
-def build_all_H(universe_woH, universe_wH=None, return_coors=False):
+def build_all_H(universe_woH, universe_wH=None, dic_OP=None, return_coors=False):
     """Main function that builds all hyddrogens from an MDAnalysis universe.
 
     This function shall be used in two modes :
@@ -478,7 +479,7 @@ def build_all_H(universe_woH, universe_wH=None, return_coors=False):
     build_all_H(universe_woH, universe_wH=universe_wH)
 
     The function returns nothing and the coordinates of the universe *with* 
-    H are changed in place. Beware not to use `return_coors=True` in this case.
+    H are changed in place.
 
     Parameters
     ----------
@@ -501,7 +502,7 @@ def build_all_H(universe_woH, universe_wH=None, return_coors=False):
     if universe_wH:
         # We will need the index in the numpy array for updating coordinates
         # in the universe with H.
-        atom_index_in_nparray = 0
+        row_index_coor_array = 0
     if return_coors:
         # The list newrows will be used to store the new molecule *with* H.
         newrows = []
@@ -511,8 +512,8 @@ def build_all_H(universe_woH, universe_wH=None, return_coors=False):
     for atom in universe_woH.atoms:
         if universe_wH:
             # Update the position of the current atom in the universe with H.
-            universe_wH.coord.positions[atom_index_in_nparray, :] = atom.position
-            atom_index_in_nparray += 1
+            universe_wH.coord.positions[row_index_coor_array, :] = atom.position
+            row_index_coor_array += 1
         if return_coors:
             resnum = atom.resnum
             # beware, resname must be 3 letters long in my routine
@@ -541,6 +542,8 @@ def build_all_H(universe_woH, universe_wH=None, return_coors=False):
                 ####
                 #### We calculate here the order param on the fly :-D !
                 ####
+                if dic_OP:
+                    dic_OP[(atom.name, H_name)].append(calc_OP(atom.position, H_coor))
                 if return_coors:
                     # Add them to newrows.
                     newrows.append([new_atom_num, H_name, resname, resnum]
@@ -548,8 +551,8 @@ def build_all_H(universe_woH, universe_wH=None, return_coors=False):
                     new_atom_num += 1
                 if universe_wH:
                     # Update the position of the current H in the universe with H.
-                    universe_wH.coord.positions[atom_index_in_nparray, :] = H_coor
-                    atom_index_in_nparray += 1
+                    universe_wH.coord.positions[row_index_coor_array, :] = H_coor
+                    row_index_coor_array += 1
     if return_coors:
         # Create a dataframe to store the mlc with added hydrogens.
         new_df_atoms = pd.DataFrame(newrows, columns=["atnum", "atname",
@@ -557,6 +560,14 @@ def build_all_H(universe_woH, universe_wH=None, return_coors=False):
                                                       "x", "y", "z"])
         return new_df_atoms
 
+
+def quick_dic():
+    dic = {}
+    with open("order_parameter_definitions_MODEL_Berger_POPC.def", "r") as f:
+        for line in f:
+            name, _, C, H = line.split()
+            dic[(C, H)] = name
+    return dic
 
 if __name__ == "__main__":
     # 1) Parse arguments.
@@ -596,7 +607,7 @@ if __name__ == "__main__":
     new_df_atoms = build_all_H(universe_woH, return_coors=True)
     # Create a new universe with H using that df.
     if args.pdbout:
-        print("Writing first frame.")
+        print("Writing new pdb with hydrogens.")
         # Write pdb with H to disk.
         with open(args.pdbout, "w") as f:
             f.write(pandasdf2pdb(new_df_atoms))
@@ -617,16 +628,39 @@ if __name__ == "__main__":
         # Write 1st frame.
         newxtc.write(universe_wH)
 
-    # 4) Loop over all frames of the traj *without* H, build H and calc OP.
+    # 4) Initialize dic for storing OP.
+    # Init dic of correspondance : {('C1', 'H11'): 'gamma1_1',
+    # {('C1', 'H11'): 'gamma1_1', ...}.
+    dic_atname2generic = quick_dic()
+    dic_OP = {}
+    for key in dic_atname2generic:
+        dic_OP[key] = [] 
+    
+    # 5) Loop over all frames of the traj *without* H, build H and calc OP.
     # (ts is a timestep object).
     for ts in universe_woH.trajectory:
         print("Dealing with frame {} at {} ps."
               .format(ts.frame, universe_woH.trajectory.time))
         # Build H and update positions in the universe *with* H.
-        build_all_H(universe_woH, universe_wH=universe_wH)
+        build_all_H(universe_woH, universe_wH=universe_wH, dic_OP=dic_OP)
         if args.xtcout:
             # Write new frame to xtc.
             newxtc.write(universe_wH)
     if args.xtcout:
         # Close xtc.
         newxtc.close()
+
+    # 6) Print results.
+    # For now pickle OP
+    with open("OP.pickle", "wb") as f:
+        # Pickle the dic using the highest protocol available.
+        pickle.dump(dic_OP, f, pickle.HIGHEST_PROTOCOL)
+    # to unpickle
+    #with open("OP.pickle", "rb") as f:
+    #    dic_OP = pickle.load(f)
+
+    for key in dic_atname2generic.keys():
+        name = dic_atname2generic[key]
+        a = np.array(dic_OP[key])
+        print("{:15s} {:10.6f} +/- {:10.6f}".format(name, a.mean(), a.std()))
+
