@@ -220,7 +220,7 @@ def pdb2pandasdf(pdb_filename):
             if line.startswith("ATOM"):
                 atnum = int(line[6:11])
                 atname = line[12:16].strip()
-                resname = line[17:20].strip()
+                resname = line[17:21].strip()
                 resnum = int(line[22:26])
                 x = float(line[30:38])
                 y = float(line[38:46])
@@ -250,10 +250,27 @@ def pandasdf2pdb(df):
         atnum, atname, resname, resnum, x, y, z = row_atom
         atnum = int(atnum)
         resnum = int(resnum)
-        s += ("{:6s}{:5d} {:>4s}{:1s}{:3s} {:1s}{:4d}{:1s}   {:8.3f}{:8.3f}"
-              "{:8.3f}{:6.2f}{:6.2f}          {:>2s}{:2s}\n"
-              .format("ATOM", atnum, atname, "", resname, chain, resnum, "",
-                      x, y, z, 1.0, 0.0, "", ""))
+        # See for pdb format: https://www.cgl.ucsf.edu/chimera/docs/UsersGuide/tutorials/pdbintro.html.
+        # "alt" means alternate location indicator
+        # "code" means code for insertions of residues
+	# "seg" means segment identifier
+        # "elt" means element symbol
+        if len(atname) == 4:
+            s += ("{record_type:6s}{atnum:5d} {atname:<4s}{alt:1s}{resname:>4s}"
+                  "{chain:1s}{resnum:>4d}{code:1s}   {x:>8.3f}{y:>8.3f}{z:>8.3f}"
+                  "{occupancy:>6.2f}{temp_fact:>6.2f}          {seg:<2s}{elt:>2s}\n"
+                  .format(record_type="ATOM", atnum=atnum, atname=atname, alt="",
+                          resname=resname, chain=chain, resnum=resnum, code="",
+                          x=x, y=y, z=z, occupancy=1.0, temp_fact=0.0, seg="",
+                          elt=atname[0]))
+        else:
+            s += ("{record_type:6s}{atnum:5d}  {atname:<3s}{alt:1s}{resname:>4s}"
+                  "{chain:1s}{resnum:>4d}{code:1s}   {x:>8.3f}{y:>8.3f}{z:>8.3f}"
+                  "{occupancy:>6.2f}{temp_fact:>6.2f}          {seg:<2s}{elt:>2s}\n"
+                  .format(record_type="ATOM", atnum=atnum, atname=atname, alt="",
+                          resname=resname, chain=chain, resnum=resnum, code="",
+                          x=x, y=y, z=z, occupancy=1.0, temp_fact=0.0, seg="",
+                          elt=atname[0]))
     return s
  
     
@@ -516,8 +533,7 @@ def build_all_H(universe_woH, universe_wH=None, dic_OP=None, return_coors=False)
             row_index_coor_array += 1
         if return_coors:
             resnum = atom.resnum
-            # beware, resname must be 3 letters long in my routine
-            resname = atom.resname[:-1]
+            resname = atom.resname
             name = atom.name
             # Append atom to the new list.
             # 0      1       2        3       4  5  6
