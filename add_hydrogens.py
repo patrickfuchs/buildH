@@ -36,6 +36,42 @@ LENGTH_CH_BOND = 1.0 # in Angst
 # arccos(-1/3) ~ 1.9106 rad ~ 109.47 deg.
 TETRAHEDRAL_ANGLE = np.arccos(-1/3)
 
+
+def calc_OP(C, H):
+    """Returns the Order Parameter of a CH bond (OP).
+
+    OP is calculated according to equation:
+
+    S = 1/2 * (3*cos(theta)^2 -1)
+
+    theta is the angle between CH bond and the z(vertical) axis:
+    z
+    ^  H 
+    | /
+    |/
+    C
+
+    This function was initially written by @jmelcr.
+    
+    Parameters
+    ----------
+    C : numpy 1D-array
+        Coordinates of C atom.
+    H : numpy 1D-array
+        Coordinates of H atom.
+
+    Returns
+    -------
+    float
+        The normalized vector.
+    """
+    vec = C.position - H.position
+    d2 = np.square(vec).sum()
+    cos2 = vec[2]**2/d2
+    S = 0.5*(3.0*cos2 - 1.0)
+    return S
+
+
 def normalize(vec):
     """Normalizes a vector.
 
@@ -364,14 +400,14 @@ def get_CH3(atom, helper1, helper2):
     return coor_He, coor_Hr, coor_Hs
 
 
-def buildH_on_1C(atom):
-    """Reconstructs 1, 2 or 3 H on a given carbon.
+def buildHs_on_1C(atom):
+    """Builds 1, 2 or 3 H on a given carbon.
 
-    This function is a wrapper which gathers the coordinates of the helpers and
-    call the function that build 1, 2 or 3 H.
+    This function is a wrapper which gathers the coordinates of the helpers 
+    and call the function that builds 1, 2 or 3 H.
 
-    The name of the helpers as well as the type of H to build are described in
-    a dictionnary stored in dic_lipids.py.
+    The name of the helpers as well as the type of H to build are described
+    in a dictionnary stored in dic_lipids.py.
 
     Parameters
     ----------
@@ -384,15 +420,14 @@ def buildH_on_1C(atom):
     tuple of numpy 1D-arrays
         Each element of the tuple is a numpy 1D-array containing 1, 2 or 3 
         reconstructed hydrogen(s).
-        !!! IMPORTANT !!! This function *should* return a tuple even if there's
-        only one H that has been rebuilt.
+        !!! IMPORTANT !!! This function *should* return a tuple even if
+        there's only one H that has been rebuilt.
     """
     # Get nb of H to build and helper names (we can have 2 or 3 helpers).
     if len(dic_lipids.POPC[atom.name]) == 3:
         typeofH2build, helper1_name, helper2_name = dic_lipids.POPC[atom.name]
     else:
-        (typeofH2build, helper1_name, helper2_name,
-         helper3_name) = dic_lipids.POPC[atom.name]
+        typeofH2build, helper1_name, helper2_name, helper3_name = dic_lipids.POPC[atom.name]
     # Get helper coordinates using atom, which an instance from Atom class.
     # atom.residue.atoms is a list of atoms we can select with
     # method .select_atoms().
@@ -410,38 +445,40 @@ def buildH_on_1C(atom):
                          helper3_coor)
         return (H1_coor,)
     elif typeofH2build == "CHdoublebond":
-        H1_coor = get_CH_double_bond(atom.position, helper1_coor, helper2_coor)
+        H1_coor = get_CH_double_bond(atom.position, helper1_coor,
+                                     helper2_coor)
         return (H1_coor,)
     elif typeofH2build == "CH3":
         H1_coor, H2_coor, H3_coor = get_CH3(atom.position,
                                             helper1_coor, helper2_coor)
         return (H1_coor, H2_coor, H3_coor)
     else:
-        raise UserWarning("Wrong code for typeofH2build, expect 'CH2', 'CH', "
-                          "'CHdoublebond' or 'CH3', got {}"
+        raise UserWarning("Wrong code for typeofH2build, expect 'CH2', 'CH'"
+                          ", 'CHdoublebond' or 'CH3', got {}"
                           .format(typeofH2build))
 
 
 def build_all_H(universe_woH, universe_wH=None, return_coors=False):
-    """Main function that reconstructs hyddrogens.
+    """Main function that builds all hyddrogens from an MDAnalysis universe.
 
     This function shall be used in two modes :
 
     1) The first time this function is called, we have to construct a new 
     universe with hydrogens. One shall call it like this :
 
-    new_data_frame = build_all_H(universe_woH, universe_wH=None, return_coors=False)
+    new_data_frame = build_all_H(universe_woH, return_coors=True)
 
-    This dataframe will be used to write a pdb with H, which will allow to build
-    a new universe with H.
+    The boolean return_coors set to True indicates to the function to return
+    a pandas dataframe. This latter will be used later to build a new
+    universe with H.
 
-    2) For all the other frames, we just need to update the coordinates in the 
-    universe *with* hydrogens. One shall call it like this :
+    2) For all the other frames, we just need to update the coordinates in
+    the universe *with* hydrogens. One shall call it like this :
 
     build_all_H(universe_woH, universe_wH=universe_wH)
 
-    The function returns nothing and the coordinates of the universe *with* H
-    are changed in place.
+    The function returns nothing and the coordinates of the universe *with* 
+    H are changed in place. Beware not to use `return_coors=True` in this case.
 
     Parameters
     ----------
@@ -450,15 +487,16 @@ def build_all_H(universe_woH, universe_wH=None, return_coors=False):
     universe_wH : MDAnalysis universe (optional)
         This is the universe *with* hydrogens.
     return_coors : boolean (optional)
-        If True, the function will return a pandas dataframe containing the system *with* hydrogens.
+        If True, the function will return a pandas dataframe containing the 
+        system *with* hydrogens.
 
     Returns
     -------
     pandas dataframe (optional)
-        If parameter return_coors is True, this dataframe  containing the 
+        If parameter return_coors is True, this dataframe contains the 
         system *with* hydrogens is returned.
     None
-        If parameter return_coors is False, the function returns nothing.
+        If parameter return_coors is False.
     """
     if universe_wH:
         # We will need the index in the numpy array for updating coordinates
@@ -469,7 +507,7 @@ def build_all_H(universe_woH, universe_wH=None, return_coors=False):
         newrows = []
         # Counter for numbering the new mlcs with H.
         new_atom_num = 1
-    # Loop over all atoms.
+    # Loop over all atoms in the universe without H..
     for atom in universe_woH.atoms:
         if universe_wH:
             # Update the position of the current atom in the universe with H.
@@ -494,7 +532,7 @@ def build_all_H(universe_woH, universe_wH=None, return_coors=False):
             # For CH3, Hs_coor will contain: [H1_coor, H2_coor, H3_coor].
             # For CH, Hs_coor will contain: [H1_coor].
             # For CHdoublebond, Hs_coor will contain: [H1_coor].
-            Hs_coor = buildH_on_1C(atom)
+            Hs_coor = buildHs_on_1C(atom)
             # Loop over Hs_coor (H_coor is a 1D-array with the 3 coors of 1 H).
             for i, H_coor in enumerate(Hs_coor):
                 # Give a name to newly built H
@@ -519,10 +557,9 @@ def build_all_H(universe_woH, universe_wH=None, return_coors=False):
                                                       "x", "y", "z"])
         return new_df_atoms
 
-    
 
 if __name__ == "__main__":
-    # Parse arguments.
+    # 1) Parse arguments.
     parser = argparse.ArgumentParser(description="Reconstruct hydrogens and calculate order parameter from a united-atom trajectory.")
     # Avoid tpr for topology cause there's no .coord there!
     parser.add_argument("topfile", type=str, help="topology file (pdb or gro)")
@@ -545,16 +582,19 @@ if __name__ == "__main__":
     if args.xtcout:
         if not args.xtcout.endswith("xtc"):
             raise argparse.ArgumentTypeError("xtcout must have an xtc extension")
-    # Create universe.
+
+    # 2) Create universe without H.
     print("Constructing the system...")
     if args.xtc:
         universe_woH = mda.Universe(args.topfile, args.xtc)
     else:
         universe_woH = mda.Universe(args.topfile)
     print("System has {} atoms".format(len(universe_woH.coord)))
+
+    # 3) Build a new universe with H.
     # Build a pandas df with H.
     new_df_atoms = build_all_H(universe_woH, return_coors=True)
-    # Create a new universe with H.
+    # Create a new universe with H using that df.
     if args.pdbout:
         print("Writing first frame.")
         # Write pdb with H to disk.
@@ -563,19 +603,21 @@ if __name__ == "__main__":
         # Then create the universe with H from that pdb.
         universe_wH = mda.Universe(args.pdbout)
     else:
-        exit("For now please specify --pdbout argument.")
         ###
-        ### !!!FIX ME !!! So far when using StringIO stream, it complains.
+        ### !!!FIX ME !!! So far when using StringIO stream, an exception is
+        ### raised which is not neat.
+        ### See https://github.com/MDAnalysis/mdanalysis/issues/2089.
         ###
-        # We don't want to create a pdb file, use a stream instead.
-        #pdb_s = pandasdf2pdb(new_df_atoms)
-        #universe_wH = mda.Universe(io.StringIO(pdb_s), format="pdb")
+        # In this else we don't want to create a pdb file, use a stream instead.
+        pdb_s = pandasdf2pdb(new_df_atoms)
+        universe_wH = mda.Universe(io.StringIO(pdb_s), format="pdb")
     if args.xtcout:
         # Create an xtc writer.
         newxtc = XTC.XTCWriter(args.xtcout, len(universe_wH.atoms))
         # Write 1st frame.
         newxtc.write(universe_wH)
-    # Loop over all frames of the traj *without* H.
+
+    # 4) Loop over all frames of the traj *without* H, build H and calc OP.
     # (ts is a timestep object).
     for ts in universe_woH.trajectory:
         print("Dealing with frame {} at {} ps."
