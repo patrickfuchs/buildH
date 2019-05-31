@@ -32,7 +32,8 @@ import MDAnalysis.coordinates.XTC as XTC
 import dic_lipids
 
 # Constants.
-LENGTH_CH_BOND = 1.0 # in Angst
+# From https://en.wikipedia.org/wiki/Carbon%E2%80%93hydrogen_bond
+LENGTH_CH_BOND = 1.09 # in Angst
 # From https://en.wikipedia.org/wiki/Tetrahedron, tetrahedral angle equals
 # arccos(-1/3) ~ 1.9106 rad ~ 109.47 deg.
 TETRAHEDRAL_ANGLE = np.arccos(-1/3)
@@ -66,7 +67,7 @@ def calc_OP(C, H):
     float
         The normalized vector.
     """
-    vec = C - H
+    vec = H - C
     d2 = np.square(vec).sum()
     cos2 = vec[2]**2/d2
     S = 0.5*(3.0*cos2 - 1.0)
@@ -676,8 +677,13 @@ if __name__ == "__main__":
     #with open("OP.pickle", "rb") as f:
     #    dic_OP = pickle.load(f)
 
-    for key in dic_atname2generic.keys():
-        name = dic_atname2generic[key]
-        a = np.array(dic_OP[key])
-        print("{:15s} {:10.6f} +/- {:10.6f}".format(name, a.mean(), a.std()))
+    with open("OUT.buildH", "w") as f:
+        f.write("# OP_name    resname    atom1    atom2    OP_mean   OP_stddev  OP_stem\n#--------------------------------------------------------------------\n")
+        for key in dic_atname2generic.keys():
+            name = dic_atname2generic[key]
+            at1, at2 = key
+            a = np.array(dic_OP[key])
+            #print("{:15s} {:4s} {:4s} {:10.6f} +/- {:10.6f}".format(name, at1, at2, a.mean(), a.std()))
+            f.write("{:20s} {:7s} {:5s} {:5s} {: 2.5f} {: 2.5f} {: 2.5f}\n"
+                    .format(name, "POPC", at1, at2, a.mean(), a.std(), 0.0))
 

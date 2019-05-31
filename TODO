@@ -17,3 +17,4 @@ DONE - C-H bond length should be added as a constant!!!
 DONE - Why does it not work with 200POPC.pdb ???
 - For CH2 name the two hydrogens HR and HS
 - StringIO() does'nt work when the user does not want an output pdb with H
+- Add a check so that newly built Hs don't have a name exceeding 4 letters.
