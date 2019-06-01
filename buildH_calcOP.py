@@ -124,7 +124,7 @@ def calc_angle(atom1, atom2, atom3):
     vec2 = atom3 - atom2
     costheta = np.dot(vec1,vec2)/(norm(vec1)*norm(vec2))
     if costheta > 1.0 or costheta < -1.0:
-        raise(ValueError, "Cosine cannot be larger than 1.0 or less than -1.0")
+        raise ValueError("Cosine cannot be larger than 1.0 or less than -1.0")
     return np.arccos(costheta)
 
 
@@ -431,8 +431,6 @@ def buildHs_on_1C(atom):
     Parameters
     ----------
     atom : MDAnalysis Atom instance
-        (see https://www.mdanalysis.org/docs/documentation_pages/core/groups.html?highlight=atom%20class#MDAnalysis.core.groups.Atom
-        for class definition)
 
     Returns
     -------
@@ -589,6 +587,7 @@ def quick_dic():
 
 if __name__ == "__main__":
     # 1) Parse arguments.
+    # TODO --> Make a function for that.
     parser = argparse.ArgumentParser(description="Reconstruct hydrogens and calculate order parameter from a united-atom trajectory.")
     # Avoid tpr for topology cause there's no .coord there!
     parser.add_argument("topfile", type=str, help="topology file (pdb or gro)")
@@ -649,17 +648,18 @@ if __name__ == "__main__":
     # 4) Initialize dic for storing OP.
     # Init dic of correspondance : {('C1', 'H11'): 'gamma1_1',
     # {('C1', 'H11'): 'gamma1_1', ...}.
+    # TODO --> Add arguments for passing file name with OP definition.
     dic_atname2generic = quick_dic()
     dic_OP = {}
     for key in dic_atname2generic:
-        dic_OP[key] = [] 
+        dic_OP[key] = []
     
     # 5) Loop over all frames of the traj *without* H, build H and calc OP.
-    # (ts is a timestep object).
+    # (ts is a Timestep instance).
     for ts in universe_woH.trajectory:
         print("Dealing with frame {} at {} ps."
               .format(ts.frame, universe_woH.trajectory.time))
-        # Build H and update positions in the universe *with* H.
+        # Build H and update their positions in the universe *with* H (in place).
         build_all_H(universe_woH, universe_wH=universe_wH, dic_OP=dic_OP)
         if args.xtcout:
             # Write new frame to xtc.
