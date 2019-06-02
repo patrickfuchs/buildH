@@ -247,7 +247,7 @@ def pandasdf2pdb(df):
     """
     s = ""
     chain = ""
-    for i, row_atom in df.iterrows():
+    for _, row_atom in df.iterrows():
         atnum, atname, resname, resnum, x, y, z = row_atom
         atnum = int(atnum)
         resnum = int(resnum)
@@ -304,6 +304,7 @@ def get_CH2(atom, helper1, helper2):
     # Vector to be rotated by theta/2, perpendicular to rotation axis and v4.
     vec_to_rotate = normalize(np.cross(v4, rotation_axis))
     # Reconstruct the two hydrogens.
+    # TODO Rename norm_vec_H1 (this is confusing) --> maybe unit_vect_H1 ? (same for H2)
     norm_vec_H1 = apply_rotation(vec_to_rotate, rotation_axis,
                                  -TETRAHEDRAL_ANGLE/2)
     hcoor_H1 = LENGTH_CH_BOND * norm_vec_H1 + atom
@@ -418,7 +419,7 @@ def get_CH3(atom, helper1, helper2):
     coor_Hs = LENGTH_CH_BOND * norm_vec_Hs + atom 
     return coor_He, coor_Hr, coor_Hs
 
-
+#@profile
 def buildHs_on_1C(atom):
     """Builds 1, 2 or 3 H on a given carbon.
 
@@ -470,20 +471,20 @@ def buildHs_on_1C(atom):
                                             helper1_coor, helper2_coor)
         return (H1_coor, H2_coor, H3_coor)
     else:
-        raise UserWarning("Wrong code for typeofH2build, expect 'CH2', 'CH'"
-                          ", 'CHdoublebond' or 'CH3', got {}"
+        raise UserWarning("Wrong code for typeofH2build, expected 'CH2', 'CH'"
+                          ", 'CHdoublebond' or 'CH3', got {}."
                           .format(typeofH2build))
 
 
-def build_all_H(universe_woH, universe_wH=None, dic_OP=None, return_coors=False):
-    """Main function that builds all hyddrogens from an MDAnalysis universe.
+def build_all_Hs_calc_OP(universe_woH, universe_wH=None, dic_OP=None, return_coors=False):
+    """Main function that builds all hydrogens from an MDAnalysis universe and calculate order parameters.
 
     This function shall be used in two modes :
 
     1) The first time this function is called, we have to construct a new 
     universe with hydrogens. One shall call it like this :
 
-    new_data_frame = build_all_H(universe_woH, return_coors=True)
+    new_data_frame = build_all_Hs_calc_OP(universe_woH, return_coors=True)
 
     The boolean return_coors set to True indicates to the function to return
     a pandas dataframe. This latter will be used later to build a new
@@ -492,10 +493,14 @@ def build_all_H(universe_woH, universe_wH=None, dic_OP=None, return_coors=False)
     2) For all the other frames, we just need to update the coordinates in
     the universe *with* hydrogens. One shall call it like this :
 
-    build_all_H(universe_woH, universe_wH=universe_wH)
+    build_all_Hs_calc_OP(universe_woH, universe_wH=universe_wH, dic_OP=dic_OP)
 
-    The function returns nothing and the coordinates of the universe *with* 
-    H are changed in place.
+    In this case, the function also calculates the order parameter and returns
+    nothing. The coordinates of the universe *with* H are update in place.
+    The order parameter is also added in place (within dic_OP dictionnary).
+
+    NOTE: This function in mode 2 is slow, thus it shall be used when one wants
+    to create a trajectory with H (such as xtc or whatever format).
 
     Parameters
     ----------
@@ -503,6 +508,9 @@ def build_all_H(universe_woH, universe_wH=None, dic_OP=None, return_coors=False)
         This is the universe *without* hydrogen.
     universe_wH : MDAnalysis universe (optional)
         This is the universe *with* hydrogens.
+    dic_OP : dictionnary
+        This dictionnary contains all the order parameters. It is structured
+        like this: {("C1", "H11"): [val1, val2, ...], ("C1", "H12"): [...], ...}.
     return_coors : boolean (optional)
         If True, the function will return a pandas dataframe containing the 
         system *with* hydrogens.
@@ -559,7 +567,8 @@ def build_all_H(universe_woH, universe_wH=None, dic_OP=None, return_coors=False)
                 #### We calculate here the order param on the fly :-D !
                 ####
                 if dic_OP:
-                    dic_OP[(atom.name, H_name)].append(calc_OP(atom.position, H_coor))
+                    op = calc_OP(atom.position, H_coor)
+                    dic_OP[(atom.name, H_name)].append(op)
                 if return_coors:
                     # Add them to newrows.
                     newrows.append([new_atom_num, H_name, resname, resnum]
@@ -577,6 +586,33 @@ def build_all_H(universe_woH, universe_wH=None, dic_OP=None, return_coors=False)
         return new_df_atoms
 
 
+# Quick try to make a function that only loops over carbons on which we want to
+# build new H and calc OP.
+def fast_build_all_Hs(universe_woH, dic_OP):
+    """BLABLABLA
+    """
+    resname = dic_lipids.POPC["resname"]
+    # Loop over frames. ts is a Timestep instance.
+    for ts in universe_woH.trajectory:
+        print("Dealing with frame {} at {} ps."
+              .format(ts.frame, universe_woH.trajectory.time))
+        # Loop over each couple C-H.
+        for Cname in dic_lipids.POPC.keys():
+            if Cname != "resname":
+                # Loop over residues for a given Cname atom.
+                selstring = "resname {} and name {}".format(resname, Cname)
+                for Catom in universe_woH.select_atoms(selstring):
+                    Hs_coor = buildHs_on_1C(Catom)
+                    # Loop over all Hs.
+                    for i, H_coor in enumerate(Hs_coor):
+                        # Give a name to newly built H
+                        # (e.g. if C18 has 3 H, their name will be H181, H182 & H183).
+                        H_name = Catom.name.replace("C", "H") + str(i+1)
+                        op = calc_OP(Catom.position, H_coor)
+                        dic_OP[(Catom.name, H_name)].append(op)
+
+
+# For now make a quick dic (to be removed later).
 def quick_dic():
     dic = {}
     with open("order_parameter_definitions_MODEL_Berger_POPC.def", "r") as f:
@@ -584,6 +620,7 @@ def quick_dic():
             name, _, C, H = line.split()
             dic[(C, H)] = name
     return dic
+
 
 if __name__ == "__main__":
     # 1) Parse arguments.
@@ -619,68 +656,82 @@ if __name__ == "__main__":
         universe_woH = mda.Universe(args.topfile)
     print("System has {} atoms".format(len(universe_woH.coord)))
 
-    # 3) Build a new universe with H.
-    # Build a pandas df with H.
-    new_df_atoms = build_all_H(universe_woH, return_coors=True)
-    # Create a new universe with H using that df.
-    if args.pdbout:
-        print("Writing new pdb with hydrogens.")
-        # Write pdb with H to disk.
-        with open(args.pdbout, "w") as f:
-            f.write(pandasdf2pdb(new_df_atoms))
-        # Then create the universe with H from that pdb.
-        universe_wH = mda.Universe(args.pdbout)
-    else:
-        ###
-        ### !!!FIX ME !!! So far when using StringIO stream, an exception is
-        ### raised which is not neat.
-        ### See https://github.com/MDAnalysis/mdanalysis/issues/2089.
-        ###
-        # In this else we don't want to create a pdb file, use a stream instead.
-        pdb_s = pandasdf2pdb(new_df_atoms)
-        universe_wH = mda.Universe(io.StringIO(pdb_s), format="pdb")
-    if args.xtcout:
-        # Create an xtc writer.
-        newxtc = XTC.XTCWriter(args.xtcout, len(universe_wH.atoms))
-        # Write 1st frame.
-        newxtc.write(universe_wH)
+
+    # QUICK TRY to build H only on carbons (thus lines below are 
+    # temporarilly not executed).
+    QUICK = True
+    if not QUICK:
+        # 3) Build a new universe with H.
+        # Build a pandas df with H.
+        new_df_atoms = build_all_Hs_calc_OP(universe_woH, return_coors=True)
+        # Create a new universe with H using that df.
+        if args.pdbout:
+            print("Writing new pdb with hydrogens.")
+            # Write pdb with H to disk.
+            with open(args.pdbout, "w") as f:
+                f.write(pandasdf2pdb(new_df_atoms))
+            # Then create the universe with H from that pdb.
+            universe_wH = mda.Universe(args.pdbout)
+        else:
+            ###
+            ### !!!FIX ME !!! So far when using StringIO stream, an exception is
+            ### raised which is not neat.
+            ### See https://github.com/MDAnalysis/mdanalysis/issues/2089.
+            ###
+            # In this else we don't want to create a pdb file, use a stream instead.
+            pdb_s = pandasdf2pdb(new_df_atoms)
+            universe_wH = mda.Universe(io.StringIO(pdb_s), format="pdb")
+        if args.xtcout:
+            # Create an xtc writer.
+            newxtc = XTC.XTCWriter(args.xtcout, len(universe_wH.atoms))
+            # Write 1st frame.
+            newxtc.write(universe_wH)
 
     # 4) Initialize dic for storing OP.
     # Init dic of correspondance : {('C1', 'H11'): 'gamma1_1',
     # {('C1', 'H11'): 'gamma1_1', ...}.
     # TODO --> Add arguments for passing file name with OP definition.
-    dic_atname2generic = quick_dic()
+    # TODO --> Make a class for storing all this stuff!
+    dic_atname2genericname = quick_dic()
     dic_OP = {}
-    for key in dic_atname2generic:
+    for key in dic_atname2genericname:
         dic_OP[key] = []
     
+    # Quick try to loop only over C on which we want to build Hs.
+    if QUICK:
+        fast_build_all_Hs(universe_woH, dic_OP)
+
     # 5) Loop over all frames of the traj *without* H, build H and calc OP.
     # (ts is a Timestep instance).
-    for ts in universe_woH.trajectory:
-        print("Dealing with frame {} at {} ps."
-              .format(ts.frame, universe_woH.trajectory.time))
-        # Build H and update their positions in the universe *with* H (in place).
-        build_all_H(universe_woH, universe_wH=universe_wH, dic_OP=dic_OP)
+    if not QUICK:
+        for ts in universe_woH.trajectory:
+            print("Dealing with frame {} at {} ps."
+                .format(ts.frame, universe_woH.trajectory.time))
+            # Build H and update their positions in the universe *with* H (in place).
+            build_all_Hs_calc_OP(universe_woH, universe_wH=universe_wH, dic_OP=dic_OP)
+            if args.xtcout:
+                # Write new frame to xtc.
+                newxtc.write(universe_wH)
         if args.xtcout:
-            # Write new frame to xtc.
-            newxtc.write(universe_wH)
-    if args.xtcout:
-        # Close xtc.
-        newxtc.close()
+            # Close xtc.
+            newxtc.close()
 
-    # 6) Print results.
-    # For now pickle OP
-    with open("OP.pickle", "wb") as f:
-        # Pickle the dic using the highest protocol available.
-        pickle.dump(dic_OP, f, pickle.HIGHEST_PROTOCOL)
-    # to unpickle
-    #with open("OP.pickle", "rb") as f:
-    #    dic_OP = pickle.load(f)
-
+    # 6) Output results.
+    # Pickle results?
+    PICKLE = False
+    if PICKLE:
+        with open("OP.pickle", "wb") as f:
+            # Pickle the dic using the highest protocol available.
+            pickle.dump(dic_OP, f, pickle.HIGHEST_PROTOCOL)
+        #  To unpickle
+        #with open("OP.pickle", "rb") as f:
+        #    dic_OP = pickle.load(f)
+    # Output to a file.
     with open("OUT.buildH", "w") as f:
-        f.write("# OP_name    resname    atom1    atom2    OP_mean   OP_stddev  OP_stem\n#--------------------------------------------------------------------\n")
-        for key in dic_atname2generic.keys():
-            name = dic_atname2generic[key]
+        f.write("# OP_name    resname    atom1    atom2    OP_mean   OP_stddev  OP_stem\n"
+                "#--------------------------------------------------------------------\n")
+        for key in dic_atname2genericname.keys():
+            name = dic_atname2genericname[key]
             at1, at2 = key
             a = np.array(dic_OP[key])
             #print("{:15s} {:4s} {:4s} {:10.6f} +/- {:10.6f}".format(name, at1, at2, a.mean(), a.std()))
