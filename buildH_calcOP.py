@@ -273,8 +273,18 @@ def pandasdf2pdb(df):
                           x=x, y=y, z=z, occupancy=1.0, temp_fact=0.0, seg="",
                           elt=atname[0]))
     return s
- 
-    
+
+
+def cross_product(A, B):
+    """Returns the cross product between vectors A & B
+    see e.g. http://hyperphysics.phy-astr.gsu.edu/hbase/vvec.html
+    """
+    x = (A[1]*B[2]) - (A[2]*B[1])
+    y = (A[0]*B[2]) - (A[2]*B[0])
+    z = (A[0]*B[1]) - (A[1]*B[0])
+    return np.array((x, -y, z))
+
+##@profile   
 def get_CH2(atom, helper1, helper2):
     """Reconstructs the 2 hydrogens of a sp3 carbon (methylene group).
 
@@ -298,11 +308,13 @@ def get_CH2(atom, helper1, helper2):
     # atom->helper2 vector.
     v3 = normalize(helper2 - atom)
     # Vector orthogonal to the helpers/atom plane.
-    v4 = normalize(np.cross(v3, v2))
+    #v4 = normalize(np.cross(v3, v2))
+    v4 = normalize(cross_product(v3, v2))
     # Rotation axis is atom->helper1 vec minus atom->helper2 vec.
     rotation_axis = normalize(v2 - v3)
     # Vector to be rotated by theta/2, perpendicular to rotation axis and v4.
-    vec_to_rotate = normalize(np.cross(v4, rotation_axis))
+    #vec_to_rotate = normalize(np.cross(v4, rotation_axis))
+    vec_to_rotate = normalize(cross_product(v4, rotation_axis))
     # Reconstruct the two hydrogens.
     # TODO Rename norm_vec_H1 (this is confusing) --> maybe unit_vect_H1 ? (same for H2)
     norm_vec_H1 = apply_rotation(vec_to_rotate, rotation_axis,
@@ -366,7 +378,8 @@ def get_CH_double_bond(atom, helper1, helper2):
     # atom->helper2 vector.
     v3 = helper2 - atom
     # The rotation axis is orthogonal to the atom/helpers plane.
-    rotation_axis = normalize(np.cross(v2, v3))
+    #rotation_axis = normalize(np.cross(v2, v3))
+    rotation_axis = normalize(cross_product(v2, v3))
     # Reconstruct H by rotating v3 by theta.
     norm_vec_H = apply_rotation(v3, rotation_axis, theta)
     coor_H = LENGTH_CH_BOND * norm_vec_H + atom
@@ -398,7 +411,8 @@ def get_CH3(atom, helper1, helper2):
     # atom->helper2 vector.
     v3 = helper2 - atom
     # Rotation axis is perpendicular to the atom/helpers plane.
-    rotation_axis = normalize(np.cross(v3, v2))
+    #rotation_axis = normalize(np.cross(v3, v2))
+    rotation_axis = normalize(cross_product(v3, v2))
     # Rotate v2 by tetrahedral angle. New He will be in the same plane
     # as atom and helpers.
     norm_vec_He = apply_rotation(v2, rotation_axis, theta)
@@ -586,12 +600,123 @@ def build_all_Hs_calc_OP(universe_woH, universe_wH=None, dic_OP=None, return_coo
         return new_df_atoms
 
 
+####
+#### QUICK TEST
+####
+#@profile
+def QUICKTEST_buildHs_on_1C(atom, universe_woH, typeofH2build, index_helper1=None, index_helper2=None, index_helper3=None):
+    """BLABLOBLIBLU BLABLOBLIBLU BLABLOBLIBLU TODO
+    Builds 1, 2 or 3 H on a given carbon.
+
+    This function is a wrapper which gathers the coordinates of the helpers 
+    and call the function that builds 1, 2 or 3 H.
+
+    The name of the helpers as well as the type of H to build are described
+    in a dictionnary stored in dic_lipids.py.
+
+    Parameters
+    ----------
+    atom : MDAnalysis Atom instance
+
+    Returns
+    -------
+    tuple of numpy 1D-arrays
+        Each element of the tuple is a numpy 1D-array containing 1, 2 or 3 
+        reconstructed hydrogen(s).
+        !!! IMPORTANT !!! This function *should* return a tuple even if
+        there's only one H that has been rebuilt.
+    """
+    #print("Ds QUICKTEST")
+    # Get nb of H to build and helper names (we can have 2 or 3 helpers).
+    #if len(dic_lipids.POPC[atom.name]) == 3:
+    #    typeofH2build, helper1_name, helper2_name = dic_lipids.POPC[atom.name]
+    #else:
+    #    typeofH2build, helper1_name, helper2_name, helper3_name = dic_lipids.POPC[atom.name]
+    # Get helper coordinates using atom, which an instance from Atom class.
+    # atom.residue.atoms is a list of atoms we can select with
+    # method .select_atoms().
+    # To avoid too long line, we shorten its name to `sel`.
+    #sel = atom.residue.atoms.select_atoms
+    #helper1_coor = sel("name {0}".format(helper1_name))[0].position
+    #helper2_coor = sel("name {0}".format(helper2_name))[0].position
+    #if typeofH2build == "CH":
+    #    print("Poueeeeeeeeeet")
+    #    helper3_coor = sel("name {0}".format(helper3_name))[0].position
+    #print("OLD :-(")
+    #print(sel("name {0}".format(helper1_name))[0])
+    #print(sel("name {0}".format(helper2_name))[0])
+    # if typeofH2build == "CH":
+    #     print(sel("name {0}".format(helper3_name))[0])
+    #     print(atom.position, helper1_coor, helper2_coor, helper3_coor)
+    # else:
+    #     print(atom.position, helper1_coor, helper2_coor)
+    # print("NEW :-D")
+    helper1_coor = universe_woH.coord.positions[index_helper1]
+    helper2_coor = universe_woH.coord.positions[index_helper2]
+    if index_helper3:
+        helper3_coor = universe_woH.coord.positions[index_helper3]
+    # print(universe_woH.atoms[index_helper1])
+    # print(universe_woH.atoms[index_helper2])
+    # if index_helper3:
+    #     print(universe_woH.atoms[index_helper3])
+    #     print(atom.position, helper1_coor, helper2_coor, helper3_coor)
+    #     print()
+    # else:
+    #     print(atom.position, helper1_coor, helper2_coor)
+    #     print()
+    if typeofH2build == "CH2":
+        H1_coor, H2_coor = get_CH2(atom.position, helper1_coor, helper2_coor)
+        return (H1_coor, H2_coor)
+    elif typeofH2build == "CH":
+        # If we reconstruct a single H, we have a 3rd helper.
+        #helper3_coor = sel("name {0}".format(helper3_name))[0].position
+        universe_woH.coord.positions[index_helper3]
+        H1_coor = get_CH(atom.position, helper1_coor, helper2_coor,
+                         helper3_coor)
+        return (H1_coor,)
+    elif typeofH2build == "CHdoublebond":
+        H1_coor = get_CH_double_bond(atom.position, helper1_coor,
+                                     helper2_coor)
+        return (H1_coor,)
+    elif typeofH2build == "CH3":
+        H1_coor, H2_coor, H3_coor = get_CH3(atom.position,
+                                            helper1_coor, helper2_coor)
+        return (H1_coor, H2_coor, H3_coor)
+    else:
+        raise UserWarning("Wrong code for typeofH2build, expected 'CH2', 'CH'"
+                          ", 'CHdoublebond' or 'CH3', got {}."
+                          .format(typeofH2build))
+
+
 # Quick try to make a function that only loops over carbons on which we want to
 # build new H and calc OP.
+#@profile
 def fast_build_all_Hs(universe_woH, dic_OP):
     """BLABLABLA
     """
     resname = dic_lipids.POPC["resname"]
+    # First try build a dic for fast access to numpy array of coordinates.
+    # Select first lipid (e.g. POPC)
+    atoms_res1 = universe_woH.select_atoms("resname {}".format(resname)).residues[0].atoms
+    list_atom_names = [atom.name for atom in atoms_res1]
+    name_1st_atom_in_lipid = list_atom_names[0]
+    # Now make a dict that contains for each carbon the helpers number in the numpy array, 
+    # We have in dic_lipids.POPC : {"C1": ("CH3", "N4", "C5"), ...}
+    # We want: {"C1": ("CH3", 3, 4), ...}
+    # Where: "CH3" is the type of H 2 build, 3 is the row index to find N4, 
+    #        and 4 is the row index to find C5
+    dic_Cname2indexhelpers = {}
+    for Cname in dic_lipids.POPC.keys():
+        if Cname != "resname" and len(dic_lipids.POPC[Cname]) == 3:
+            typeofH2build, helper1_name, helper2_name = dic_lipids.POPC[Cname]
+            dic_Cname2indexhelpers[Cname] = typeofH2build, list_atom_names.index(helper1_name), list_atom_names.index(helper2_name)
+        elif Cname != "resname" and len(dic_lipids.POPC[Cname]) == 4:
+            typeofH2build, helper1_name, helper2_name, helper3_name = dic_lipids.POPC[Cname]
+            dic_Cname2indexhelpers[Cname] = (typeofH2build, list_atom_names.index(helper1_name), list_atom_names.index(helper2_name),
+                                             list_atom_names.index(helper3_name))   
+    #print("Oh yeah !!!")
+    #print(dic_Cname2indexhelpers)
+
     # Loop over frames. ts is a Timestep instance.
     for ts in universe_woH.trajectory:
         print("Dealing with frame {} at {} ps."
@@ -599,10 +724,28 @@ def fast_build_all_Hs(universe_woH, dic_OP):
         # Loop over each couple C-H.
         for Cname in dic_lipids.POPC.keys():
             if Cname != "resname":
+                if len(dic_lipids.POPC[Cname]) == 3:
+                    typeofH2build, index_helper1_inres, index_helper2_inres = dic_Cname2indexhelpers[Cname]
+                else:
+                    typeofH2build, index_helper1_inres, index_helper2_inres, index_helper3_inres = dic_Cname2indexhelpers[Cname]
                 # Loop over residues for a given Cname atom.
                 selstring = "resname {} and name {}".format(resname, Cname)
                 for Catom in universe_woH.select_atoms(selstring):
-                    Hs_coor = buildHs_on_1C(Catom)
+                    # We need the index position (in the np array) of the 1st atom of that residue
+                    # (e.g. What is the index of C1 of POPC 36?).
+                    index_1st_atom_of_current_residue = Catom.residue.atoms.select_atoms("name {}".format(name_1st_atom_in_lipid)).ix[0]
+                    #print("Dealing with ", Catom)
+                    #print("DIC ===========================>", dic_lipids.POPC[Cname])
+                    if len(dic_lipids.POPC[Cname]) == 3:
+                        
+                        index_helper1 = index_helper1_inres + index_1st_atom_of_current_residue
+                        index_helper2 = index_helper2_inres + index_1st_atom_of_current_residue
+                        Hs_coor = QUICKTEST_buildHs_on_1C(Catom, universe_woH, typeofH2build, index_helper1, index_helper2)
+                    else:
+                        index_helper1 = index_helper1_inres + index_1st_atom_of_current_residue
+                        index_helper2 = index_helper2_inres + index_1st_atom_of_current_residue
+                        index_helper3 = index_helper3_inres + index_1st_atom_of_current_residue
+                        Hs_coor = QUICKTEST_buildHs_on_1C(Catom, universe_woH, typeofH2build, index_helper1, index_helper2, index_helper3)
                     # Loop over all Hs.
                     for i, H_coor in enumerate(Hs_coor):
                         # Give a name to newly built H
