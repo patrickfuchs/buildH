@@ -30,6 +30,7 @@ import MDAnalysis as mda
 import MDAnalysis.coordinates.XTC as XTC
 
 import dic_lipids
+import copy
 
 # Constants.
 # From https://en.wikipedia.org/wiki/Carbon%E2%80%93hydrogen_bond
@@ -48,13 +49,13 @@ def calc_OP(C, H):
 
     theta is the angle between CH bond and the z(vertical) axis:
     z
-    ^  H 
+    ^  H
     | /
     |/
     C
 
     This function was initially written by @jmelcr.
-    
+
     Parameters
     ----------
     C : numpy 1D-array
@@ -273,8 +274,8 @@ def pandasdf2pdb(df):
                           x=x, y=y, z=z, occupancy=1.0, temp_fact=0.0, seg="",
                           elt=atname[0]))
     return s
- 
-    
+
+
 def get_CH2(atom, helper1, helper2):
     """Reconstructs the 2 hydrogens of a sp3 carbon (methylene group).
 
@@ -290,7 +291,7 @@ def get_CH2(atom, helper1, helper2):
     Returns
     -------
     tuple of numpy 1D-arrays
-        Coordinates of the two hydrogens: 
+        Coordinates of the two hydrogens:
         ([x_H1, y_H1, z_H1], [x_H2, y_H2, z_H2]).
     """
     # atom->helper1 vector.
@@ -388,7 +389,7 @@ def get_CH3(atom, helper1, helper2):
     Returns
     -------
     tuple of numpy 1D-arrays
-        Coordinates of the 3 hydrogens: 
+        Coordinates of the 3 hydrogens:
         ([x_H1, y_H1, z_H1], [x_H2, y_H2, z_H2], [x_H3, y_H3, z_H3]).
     """
     ### Build CH3e.
@@ -416,14 +417,14 @@ def get_CH3(atom, helper1, helper2):
     v5 = normalize(coor_He - atom)
     # Last we rotate atom->He bond around atom->helper1 bond by -2pi/3.
     norm_vec_Hs = apply_rotation(v5, rotation_axis, theta)
-    coor_Hs = LENGTH_CH_BOND * norm_vec_Hs + atom 
+    coor_Hs = LENGTH_CH_BOND * norm_vec_Hs + atom
     return coor_He, coor_Hr, coor_Hs
 
-#@profile
+
 def buildHs_on_1C(atom):
     """Builds 1, 2 or 3 H on a given carbon.
 
-    This function is a wrapper which gathers the coordinates of the helpers 
+    This function is a wrapper which gathers the coordinates of the helpers
     and call the function that builds 1, 2 or 3 H.
 
     The name of the helpers as well as the type of H to build are described
@@ -436,7 +437,7 @@ def buildHs_on_1C(atom):
     Returns
     -------
     tuple of numpy 1D-arrays
-        Each element of the tuple is a numpy 1D-array containing 1, 2 or 3 
+        Each element of the tuple is a numpy 1D-array containing 1, 2 or 3
         reconstructed hydrogen(s).
         !!! IMPORTANT !!! This function *should* return a tuple even if
         there's only one H that has been rebuilt.
@@ -476,12 +477,88 @@ def buildHs_on_1C(atom):
                           .format(typeofH2build))
 
 
+def new_buildHs_on_1C(dic_lipids_with_indexes,ts, atom, nb_atoms_per_residue):
+    """Builds 1, 2 or 3 H on a given carbon.
+
+    This function is a wrapper which gathers the coordinates of the helpers
+    and call the function that builds 1, 2 or 3 H.
+
+    The name of the helpers as well as the type of H to build are described
+    in a dictionnary stored in dic_lipids.py.
+
+    Parameters
+    ----------
+    atom : MDAnalysis Atom instance
+
+    Returns
+    -------
+    tuple of numpy 1D-arrays
+        Each element of the tuple is a numpy 1D-array containing 1, 2 or 3
+        reconstructed hydrogen(s).
+        !!! IMPORTANT !!! This function *should* return a tuple even if
+        there's only one H that has been rebuilt.
+    """
+    # Get nb of H to build and helper names (we can have 2 or 3 helpers).
+    if len(dic_lipids_with_indexes[atom.name]) == 5:
+        typeofH2build, _, _, helper1_id, helper2_id = dic_lipids_with_indexes[atom.name]
+    else:
+        typeofH2build, _, _, _, helper1_id, helper2_id, helper3_id = dic_lipids_with_indexes[atom.name]
+
+
+    offset = atom.resindex*nb_atoms_per_residue
+    helper1_coor = ts[helper1_id+offset]
+    helper2_coor = ts[helper2_id+offset]
+    if typeofH2build == "CH2":
+        H1_coor, H2_coor = get_CH2(atom.position, helper1_coor, helper2_coor)
+        return (H1_coor, H2_coor)
+    elif typeofH2build == "CH":
+        # If we reconstruct a single H, we have a 3rd helper.
+        helper3_coor = ts[helper3_id+offset]
+        H1_coor = get_CH(atom.position, helper1_coor, helper2_coor,
+                         helper3_coor)
+        return (H1_coor,)
+    elif typeofH2build == "CHdoublebond":
+        H1_coor = get_CH_double_bond(atom.position, helper1_coor,
+                                     helper2_coor)
+        return (H1_coor,)
+    elif typeofH2build == "CH3":
+        H1_coor, H2_coor, H3_coor = get_CH3(atom.position,
+                                            helper1_coor, helper2_coor)
+        return (H1_coor, H2_coor, H3_coor)
+    else:
+        raise UserWarning("Wrong code for typeofH2build, expected 'CH2', 'CH'"
+                          ", 'CHdoublebond' or 'CH3', got {}."
+                          .format(typeofH2build))
+
+
+def get_helpers_indexes(atom,universe_woH):
+
+    # Get nb of H to build and helper names (we can have 2 or 3 helpers).
+    if len(dic_lipids.POPC[atom.name]) == 3:
+        typeofH2build, helper1_name, helper2_name = dic_lipids.POPC[atom.name]
+    else:
+        typeofH2build, helper1_name, helper2_name, helper3_name = dic_lipids.POPC[atom.name]
+    # Get helper coordinates using atom, which an instance from Atom class.
+    # atom.residue.atoms is a list of atoms we can select with
+    # method .select_atoms().
+    # To avoid too long line, we shorten its name to `sel`.
+    sel = atom.residue.atoms.select_atoms
+    helper1_id = sel("name {0}".format(helper1_name))[0].ix
+    helper2_id = sel("name {0}".format(helper2_name))[0].ix
+    if typeofH2build == "CH":
+        # If we reconstruct a single H, we have a 3rd helper.
+        helper3_id = sel("name {0}".format(helper3_name))[0].ix
+        return (helper1_id, helper2_id, helper3_id)
+    else:
+        return (helper1_id, helper2_id)
+
+
 def build_all_Hs_calc_OP(universe_woH, universe_wH=None, dic_OP=None, return_coors=False):
     """Main function that builds all hydrogens from an MDAnalysis universe and calculate order parameters.
 
     This function shall be used in two modes :
 
-    1) The first time this function is called, we have to construct a new 
+    1) The first time this function is called, we have to construct a new
     universe with hydrogens. One shall call it like this :
 
     new_data_frame = build_all_Hs_calc_OP(universe_woH, return_coors=True)
@@ -512,13 +589,13 @@ def build_all_Hs_calc_OP(universe_woH, universe_wH=None, dic_OP=None, return_coo
         This dictionnary contains all the order parameters. It is structured
         like this: {("C1", "H11"): [val1, val2, ...], ("C1", "H12"): [...], ...}.
     return_coors : boolean (optional)
-        If True, the function will return a pandas dataframe containing the 
+        If True, the function will return a pandas dataframe containing the
         system *with* hydrogens.
 
     Returns
     -------
     pandas dataframe (optional)
-        If parameter return_coors is True, this dataframe contains the 
+        If parameter return_coors is True, this dataframe contains the
         system *with* hydrogens is returned.
     None
         If parameter return_coors is False.
@@ -592,6 +669,22 @@ def fast_build_all_Hs(universe_woH, dic_OP):
     """BLABLABLA
     """
     resname = dic_lipids.POPC["resname"]
+
+    dic_lipids_with_indexes = copy.deepcopy(dic_lipids.POPC)
+
+    # #Retrieve once the index of the helpers
+    # # Loop over each couple C-H.
+    for Cname in dic_lipids.POPC.keys():
+        if Cname != "resname":
+            # Loop over residues for a given Cname atom.
+            for Catom in universe_woH.select_atoms("resid 1 and name {}".format(Cname)):
+
+                helper_ids = get_helpers_indexes(Catom,universe_woH)
+                dic_lipids_with_indexes[Cname] = dic_lipids_with_indexes[Cname] + helper_ids
+
+
+    atoms_per_residue = len(universe_woH.residues[0].atoms)
+
     # Loop over frames. ts is a Timestep instance.
     for ts in universe_woH.trajectory:
         print("Dealing with frame {} at {} ps."
@@ -602,7 +695,8 @@ def fast_build_all_Hs(universe_woH, dic_OP):
                 # Loop over residues for a given Cname atom.
                 selstring = "resname {} and name {}".format(resname, Cname)
                 for Catom in universe_woH.select_atoms(selstring):
-                    Hs_coor = buildHs_on_1C(Catom)
+                    Hs_coor = new_buildHs_on_1C(dic_lipids_with_indexes,ts, Catom, atoms_per_residue)
+                    #Hs_coor = buildHs_on_1C(Catom)
                     # Loop over all Hs.
                     for i, H_coor in enumerate(Hs_coor):
                         # Give a name to newly built H
@@ -610,6 +704,7 @@ def fast_build_all_Hs(universe_woH, dic_OP):
                         H_name = Catom.name.replace("C", "H") + str(i+1)
                         op = calc_OP(Catom.position, H_coor)
                         dic_OP[(Catom.name, H_name)].append(op)
+
 
 
 # For now make a quick dic (to be removed later).
@@ -657,7 +752,7 @@ if __name__ == "__main__":
     print("System has {} atoms".format(len(universe_woH.coord)))
 
 
-    # QUICK TRY to build H only on carbons (thus lines below are 
+    # QUICK TRY to build H only on carbons (thus lines below are
     # temporarilly not executed).
     QUICK = True
     if not QUICK:
@@ -696,7 +791,7 @@ if __name__ == "__main__":
     dic_OP = {}
     for key in dic_atname2genericname:
         dic_OP[key] = []
-    
+
     # Quick try to loop only over C on which we want to build Hs.
     if QUICK:
         fast_build_all_Hs(universe_woH, dic_OP)
