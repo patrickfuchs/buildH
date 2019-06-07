@@ -477,7 +477,7 @@ def buildHs_on_1C(atom):
                           .format(typeofH2build))
 
 
-def new_buildHs_on_1C(dic_lipids_with_indexes,ts, atom, nb_atoms_per_residue):
+def new_buildHs_on_1C(dic_lipids_with_indexes,ts, atom, ix_first_atom_res):
     """Builds 1, 2 or 3 H on a given carbon.
 
     This function is a wrapper which gathers the coordinates of the helpers
@@ -505,15 +505,14 @@ def new_buildHs_on_1C(dic_lipids_with_indexes,ts, atom, nb_atoms_per_residue):
         typeofH2build, _, _, _, helper1_id, helper2_id, helper3_id = dic_lipids_with_indexes[atom.name]
 
 
-    offset = atom.resindex*nb_atoms_per_residue
-    helper1_coor = ts[helper1_id+offset]
-    helper2_coor = ts[helper2_id+offset]
+    helper1_coor = ts[helper1_id+ix_first_atom_res]
+    helper2_coor = ts[helper2_id+ix_first_atom_res]
     if typeofH2build == "CH2":
         H1_coor, H2_coor = get_CH2(atom.position, helper1_coor, helper2_coor)
         return (H1_coor, H2_coor)
     elif typeofH2build == "CH":
         # If we reconstruct a single H, we have a 3rd helper.
-        helper3_coor = ts[helper3_id+offset]
+        helper3_coor = ts[helper3_id+ix_first_atom_res]
         H1_coor = get_CH(atom.position, helper1_coor, helper2_coor,
                          helper3_coor)
         return (H1_coor,)
@@ -683,27 +682,32 @@ def fast_build_all_Hs(universe_woH, dic_OP):
                 dic_lipids_with_indexes[Cname] = dic_lipids_with_indexes[Cname] + helper_ids
 
 
-    atoms_per_residue = len(universe_woH.residues[0].atoms)
+    current_resid = -1
+    idx_first_atom_res = -1
 
     # Loop over frames. ts is a Timestep instance.
     for ts in universe_woH.trajectory:
         print("Dealing with frame {} at {} ps."
               .format(ts.frame, universe_woH.trajectory.time))
-        # Loop over each couple C-H.
-        for Cname in dic_lipids.POPC.keys():
-            if Cname != "resname":
-                # Loop over residues for a given Cname atom.
-                selstring = "resname {} and name {}".format(resname, Cname)
-                for Catom in universe_woH.select_atoms(selstring):
-                    Hs_coor = new_buildHs_on_1C(dic_lipids_with_indexes,ts, Catom, atoms_per_residue)
-                    #Hs_coor = buildHs_on_1C(Catom)
-                    # Loop over all Hs.
-                    for i, H_coor in enumerate(Hs_coor):
-                        # Give a name to newly built H
-                        # (e.g. if C18 has 3 H, their name will be H181, H182 & H183).
-                        H_name = Catom.name.replace("C", "H") + str(i+1)
-                        op = calc_OP(Catom.position, H_coor)
-                        dic_OP[(Catom.name, H_name)].append(op)
+        #Loop over atom of lipid of choice
+        for lipid_atom in universe_woH.select_atoms("resname POPC"):
+
+            #Keep track of the changes of residue to memorize the index of the first atom in the current resid
+            if (lipid_atom.resindex != current_resid):
+                current_resid = lipid_atom.resindex
+                idx_first_atom_res = lipid_atom.ix
+
+            #Reconstruct hydrogens if needed
+            if(lipid_atom.name in dic_lipids.POPC):
+                Hs_coor = new_buildHs_on_1C(dic_lipids_with_indexes,ts, lipid_atom,idx_first_atom_res)
+                #Hs_coor = buildHs_on_1C(Catom)
+                # Loop over all Hs.
+                for i, H_coor in enumerate(Hs_coor):
+                    # Give a name to newly built H
+                    # (e.g. if C18 has 3 H, their name will be H181, H182 & H183).
+                    H_name = lipid_atom.name.replace("C", "H") + str(i+1)
+                    op = calc_OP(lipid_atom.position, H_coor)
+                    dic_OP[(lipid_atom.name, H_name)].append(op)
 
 
 
