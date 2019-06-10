@@ -2,35 +2,41 @@
 # coding: utf-8
 
 """
-This script reconstructs hydrogens from a united-atom trajectory.
+This script builds hydrogens from a united-atom trajectory and calculate the
+order parameter for each C-H bond.
 
 BLABLABLA TODO
 
-This code is inspired from that of Jon Kapla originally written in fortran
-(https://github.com/kaplajon/trajman/blob/master/module_trajop.f90#L242).
+The way of building H largely inspired from a code of Jon Kapla originally
+written in fortran :
+https://github.com/kaplajon/trajman/blob/master/module_trajop.f90#L242.
 
-Note, that all coordinates in this script are handled using numpy 1D-arrays
+Note: that all coordinates in this script are handled using numpy 1D-arrays
 of 3 elements, e.g. atom_coor = np.array((x, y, z)).
+Note2: sometimes numpy is slow on small arrays, thus we wrote many "in-house"
+functions for vectorial operations (e.g. cross product).
 """
 
 __authors__ = ("Patrick Fuchs", "Amélie Bâcle", "Hubert Santuz",
                "Pierre Poulain")
 __contact__ = ("patrickfuchs", "abacle", "hublot", "pierrepo") # on github
-__version__ = "1.0.0"
+__version__ = "1.0.2"
 __copyright__ = "copyleft"
 __date__ = "2019/05"
 
 # Modules.
 import argparse
+import copy
 import io
 import pickle
+
 import numpy as np
 import pandas as pd
 import MDAnalysis as mda
 import MDAnalysis.coordinates.XTC as XTC
 
 import dic_lipids
-import copy
+
 
 # Constants.
 # From https://en.wikipedia.org/wiki/Carbon%E2%80%93hydrogen_bond
@@ -204,6 +210,8 @@ def apply_rotation(vec_to_rotate, rotation_axis, rad_angle):
     return normalize(vec_rotated)
 
 
+#This function is no longer used. Since it can still be of use, We leave it
+# here for now.
 def pdb2pandasdf(pdb_filename):
     """Reads a PDB file and returns a pandas data frame.
 
@@ -255,7 +263,7 @@ def pandasdf2pdb(df):
         # See for pdb format: https://www.cgl.ucsf.edu/chimera/docs/UsersGuide/tutorials/pdbintro.html.
         # "alt" means alternate location indicator
         # "code" means code for insertions of residues
-	# "seg" means segment identifier
+    	# "seg" means segment identifier
         # "elt" means element symbol
         if len(atname) == 4:
             s += ("{record_type:6s}{atnum:5d} {atname:<4s}{alt:1s}{resname:>4s}"
@@ -277,15 +285,30 @@ def pandasdf2pdb(df):
 
 
 def cross_product(A, B):
-    """Returns the cross product between vectors A & B
-    see e.g. http://hyperphysics.phy-astr.gsu.edu/hbase/vvec.html
+    """Returns the cross product between vectors A & B.
+
+    Source: http://hyperphysics.phy-astr.gsu.edu/hbase/vvec.html.
+    Note: on small vectors (i.e. of 3 elements), computing cross products
+          with this functions is faster than np.cross().
+
+    Parameters
+    ----------
+    A : numpy 1D-array
+        A vector of 3 elements.
+    B : numpy 1D-array
+        Another vector of 3 elements.
+
+    Returns
+    -------
+    numpy 1D-array
+        Cross product of A^B.
     """
     x = (A[1]*B[2]) - (A[2]*B[1])
     y = (A[0]*B[2]) - (A[2]*B[0])
     z = (A[0]*B[1]) - (A[1]*B[0])
     return np.array((x, -y, z))
 
-##@profile   
+
 def get_CH2(atom, helper1, helper2):
     """Reconstructs the 2 hydrogens of a sp3 carbon (methylene group).
 
@@ -678,94 +701,6 @@ def build_all_Hs_calc_OP(universe_woH, universe_wH=None, dic_OP=None, return_coo
         return new_df_atoms
 
 
-####
-#### QUICK TEST
-####
-#@profile
-def QUICKTEST_buildHs_on_1C(atom, universe_woH, typeofH2build, index_helper1=None, index_helper2=None, index_helper3=None):
-    """BLABLOBLIBLU BLABLOBLIBLU BLABLOBLIBLU TODO
-    Builds 1, 2 or 3 H on a given carbon.
-
-    This function is a wrapper which gathers the coordinates of the helpers 
-    and call the function that builds 1, 2 or 3 H.
-
-    The name of the helpers as well as the type of H to build are described
-    in a dictionnary stored in dic_lipids.py.
-
-    Parameters
-    ----------
-    atom : MDAnalysis Atom instance
-
-    Returns
-    -------
-    tuple of numpy 1D-arrays
-        Each element of the tuple is a numpy 1D-array containing 1, 2 or 3 
-        reconstructed hydrogen(s).
-        !!! IMPORTANT !!! This function *should* return a tuple even if
-        there's only one H that has been rebuilt.
-    """
-    #print("Ds QUICKTEST")
-    # Get nb of H to build and helper names (we can have 2 or 3 helpers).
-    #if len(dic_lipids.POPC[atom.name]) == 3:
-    #    typeofH2build, helper1_name, helper2_name = dic_lipids.POPC[atom.name]
-    #else:
-    #    typeofH2build, helper1_name, helper2_name, helper3_name = dic_lipids.POPC[atom.name]
-    # Get helper coordinates using atom, which an instance from Atom class.
-    # atom.residue.atoms is a list of atoms we can select with
-    # method .select_atoms().
-    # To avoid too long line, we shorten its name to `sel`.
-    #sel = atom.residue.atoms.select_atoms
-    #helper1_coor = sel("name {0}".format(helper1_name))[0].position
-    #helper2_coor = sel("name {0}".format(helper2_name))[0].position
-    #if typeofH2build == "CH":
-    #    print("Poueeeeeeeeeet")
-    #    helper3_coor = sel("name {0}".format(helper3_name))[0].position
-    #print("OLD :-(")
-    #print(sel("name {0}".format(helper1_name))[0])
-    #print(sel("name {0}".format(helper2_name))[0])
-    # if typeofH2build == "CH":
-    #     print(sel("name {0}".format(helper3_name))[0])
-    #     print(atom.position, helper1_coor, helper2_coor, helper3_coor)
-    # else:
-    #     print(atom.position, helper1_coor, helper2_coor)
-    # print("NEW :-D")
-    helper1_coor = universe_woH.coord.positions[index_helper1]
-    helper2_coor = universe_woH.coord.positions[index_helper2]
-    if index_helper3:
-        helper3_coor = universe_woH.coord.positions[index_helper3]
-    # print(universe_woH.atoms[index_helper1])
-    # print(universe_woH.atoms[index_helper2])
-    # if index_helper3:
-    #     print(universe_woH.atoms[index_helper3])
-    #     print(atom.position, helper1_coor, helper2_coor, helper3_coor)
-    #     print()
-    # else:
-    #     print(atom.position, helper1_coor, helper2_coor)
-    #     print()
-    if typeofH2build == "CH2":
-        H1_coor, H2_coor = get_CH2(atom.position, helper1_coor, helper2_coor)
-        return (H1_coor, H2_coor)
-    elif typeofH2build == "CH":
-        # If we reconstruct a single H, we have a 3rd helper.
-        #helper3_coor = sel("name {0}".format(helper3_name))[0].position
-        universe_woH.coord.positions[index_helper3]
-        H1_coor = get_CH(atom.position, helper1_coor, helper2_coor,
-                         helper3_coor)
-        return (H1_coor,)
-    elif typeofH2build == "CHdoublebond":
-        H1_coor = get_CH_double_bond(atom.position, helper1_coor,
-                                     helper2_coor)
-        return (H1_coor,)
-    elif typeofH2build == "CH3":
-        H1_coor, H2_coor, H3_coor = get_CH3(atom.position,
-                                            helper1_coor, helper2_coor)
-        return (H1_coor, H2_coor, H3_coor)
-    else:
-        raise UserWarning("Wrong code for typeofH2build, expected 'CH2', 'CH'"
-                          ", 'CHdoublebond' or 'CH3', got {}."
-                          .format(typeofH2build))
-
-
 # Quick try to make a function that only loops over carbons on which we want to
 # build new H and calc OP.
 def fast_build_all_Hs(universe_woH, dic_OP):
@@ -778,12 +713,12 @@ def fast_build_all_Hs(universe_woH, dic_OP):
     # Get name of 1st atom of lipid.
     first_atom_name = universe_woH.residues[0].atoms[0].name
     # Now expand dic_lipids.
-    # We want {..., 'C1': ('CH3', 'N4', 'C5', 0, 3, 4), ...} 
-    # Where the 3 last int are the index of the atom, helper1, helper2 
-    # (possibly helper3) with respect to the first atom 
+    # We want {..., 'C1': ('CH3', 'N4', 'C5', 0, 3, 4), ...}
+    # Where the 3 last int are the index of the atom, helper1, helper2
+    # (possibly helper3) with respect to the first atom
     # (e.g. 0 is index of C1, N4 is 3 atoms away from C1, etc)
     dic_lipids_with_indexes = copy.deepcopy(dic_lipids.POPC)
-    
+
     ###
     ### !!! TODO !!!
     ### Remove key resname in dic_lipids_with_indexes
