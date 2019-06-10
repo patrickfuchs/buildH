@@ -797,12 +797,26 @@ def make_dic_lipids_with_indexes(universe_woH):
             # Loop over residues for a given Cname atom.
             selection = "resid {} and name {}".format(resnum_1st_lipid, Cname)
             for Catom in universe_woH.select_atoms(selection):
-                helper_ixs = get_indexes(Catom, universe_woH)
-                # !!! TODO !!!
-                # !!! BEWARE !!! If the first lipid doesn't start at residue 1
-                # we must substract the index of its first atom.
-                dic_lipids_with_indexes[Cname] = (dic_lipids_with_indexes[Cname]
-                                                  + (Catom.ix,) + helper_ixs)
+                # Get the (absolute) index of helpers.
+                if dic_lipids.POPC[Cname][0] == "CH":
+                    helper1_ix, helper2_ix, helper3_ix = get_indexes(Catom, universe_woH)
+                else:
+                    helper1_ix, helper2_ix = get_indexes(Catom, universe_woH)
+                # If the first lipid doesn't start at residue 1 we must
+                # substract the index of the first atom of that lipid.
+                Catom_ix_inres = Catom.ix - first_atom_ix
+                helper1_ix_inres = helper1_ix - first_atom_ix
+                helper2_ix_inres = helper2_ix - first_atom_ix
+                # Then add these indexes to dic_lipids_with_indexes.
+                if dic_lipids.POPC[Cname][0] == "CH":
+                    helper3_ix_inres = helper3_ix - first_atom_ix
+                    tmp_tuple = (Catom_ix_inres, helper1_ix_inres,
+                                 helper2_ix_inres, helper3_ix_inres)
+                    dic_lipids_with_indexes[Cname] += tmp_tuple
+                else:
+                    tmp_tuple = (Catom_ix_inres, helper1_ix_inres,
+                                 helper2_ix_inres)
+                    dic_lipids_with_indexes[Cname] += tmp_tuple
     if DEBUG:
         print("Everything is based on the following dict\n{}"
               .format(dic_lipids_with_indexes))
