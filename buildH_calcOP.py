@@ -46,6 +46,8 @@ LENGTH_CH_BOND = 1.09 # in Angst
 TETRAHEDRAL_ANGLE = np.arccos(-1/3)
 # For debugging.
 DEBUG = False
+PICKLE = False
+
 
 def calc_OP(C, H):
     """Returns the Order Parameter of a CH bond (OP).
@@ -759,7 +761,8 @@ def fast_build_all_Hs(universe_woH, dic_OP):
     resname = dic_lipids.POPC["resname"]
     # Get resnum of the 1st lipid encountered in the system whose name
     # is `resname`.
-    resnum_1st_lipid = universe_woH.select_atoms("resname {}".format(resname)).residues[0].resnum
+    selection = "resname {}".format(resname)
+    resnum_1st_lipid = universe_woH.select_atoms(selection).residues[0].resnum
     # Get name of 1st atom of that lipid.
     first_atom_name = universe_woH.residues[0].atoms[0].name
     # Deep copy dic_lipids.POPC.
@@ -770,13 +773,18 @@ def fast_build_all_Hs(universe_woH, dic_OP):
     # The reasonning is over one residue (e.g. POPC). We want to add to the
     # dict the index (ix) of each helper of a given carbon with respect to
     # the index of the first atom of that lipid residue.
+    ###
+    ### TODO !!! Handle when the first lipid residue is not the 1st residue in the structure !!!
+    ###
     # Loop over each carbon on which we want to reconstruct Hs.
     for Cname in dic_lipids.POPC.keys():
         if Cname != "resname":
             # Loop over residues for a given Cname atom.
-            for Catom in universe_woH.select_atoms("resid {} and name {}".format(resnum_1st_lipid, Cname)):
+            selection = "resid {} and name {}".format(resnum_1st_lipid, Cname)
+            for Catom in universe_woH.select_atoms(selection):
                 helper_ixs = get_indexes(Catom, universe_woH)
-                dic_lipids_with_indexes[Cname] = dic_lipids_with_indexes[Cname] + (Catom.ix,) + helper_ixs
+                dic_lipids_with_indexes[Cname] = (dic_lipids_with_indexes[Cname]
+                                                  + (Catom.ix,) + helper_ixs)
 
     ###
     ### 2) Now loop over the traj, residues and Catoms.
@@ -795,34 +803,35 @@ def fast_build_all_Hs(universe_woH, dic_OP):
                 print("    residue is", first_lipid_atom.residue)
             # Get the index of this first atom.
             ix_first_atom_res = first_lipid_atom.ix
-            # Now loop over each carbon on which we want to build H.
-            for Cname in dic_lipids.POPC.keys():
-                if Cname != "resname":
-                    # Get Cname coords.
-                    if len(dic_lipids_with_indexes[Cname]) == 6:
-                        _, _, _, Cname_id, _, _ = dic_lipids_with_indexes[Cname]
-                    else:
-                        _, _, _, _, Cname_id, _, _, _ = dic_lipids_with_indexes[Cname]
-                    Cname_position = ts[Cname_id+ix_first_atom_res]
+            # Now loop over each carbon on which we want to build Hs.
+            for Cname in dic_lipids_with_indexes.keys():
+                # Get Cname coords.
+                if len(dic_lipids_with_indexes[Cname]) == 6:
+                    _, _, _, Cname_ix, _, _ = dic_lipids_with_indexes[Cname]
+                else:
+                    _, _, _, _, Cname_ix, _, _, _ = dic_lipids_with_indexes[Cname]
+                Cname_position = ts[Cname_ix+ix_first_atom_res]
+                if DEBUG:
+                    print("Dealing with Cname", Cname)
+                # Get newly built H(s) on that atom.
+                Hs_coor = fast_buildHs_on_1C(dic_lipids_with_indexes, ts,
+                                             Cname, ix_first_atom_res)
+                # Loop over all Hs.
+                if DEBUG:
+                    print("Cname_position:", Cname_position)
+                for i, H_coor in enumerate(Hs_coor):
+                    # Give a name to newly built H
+                    # (e.g. if C18 has 3 H, their name will be H181,H182 & H183).
+                    # TODO Check that H_name has 4 letters max.
+                    H_name = Cname.replace("C", "H") + str(i+1)
+                    # Calc and store OP for that couple C-H.
+                    Cname_position = ts[Cname_ix+ix_first_atom_res]
+                    op = calc_OP(Cname_position, H_coor)
+                    dic_OP[(Cname, H_name)].append(op)
                     if DEBUG:
-                        print("Dealing with Cname", Cname)
-                    # Get newly built H on that atom.
-                    Hs_coor = fast_buildHs_on_1C(dic_lipids_with_indexes, ts, Cname, ix_first_atom_res)
-                    #Hs_coor = buildHs_on_1C(Catom)
-                    # Loop over all Hs.
-                    if DEBUG:
-                        print("Cname_position:", Cname_position)
-                    for i, H_coor in enumerate(Hs_coor):
-                        # Give a name to newly built H
-                        # (e.g. if C18 has 3 H, their name will be H181,H182 & H183).
-                        H_name = Cname.replace("C", "H") + str(i+1)
-                        Cname_position = ts[Cname_id+ix_first_atom_res]
-                        op = calc_OP(Cname_position, H_coor)
-                        dic_OP[(Cname, H_name)].append(op)
-                        if DEBUG:
-                            print(H_name, H_coor, op)
-                    if DEBUG:
-                        print() ; print()
+                        print(H_name, H_coor, op)
+                if DEBUG:
+                    print() ; print()
 
 
 # For now make a quick dic (to be removed later).
@@ -930,8 +939,7 @@ if __name__ == "__main__":
             newxtc.close()
 
     # 6) Output results.
-    # Pickle results?
-    PICKLE = False
+    # Pickle results? (migth be useful in the future)
     if PICKLE:
         with open("OP.pickle", "wb") as f:
             # Pickle the dic using the highest protocol available.
@@ -939,8 +947,9 @@ if __name__ == "__main__":
         #  To unpickle
         #with open("OP.pickle", "rb") as f:
         #    dic_OP = pickle.load(f)
-    # Output to a file.
-    with open("OUT.buildH", "w") as f:
+    # Output to a file (same format as in the prog of @jmelcr).
+    output_file = "OUT.buildH"
+    with open(output_file, "w") as f:
         f.write("# OP_name    resname    atom1    atom2    OP_mean   OP_stddev  OP_stem\n"
                 "#--------------------------------------------------------------------\n")
         for key in dic_atname2genericname.keys():
@@ -950,4 +959,5 @@ if __name__ == "__main__":
             #print("{:15s} {:4s} {:4s} {:10.6f} +/- {:10.6f}".format(name, at1, at2, a.mean(), a.std()))
             f.write("{:20s} {:7s} {:5s} {:5s} {: 2.5f} {: 2.5f} {: 2.5f}\n"
                     .format(name, "POPC", at1, at2, a.mean(), a.std(), 0.0))
+    print("Results written to {}".format(output_file))
 
