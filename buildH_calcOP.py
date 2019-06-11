@@ -23,7 +23,7 @@ https://github.com/kaplajon/trajman/blob/master/module_trajop.f90#L242.
 
 Note: that all coordinates in this script are handled using numpy 1D-arrays
 of 3 elements, e.g. atom_coor = np.array((x, y, z)).
-Note2: sometimes numpy is slow on small arrays, thus we wrote many "in-house"
+Note2: sometimes numpy is slow on small arrays, thus we wrote a few "in-house"
 functions for vectorial operations (e.g. cross product).
 """
 
@@ -222,37 +222,6 @@ def apply_rotation(vec_to_rotate, rotation_axis, rad_angle):
     # Apply the rotation matrix on the vector to rotate.
     vec_rotated = np.dot(rotation_matrix, vec_to_rotate)
     return normalize(vec_rotated)
-
-
-#This function is no longer used. Since it can still be of use, We leave it
-# here for now.
-def pdb2pandasdf(pdb_filename):
-    """Reads a PDB file and returns a pandas data frame.
-
-    Arguments
-    ---------
-    pdb_filename : string
-
-    Returns
-    -------
-    pandas dataframe
-        The col index are: atnum, atname, resname, resnum, x, y, z
-    """
-    rows = []
-    with open(pdb_filename, "r") as f:
-        for line in f:
-            if line.startswith("ATOM"):
-                atnum = int(line[6:11])
-                atname = line[12:16].strip()
-                resname = line[17:21].strip()
-                resnum = int(line[22:26])
-                x = float(line[30:38])
-                y = float(line[38:46])
-                z = float(line[46:54])
-                rows.append((atnum, atname, resname, resnum, x, y, z))
-    df_atoms = pd.DataFrame(rows, columns=["atnum", "atname", "resname",
-                                           "resnum", "x", "y", "z"])
-    return df_atoms
 
 
 def pandasdf2pdb(df):
