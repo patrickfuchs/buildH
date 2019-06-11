@@ -799,7 +799,8 @@ def make_dic_lipids_with_indexes(universe_woH):
             for Catom in universe_woH.select_atoms(selection):
                 # Get the (absolute) index of helpers.
                 if dic_lipids.POPC[Cname][0] == "CH":
-                    helper1_ix, helper2_ix, helper3_ix = get_indexes(Catom, universe_woH)
+                    helper1_ix, helper2_ix, helper3_ix = get_indexes(Catom,
+                                                                     universe_woH)
                 else:
                     helper1_ix, helper2_ix = get_indexes(Catom, universe_woH)
                 # If the first lipid doesn't start at residue 1 we must
@@ -818,10 +819,9 @@ def make_dic_lipids_with_indexes(universe_woH):
                                  helper2_ix_inres)
                     dic_lipids_with_indexes[Cname] += tmp_tuple
     if DEBUG:
-        print("Everything is based on the following dict\n{}"
+        print("Everything is based on the following dic_lipids_with_indexes\n{}"
               .format(dic_lipids_with_indexes))
         print()
-        #exit()
     return dic_lipids_with_indexes
 
 
@@ -867,13 +867,18 @@ def fast_build_all_Hs(universe_woH, dic_OP):
     for ts in universe_woH.trajectory:
         print("Dealing with frame {} at {} ps."
               .format(ts.frame, universe_woH.trajectory.time))
+        if DEBUG:
+            print("Looping now over residues...")
+            print()
         # Loop over the 1st atom of each lipid, which is equiv to loop *over
         # residues* (first_lipid_atom is an Atom instance).
         selection = "resname {} and name {}".format(resname, first_atom_name)
         for first_lipid_atom in universe_woH.select_atoms(selection):
             if DEBUG:
                 print("Dealing with Cname", first_lipid_atom)
-                print("    residue is", first_lipid_atom.residue)
+                print("which is part of residue", first_lipid_atom.residue)
+                print("Now looping over atoms of this residue")
+                print()
             # Get the index of this first atom.
             ix_first_atom_res = first_lipid_atom.ix
             # Now loop over each carbon on which we want to build Hs
@@ -881,18 +886,36 @@ def fast_build_all_Hs(universe_woH, dic_OP):
             for Cname in dic_lipids_with_indexes.keys():
                 # Get Cname coords.
                 if len(dic_lipids_with_indexes[Cname]) == 6:
-                    _, _, _, Cname_ix, _, _ = dic_lipids_with_indexes[Cname]
+                    _, _, _, Cname_ix, helper1_ix, helper2_ix = dic_lipids_with_indexes[Cname]
                 else:
-                    _, _, _, _, Cname_ix, _, _, _ = dic_lipids_with_indexes[Cname]
+                    _, _, _, _, Cname_ix, helper1_ix, helper2_ix, helper3_ix = dic_lipids_with_indexes[Cname]
                 Cname_position = ts[Cname_ix+ix_first_atom_res]
                 if DEBUG:
                     print("Dealing with Cname", Cname)
+                    sel = first_lipid_atom.residue.atoms.select_atoms
+                    Cname_atom = sel("name {}".format(Cname))[0]
+                    print(Cname_atom, Cname_atom.position)
+                    if len(dic_lipids.POPC[Cname]) == 3:
+                        _, helper1_name, helper2_name = dic_lipids.POPC[Cname]
+                    else:
+                        _, helper1_name, helper2_name, helper3_name = dic_lipids.POPC[Cname]
+                    helper1_atom = sel("name {}".format(helper1_name))[0]
+                    print("helper1", helper1_atom, helper1_atom.position)
+                    helper2_atom = sel("name {}".format(helper2_name))[0]
+                    print("helper2", helper2_atom, helper2_atom.position)
+                    if len(dic_lipids.POPC[Cname]) == 4:
+                        helper3_atom = sel("name {}".format(helper3_name))[0]
+                        print("helper3", helper3_atom, helper3_atom.position)
                 # Get newly built H(s) on that atom.
                 Hs_coor = fast_buildHs_on_1C(dic_lipids_with_indexes, ts,
                                              Cname, ix_first_atom_res)
                 # Loop over all Hs.
                 if DEBUG:
-                    print("Cname_position:", Cname_position)
+                    print("Cname_position with fast indexing:", Cname_position)
+                    print("helper1_position with fast indexing:", ts[helper1_ix+ix_first_atom_res])
+                    print("helper2_position with fast indexing:", ts[helper2_ix+ix_first_atom_res])
+                    if len(dic_lipids.POPC[Cname]) == 4:
+                        print("helper3_position with fast indexing:", ts[helper3_ix+ix_first_atom_res])
                 for i, H_coor in enumerate(Hs_coor):
                     # Give a name to newly built H
                     # (e.g. if C18 has 3 H, their name will be H181,H182 & H183).
@@ -903,7 +926,7 @@ def fast_build_all_Hs(universe_woH, dic_OP):
                     op = calc_OP(Cname_position, H_coor)
                     dic_OP[(Cname, H_name)].append(op)
                     if DEBUG:
-                        print(H_name, H_coor, op)
+                        print(H_name, H_coor, "OP:", op)
                 if DEBUG:
                     print() ; print()
 
