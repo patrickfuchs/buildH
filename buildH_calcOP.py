@@ -5,9 +5,19 @@
 This script builds hydrogens from a united-atom trajectory and calculate the
 order parameter for each C-H bond.
 
-BLABLABLA TODO
+It works in two modes :
+  1) A slow mode when an output trajectory (e.g. in xtc format) is requested by
+     the user. In this case, the whole trajectory including newly built
+     hydrogens are written to this trajectory.
+  2) A fast mode without any output trajectory.
+For both modes, the order parameter is written to an output file in a format
+similar to the code of @jmelcr:
+https://github.com/NMRLipids/MATCH/blob/master/scripts/calcOrderParameters.py
 
-The way of building H largely inspired from a code of Jon Kapla originally
+This code has been checked against the one from @jmelcr. You might find minor
+differences due to rounding errors (in xtc, only 3 digits are written).
+
+The way of building H is largely inspired from a code of Jon Kapla originally
 written in fortran :
 https://github.com/kaplajon/trajman/blob/master/module_trajop.f90#L242.
 
@@ -46,6 +56,7 @@ LENGTH_CH_BOND = 1.09 # in Angst
 TETRAHEDRAL_ANGLE = np.arccos(-1/3)
 # For debugging.
 DEBUG = False
+# For pickling results (useful for future analyses, e.g. drawing distributions).
 PICKLE = False
 
 
