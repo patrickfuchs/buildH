@@ -53,3 +53,5 @@ POPC = {"resname": "POPC",
         "C50": ("CH3", "C49", "C48")
         }
 
+# Alternative name for POPC in Berger lipids.
+PLA = POPC
