@@ -447,7 +447,7 @@ def get_CH3(atom, helper1, helper2):
 ### Note: they are slow, they shouldn't be used if the user doesn't want to
 ###       write the trajectory. Instead, fast_build_all_Hs() should be used.
 ###
-def buildHs_on_1C(atom):
+def buildHs_on_1C(atom, dic_lipid):
     """Builds 1, 2 or 3 H on a given carbon.
 
     This function is a wrapper which gathers the coordinates of the helpers
@@ -469,10 +469,10 @@ def buildHs_on_1C(atom):
         there's only one H that has been rebuilt.
     """
     # Get nb of H to build and helper names (we can have 2 or 3 helpers).
-    if len(dic_lipids.POPC[atom.name]) == 3:
-        typeofH2build, helper1_name, helper2_name = dic_lipids.POPC[atom.name]
+    if len(dic_lipid[atom.name]) == 3:
+        typeofH2build, helper1_name, helper2_name = dic_lipid[atom.name]
     else:
-        typeofH2build, helper1_name, helper2_name, helper3_name = dic_lipids.POPC[atom.name]
+        typeofH2build, helper1_name, helper2_name, helper3_name = dic_lipid[atom.name]
     # Get helper coordinates using atom, which an instance from Atom class.
     # atom.residue.atoms is a list of atoms we can select with
     # method .select_atoms().
@@ -503,7 +503,7 @@ def buildHs_on_1C(atom):
                           .format(typeofH2build))
 
 
-def build_all_Hs_calc_OP(universe_woH, universe_wH=None, dic_OP=None, return_coors=False):
+def build_all_Hs_calc_OP(universe_woH, dic_lipid, universe_wH=None, dic_OP=None, return_coors=False):
     """Main function that builds all hydrogens from an MDAnalysis universe and calculate order parameters.
 
     This function shall be used in two modes :
@@ -576,15 +576,15 @@ def build_all_Hs_calc_OP(universe_woH, universe_wH=None, dic_OP=None, return_coo
                            + list(atom.position))
             new_atom_num += 1
         # Build new H(s)?
-        if (atom.name in dic_lipids.POPC and
-            atom.residue.resname == dic_lipids.POPC["resname"]):
+        if (atom.name in dic_lipid and
+            atom.residue.resname == dic_lipid["resname"]):
             # Build Hs and store them in a list of numpy 1D-arrays Hs_coor.
             # The "s" in Hs_coor means there can be more than 1 H:
             # For CH2, Hs_coor will contain: [H1_coor, H2_coor].
             # For CH3, Hs_coor will contain: [H1_coor, H2_coor, H3_coor].
             # For CH, Hs_coor will contain: [H1_coor].
             # For CHdoublebond, Hs_coor will contain: [H1_coor].
-            Hs_coor = buildHs_on_1C(atom)
+            Hs_coor = buildHs_on_1C(atom, dic_lipid)
             # Loop over Hs_coor (H_coor is a 1D-array with the 3 coors of 1 H).
             for i, H_coor in enumerate(Hs_coor):
                 # Give a name to newly built H
@@ -681,7 +681,7 @@ def fast_buildHs_on_1C(dic_lipids_with_indexes, ts, Cname, ix_first_atom_res):
                           .format(typeofH2build))
 
 
-def get_indexes(atom, universe_woH):
+def get_indexes(atom, universe_woH, dic_lipid):
     """Returns the index of helpers for a given carbon.
 
     Parameters
@@ -700,10 +700,10 @@ def get_indexes(atom, universe_woH):
         of C38=helper2).
     """
     # Get nb of H to build and helper names (we can have 2 or 3 helpers).
-    if len(dic_lipids.POPC[atom.name]) == 3:
-        typeofH2build, helper1_name, helper2_name = dic_lipids.POPC[atom.name]
+    if len(dic_lipid[atom.name]) == 3:
+        typeofH2build, helper1_name, helper2_name = dic_lipid[atom.name]
     else:
-        typeofH2build, helper1_name, helper2_name, helper3_name = dic_lipids.POPC[atom.name]
+        typeofH2build, helper1_name, helper2_name, helper3_name = dic_lipid[atom.name]
     # Get helper coordinates using atom, which an instance from Atom class.
     # atom.residue.atoms is a list of atoms we can select with
     # method .select_atoms().
@@ -719,7 +719,7 @@ def get_indexes(atom, universe_woH):
         return (helper1_ix, helper2_ix)
 
 
-def make_dic_lipids_with_indexes(universe_woH):
+def make_dic_lipids_with_indexes(universe_woH, dic_lipid):
     """This function expands dic_lipid and add the index of each atom and helper.
 
     IMPORTANT: the index of each atom/helper is given with respect to the
@@ -746,7 +746,7 @@ def make_dic_lipids_with_indexes(universe_woH):
         The returned dictionnary as described above in this docstring.
     """
     # Get lipid name.
-    resname = dic_lipids.POPC["resname"]
+    resname = dic_lipid["resname"]
     # Get resnum of the 1st lipid encountered in the system whose name
     # is `resname`.
     selection = "resname {}".format(resname)
@@ -762,8 +762,8 @@ def make_dic_lipids_with_indexes(universe_woH):
               .format(resname, first_lipid_residue, resnum_1st_lipid,
                       first_atom_name, first_atom_ix))
         print()
-    # Deep copy dic_lipids.POPC.
-    dic_lipids_with_indexes = copy.deepcopy(dic_lipids.POPC)
+    # Deep copy of dic_lipid.
+    dic_lipids_with_indexes = copy.deepcopy(dic_lipid)
     # At this point, we no longer need the "resname" key, so remove it.
     del dic_lipids_with_indexes["resname"]
     # Now add the helper indexes.
@@ -771,24 +771,26 @@ def make_dic_lipids_with_indexes(universe_woH):
     # dict) the index (ix) of each helper of a given carbon with respect to
     # the index of the first atom in that lipid residue.
     # Loop over each carbon on which we want to reconstruct Hs.
-    for Cname in dic_lipids.POPC.keys():
+    for Cname in dic_lipid.keys():
         if Cname != "resname":
             # Loop over residues for a given Cname atom.
             selection = "resid {} and name {}".format(resnum_1st_lipid, Cname)
             for Catom in universe_woH.select_atoms(selection):
                 # Get the (absolute) index of helpers.
-                if dic_lipids.POPC[Cname][0] == "CH":
+                if dic_lipid[Cname][0] == "CH":
                     helper1_ix, helper2_ix, helper3_ix = get_indexes(Catom,
-                                                                     universe_woH)
+                                                                     universe_woH,
+                                                                     dic_lipid)
                 else:
-                    helper1_ix, helper2_ix = get_indexes(Catom, universe_woH)
+                    helper1_ix, helper2_ix = get_indexes(Catom, universe_woH,
+                                                         dic_lipid)
                 # If the first lipid doesn't start at residue 1 we must
                 # substract the index of the first atom of that lipid.
                 Catom_ix_inres = Catom.ix - first_atom_ix
                 helper1_ix_inres = helper1_ix - first_atom_ix
                 helper2_ix_inres = helper2_ix - first_atom_ix
                 # Then add these indexes to dic_lipids_with_indexes.
-                if dic_lipids.POPC[Cname][0] == "CH":
+                if dic_lipid[Cname][0] == "CH":
                     helper3_ix_inres = helper3_ix - first_atom_ix
                     tmp_tuple = (Catom_ix_inres, helper1_ix_inres,
                                  helper2_ix_inres, helper3_ix_inres)
@@ -804,7 +806,7 @@ def make_dic_lipids_with_indexes(universe_woH):
     return dic_lipids_with_indexes
 
 
-def fast_build_all_Hs(universe_woH, dic_OP):
+def fast_build_all_Hs(universe_woH, dic_OP, dic_lipid):
     """BLABLABLA
 
     Parameters
@@ -829,9 +831,9 @@ def fast_build_all_Hs(universe_woH, dic_OP):
     ### (possibly helper3) with respect to the first atom
     ### (e.g. 0 is index of C1, N4 is 3 atoms away from C1, etc).
     ###
-    dic_lipids_with_indexes = make_dic_lipids_with_indexes(universe_woH)
+    dic_lipids_with_indexes = make_dic_lipids_with_indexes(universe_woH, dic_lipid)
     # Get lipid name.
-    resname = dic_lipids.POPC["resname"]
+    resname = dic_lipid["resname"]
     # Select first residue of that lipid.
     selection = "resname {}".format(resname)
     first_lipid_residue = universe_woH.select_atoms(selection).residues[0]
@@ -874,15 +876,15 @@ def fast_build_all_Hs(universe_woH, dic_OP):
                     sel = first_lipid_atom.residue.atoms.select_atoms
                     Cname_atom = sel("name {}".format(Cname))[0]
                     print(Cname_atom, Cname_atom.position)
-                    if len(dic_lipids.POPC[Cname]) == 3:
-                        _, helper1_name, helper2_name = dic_lipids.POPC[Cname]
+                    if len(dic_lipid[Cname]) == 3:
+                        _, helper1_name, helper2_name = dic_lipid[Cname]
                     else:
-                        _, helper1_name, helper2_name, helper3_name = dic_lipids.POPC[Cname]
+                        _, helper1_name, helper2_name, helper3_name = dic_lipid[Cname]
                     helper1_atom = sel("name {}".format(helper1_name))[0]
                     print("helper1", helper1_atom, helper1_atom.position)
                     helper2_atom = sel("name {}".format(helper2_name))[0]
                     print("helper2", helper2_atom, helper2_atom.position)
-                    if len(dic_lipids.POPC[Cname]) == 4:
+                    if len(dic_lipid[Cname]) == 4:
                         helper3_atom = sel("name {}".format(helper3_name))[0]
                         print("helper3", helper3_atom, helper3_atom.position)
                 # Get newly built H(s) on that atom.
@@ -893,7 +895,7 @@ def fast_build_all_Hs(universe_woH, dic_OP):
                     print("Cname_position with fast indexing:", Cname_position)
                     print("helper1_position with fast indexing:", ts[helper1_ix+ix_first_atom_res])
                     print("helper2_position with fast indexing:", ts[helper2_ix+ix_first_atom_res])
-                    if len(dic_lipids.POPC[Cname]) == 4:
+                    if len(dic_lipid[Cname]) == 4:
                         print("helper3_position with fast indexing:", ts[helper3_ix+ix_first_atom_res])
                 for i, H_coor in enumerate(Hs_coor):
                     # Give a name to newly built H
@@ -936,7 +938,7 @@ if __name__ == "__main__":
     parser.add_argument("-x", "--xtc", help="Input trajectory file in xtc "
                         "format.")
     parser.add_argument("-l", "--lipid", help="Residue name of lipid to "
-                        "calculate the OP on.")
+                        "calculate the OP on (e.g. POPC).")
     parser.add_argument("-opx", "--opdbxtc", help="Base name for trajectory "
                         "output with hydrogens. The extension will be "
                         "automatically added. For example -opx trajH will "
@@ -956,8 +958,12 @@ if __name__ == "__main__":
     # Check residue name validity.
     if not args.lipid:
         raise argparse.ArgumentTypeError("Resname is a mandatory argument.")
+    # Get the dictionnary with helper info using residue name (args.lipid
+    # argument). Beware, this dict is then called `dic_lipid` *without s*,
+    # while `dic_lipids.py` (with an s) is a module with many different dicts
+    # (of different lipids) the user can choose.
     try:
-        lipid_resname = getattr(dic_lipids, args.lipid)
+        dic_lipid = getattr(dic_lipids, args.lipid)
     except:
         raise argparse.ArgumentTypeError("Lipid resname {} doesn't exist in "
                                          "dic_lipids.py".format(args.lipid))
@@ -988,7 +994,7 @@ if __name__ == "__main__":
         xtcout_filename = args.opdbxtc + ".xtc"
         # Build a new universe with H.
         # Build a pandas df with H.
-        new_df_atoms = build_all_Hs_calc_OP(universe_woH, return_coors=True)
+        new_df_atoms = build_all_Hs_calc_OP(universe_woH, dic_lipid, return_coors=True)
         # Create a new universe with H using that df.
         print("Writing new pdb with hydrogens.")
         # Write pdb with H to disk.
@@ -1008,7 +1014,7 @@ if __name__ == "__main__":
             print("Dealing with frame {} at {} ps."
                 .format(ts.frame, universe_woH.trajectory.time))
             # Build H and update their positions in the universe *with* H (in place).
-            build_all_Hs_calc_OP(universe_woH, universe_wH=universe_wH, dic_OP=dic_OP)
+            build_all_Hs_calc_OP(universe_woH, dic_lipid, universe_wH=universe_wH, dic_OP=dic_OP)
             # Write new frame to xtc.
             newxtc.write(universe_wH)
         # Close xtc.
@@ -1018,7 +1024,7 @@ if __name__ == "__main__":
     # calculation. The function fast_build_all_Hs() returns nothing, dic_OP
     # is modified in place.
     if not args.opdbxtc:
-        fast_build_all_Hs(universe_woH, dic_OP)
+        fast_build_all_Hs(universe_woH, dic_OP, dic_lipid)
 
     # 7) Output results.
     # Pickle results? (migth be useful in the future)

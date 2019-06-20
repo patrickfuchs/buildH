@@ -4,8 +4,11 @@
 #        "atom2": ("typeofH2build", "helper1", "helper2"),
 #        ...}
 
-        # First store residue name.
-POPC = {"resname": "POPC",
+import copy
+
+Berger_POPC = {
+        # residue name
+        "resname": "POPC",
         # choline
         "C1": ("CH3", "N4", "C5"),
         "C2": ("CH3", "N4", "C5"),
@@ -54,4 +57,8 @@ POPC = {"resname": "POPC",
         }
 
 # Alternative name for POPC in Berger lipids.
-PLA = POPC
+Berger_PLA = copy.deepcopy(Berger_POPC)
+Berger_PLA["resname"] = "PLA"
+
+Berger_POP = copy.deepcopy(Berger_POPC)
+Berger_POP["resname"] = "POP"
