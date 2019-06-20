@@ -37,7 +37,6 @@ __date__ = "2019/05"
 # Modules.
 import argparse
 import copy
-import io
 import pickle
 
 import numpy as np
@@ -924,28 +923,44 @@ def quick_dic():
 if __name__ == "__main__":
     # 1) Parse arguments.
     # TODO --> Make a function for that.
-    parser = argparse.ArgumentParser(description="Reconstruct hydrogens and calculate order parameter from a united-atom trajectory.")
+    message="""This program builds hydrogens and calculate the order
+    parameters
+    (OP) from a united-atom trajectory. If -opx is requested, pdb and xtc
+    output files with hydrogens are created but OP calculation will be slow.
+    If no output argument is requested (no use of flag -opx), it uses a
+    fast procedure to build hydrogens and calculate the OP.
+    """
+    parser = argparse.ArgumentParser(description=message)
     # Avoid tpr for topology cause there's no .coord there!
-    parser.add_argument("topfile", type=str, help="topology file (pdb or gro)")
-    parser.add_argument("--xtc", help="input trajectory file in xtc format")
-    parser.add_argument("--pdbout", help="output pdb file name with hydrogens "
-                        "(default takes topology name + \"H\")")
-    parser.add_argument("--xtcout", help="output xtc file name with hydrogens "
-                        "(default takes topology name + \"H\")")
+    parser.add_argument("topfile", type=str, help="Topology file (pdb or gro).")
+    parser.add_argument("-x", "--xtc", help="Input trajectory file in xtc "
+                        "format.")
+    parser.add_argument("-l", "--lipid", help="Residue name of lipid to "
+                        "calculate the OP on.")
+    parser.add_argument("-opx", "--opdbxtc", help="Base name for trajectory "
+                        "output with hydrogens. The extension will be "
+                        "automatically added. For example -opx trajH will "
+                        "generate trajH.pdb and trajH.xtc. "
+                        "So far only xtc is supported.")
+    parser.add_argument("-o", "--out", help="Output text file with order "
+                        "parameters (default name is OP_buildH.out)",
+                        default="OP_buildH.out")
     args = parser.parse_args()
+
     # Top file is "args.topfile", xtc file is "args.xtc", pdb output file is
     # "args.pdbout", xtc output file is "args.xtcout".
     # Check topology file extension.
     if not args.topfile.endswith("pdb") and not args.topfile.endswith("gro"):
         raise argparse.ArgumentTypeError("Topology must be given in pdb"
                                          " or gro format")
-    # Check other extensions.
-    if args.pdbout:
-        if not args.pdbout.endswith("pdb"):
-            raise argparse.ArgumentTypeError("pdbout must have a pdb extension")
-    if args.xtcout:
-        if not args.xtcout.endswith("xtc"):
-            raise argparse.ArgumentTypeError("xtcout must have an xtc extension")
+    # Check residue name validity.
+    if not args.lipid:
+        raise argparse.ArgumentTypeError("Resname is a mandatory argument.")
+    try:
+        lipid_resname = getattr(dic_lipids, args.lipid)
+    except:
+        raise argparse.ArgumentTypeError("Lipid resname {} doesn't exist in "
+                                         "dic_lipids.py".format(args.lipid))
 
     # 2) Create universe without H.
     print("Constructing the system...")
@@ -955,38 +970,7 @@ if __name__ == "__main__":
         universe_woH = mda.Universe(args.topfile)
     print("System has {} atoms".format(len(universe_woH.coord)))
 
-
-    # QUICK TRY to build H only on carbons (thus lines below are
-    # temporarilly not executed).
-    QUICK = True
-    if not QUICK:
-        # 3) Build a new universe with H.
-        # Build a pandas df with H.
-        new_df_atoms = build_all_Hs_calc_OP(universe_woH, return_coors=True)
-        # Create a new universe with H using that df.
-        if args.pdbout:
-            print("Writing new pdb with hydrogens.")
-            # Write pdb with H to disk.
-            with open(args.pdbout, "w") as f:
-                f.write(pandasdf2pdb(new_df_atoms))
-            # Then create the universe with H from that pdb.
-            universe_wH = mda.Universe(args.pdbout)
-        else:
-            ###
-            ### !!!FIX ME !!! So far when using StringIO stream, an exception is
-            ### raised which is not neat.
-            ### See https://github.com/MDAnalysis/mdanalysis/issues/2089.
-            ###
-            # In this else we don't want to create a pdb file, use a stream instead.
-            pdb_s = pandasdf2pdb(new_df_atoms)
-            universe_wH = mda.Universe(io.StringIO(pdb_s), format="pdb")
-        if args.xtcout:
-            # Create an xtc writer.
-            newxtc = XTC.XTCWriter(args.xtcout, len(universe_wH.atoms))
-            # Write 1st frame.
-            newxtc.write(universe_wH)
-
-    # 4) Initialize dic for storing OP.
+    # 2) Initialize dic for storing OP.
     # Init dic of correspondance : {('C1', 'H11'): 'gamma1_1',
     # {('C1', 'H11'): 'gamma1_1', ...}.
     # TODO --> Add arguments for passing file name with OP definition.
@@ -996,27 +980,49 @@ if __name__ == "__main__":
     for key in dic_atname2genericname:
         dic_OP[key] = []
 
-    # Quick try to loop only over C on which we want to build Hs.
-    if QUICK:
-        fast_build_all_Hs(universe_woH, dic_OP)
+    # If traj output files are requested.
+    if args.opdbxtc:
+        #3) First, prepare the system.
+        # Create filenames.
+        pdbout_filename = args.opdbxtc + ".pdb"
+        xtcout_filename = args.opdbxtc + ".xtc"
+        # Build a new universe with H.
+        # Build a pandas df with H.
+        new_df_atoms = build_all_Hs_calc_OP(universe_woH, return_coors=True)
+        # Create a new universe with H using that df.
+        print("Writing new pdb with hydrogens.")
+        # Write pdb with H to disk.
+        with open(pdbout_filename, "w") as f:
+            f.write(pandasdf2pdb(new_df_atoms))
+        # Then create the universe with H from that pdb.
+        universe_wH = mda.Universe(pdbout_filename)
+        # Create an xtc writer.
+        print("Writing trajectory with hydrogens in xtc file.")
+        newxtc = XTC.XTCWriter(xtcout_filename, len(universe_wH.atoms))
+        # Write 1st frame.
+        newxtc.write(universe_wH)
 
-    # 5) Loop over all frames of the traj *without* H, build H and calc OP.
-    # (ts is a Timestep instance).
-    if not QUICK:
+        # 4) Loop over all frames of the traj *without* H, build Hs and
+        # calc OP (ts is a Timestep instance).
         for ts in universe_woH.trajectory:
             print("Dealing with frame {} at {} ps."
                 .format(ts.frame, universe_woH.trajectory.time))
             # Build H and update their positions in the universe *with* H (in place).
             build_all_Hs_calc_OP(universe_woH, universe_wH=universe_wH, dic_OP=dic_OP)
-            if args.xtcout:
-                # Write new frame to xtc.
-                newxtc.write(universe_wH)
-        if args.xtcout:
-            # Close xtc.
-            newxtc.close()
+            # Write new frame to xtc.
+            newxtc.write(universe_wH)
+        # Close xtc.
+        newxtc.close()
 
-    # 6) Output results.
+    # 6) If no traj output file requested, use fast indexing to speed up OP
+    # calculation. The function fast_build_all_Hs() returns nothing, dic_OP
+    # is modified in place.
+    if not args.opdbxtc:
+        fast_build_all_Hs(universe_woH, dic_OP)
+
+    # 7) Output results.
     # Pickle results? (migth be useful in the future)
+    # TODO Implement that option.
     if PICKLE:
         with open("OP.pickle", "wb") as f:
             # Pickle the dic using the highest protocol available.
@@ -1025,16 +1031,14 @@ if __name__ == "__main__":
         #with open("OP.pickle", "rb") as f:
         #    dic_OP = pickle.load(f)
     # Output to a file (same format as in the prog of @jmelcr).
-    output_file = "OUT.buildH"
-    with open(output_file, "w") as f:
+    with open(args.out, "w") as f:
         f.write("# OP_name    resname    atom1    atom2    OP_mean   OP_stddev  OP_stem\n"
                 "#--------------------------------------------------------------------\n")
         for key in dic_atname2genericname.keys():
             name = dic_atname2genericname[key]
             at1, at2 = key
             a = np.array(dic_OP[key])
-            #print("{:15s} {:4s} {:4s} {:10.6f} +/- {:10.6f}".format(name, at1, at2, a.mean(), a.std()))
             f.write("{:20s} {:7s} {:5s} {:5s} {: 2.5f} {: 2.5f} {: 2.5f}\n"
                     .format(name, "POPC", at1, at2, a.mean(), a.std(), 0.0))
-    print("Results written to {}".format(output_file))
+    print("Results written to {}".format(args.out))
 
