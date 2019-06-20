@@ -6,7 +6,9 @@ The initial motivation comes from the [NMRlipids](https://nmrlipids.blogspot.com
 
 It is writte in Python 3.
 
-Prerequisites : argparse, io, numpy, pandas, MDAnalysis.
+Prerequisites : 
+- internal: argparse, pickle
+- external: numpy, pandas, MDAnalysis.
 
 Easiest way to install all of these is via conda :
 
@@ -18,20 +20,21 @@ conda install numpy pandas mdanalysis
 Launching the program without arguments shows its usage:
 
 ```
-$ python ./add_hydrogens.py
-usage: add_hydrogens.py [-h] [--xtc XTC] [--pdbout PDBOUT] [--xtcout XTCOUT]
-                        topfile
-add_hydrogens.py: error: the following arguments are required: topfile
+python ./buildH_calcOP.py
+usage: buildH_calcOP.py [-h] [-x XTC] [-opx OPDBXTC] [-o OUT] topfile
+buildH_calcOP.py: error: the following arguments are required: topfile
 ```
 
-Examples of ways of lauching the program:
+The program needs two files (present in this repo):
+- `dic_lipids.py`
+- `order_parameter_definitions_MODEL_Berger_POPC.def`
+
+Examples of ways of launching the program:
 
 ```
-python ./add_hydrogens.py popc.pdb
+python ./buildH_calcOP.py popc.pdb
 
-python ./add_hydrogens.py popc.pdb --xtc traj.xtc
+python ./buildH_calcOP.py popc.pdb -x traj.xtc
 
-python ./add_hydrogens.py popc.pdb --xtc traj.xtc --pdbout popc_with_H.pdb
-
-python ./add_hydrogens.py popc.pdb --xtc traj.xtc --pdbout popc_with_H.pdb --xtcout traj_with_H.xtc
+python ./buildH_calcOP.py popc.pdb -x traj.xtc -opx popc_with_H
 ```
