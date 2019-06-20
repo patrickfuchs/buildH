@@ -30,7 +30,7 @@ functions for vectorial operations (e.g. cross product).
 __authors__ = ("Patrick Fuchs", "Amélie Bâcle", "Hubert Santuz",
                "Pierre Poulain")
 __contact__ = ("patrickfuchs", "abacle", "hublot", "pierrepo") # on github
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 __copyright__ = "copyleft"
 __date__ = "2019/05"
 
@@ -73,7 +73,7 @@ def calc_OP(C, H):
     |/
     C
 
-    This function was initially written by @jmelcr.
+    Inspired from a function written by @jmelcr.
 
     Parameters
     ----------
@@ -242,7 +242,8 @@ def pandasdf2pdb(df):
         atnum, atname, resname, resnum, x, y, z = row_atom
         atnum = int(atnum)
         resnum = int(resnum)
-        # See for pdb format: https://www.cgl.ucsf.edu/chimera/docs/UsersGuide/tutorials/pdbintro.html.
+        # See for pdb format:
+        # https://www.cgl.ucsf.edu/chimera/docs/UsersGuide/tutorials/pdbintro.html.
         # "alt" means alternate location indicator
         # "code" means code for insertions of residues
     	# "seg" means segment identifier
@@ -322,13 +323,12 @@ def get_CH2(atom, helper1, helper2):
     #vec_to_rotate = normalize(np.cross(v4, rotation_axis))
     vec_to_rotate = normalize(cross_product(v4, rotation_axis))
     # Reconstruct the two hydrogens.
-    # TODO Rename norm_vec_H1 (this is confusing) --> maybe unit_vect_H1 ? (same for H2)
-    norm_vec_H1 = apply_rotation(vec_to_rotate, rotation_axis,
+    unit_vect_H1 = apply_rotation(vec_to_rotate, rotation_axis,
                                  -TETRAHEDRAL_ANGLE/2)
-    hcoor_H1 = LENGTH_CH_BOND * norm_vec_H1 + atom
-    norm_vec_H2 = apply_rotation(vec_to_rotate, rotation_axis,
+    hcoor_H1 = LENGTH_CH_BOND * unit_vect_H1 + atom
+    unit_vect_H2 = apply_rotation(vec_to_rotate, rotation_axis,
                                  TETRAHEDRAL_ANGLE/2)
-    hcoor_H2 = LENGTH_CH_BOND * norm_vec_H2 + atom
+    hcoor_H2 = LENGTH_CH_BOND * unit_vect_H2 + atom
     return (hcoor_H1, hcoor_H2)
 
 
@@ -356,7 +356,8 @@ def get_CH(atom, helper1, helper2, helper3):
     for i in range(len(helpers)):
         v2 = v2 + normalize(helpers[i] - atom)
     v2 = v2 / (len(helpers)) + atom
-    coor_H = LENGTH_CH_BOND * normalize(atom - v2) + atom
+    unit_vect_H = normalize(atom - v2)
+    coor_H = LENGTH_CH_BOND * unit_vect_H + atom
     return coor_H
 
 
@@ -387,8 +388,8 @@ def get_CH_double_bond(atom, helper1, helper2):
     #rotation_axis = normalize(np.cross(v2, v3))
     rotation_axis = normalize(cross_product(v2, v3))
     # Reconstruct H by rotating v3 by theta.
-    norm_vec_H = apply_rotation(v3, rotation_axis, theta)
-    coor_H = LENGTH_CH_BOND * norm_vec_H + atom
+    unit_vect_H = apply_rotation(v3, rotation_axis, theta)
+    coor_H = LENGTH_CH_BOND * unit_vect_H + atom
     return coor_H
 
 
@@ -421,22 +422,22 @@ def get_CH3(atom, helper1, helper2):
     rotation_axis = normalize(cross_product(v3, v2))
     # Rotate v2 by tetrahedral angle. New He will be in the same plane
     # as atom and helpers.
-    norm_vec_He = apply_rotation(v2, rotation_axis, theta)
-    coor_He = LENGTH_CH_BOND * norm_vec_He + atom
+    unit_vect_He = apply_rotation(v2, rotation_axis, theta)
+    coor_He = LENGTH_CH_BOND * unit_vect_He + atom
     ### Build CH3r.
     theta = (2/3) * np.pi
     rotation_axis = normalize(helper1 - atom)
     v4 = normalize(coor_He - atom)
     # Now we rotate atom->He bond around atom->helper1 bond by 2pi/3.
-    norm_vec_Hr = apply_rotation(v4, rotation_axis, theta)
-    coor_Hr = LENGTH_CH_BOND * norm_vec_Hr + atom
+    unit_vect_Hr = apply_rotation(v4, rotation_axis, theta)
+    coor_Hr = LENGTH_CH_BOND * unit_vect_Hr + atom
     ### Build CH3s.
     theta = -(2/3) * np.pi
     rotation_axis = normalize(helper1 - atom)
     v5 = normalize(coor_He - atom)
     # Last we rotate atom->He bond around atom->helper1 bond by -2pi/3.
-    norm_vec_Hs = apply_rotation(v5, rotation_axis, theta)
-    coor_Hs = LENGTH_CH_BOND * norm_vec_Hs + atom
+    unit_vect_Hs = apply_rotation(v5, rotation_axis, theta)
+    coor_Hs = LENGTH_CH_BOND * unit_vect_Hs + atom
     return coor_He, coor_Hr, coor_Hs
 
 
@@ -620,7 +621,7 @@ def build_all_Hs_calc_OP(universe_woH, dic_lipid, universe_wH=None, dic_OP=None,
         return new_df_atoms
 
 ###
-### The next 4 functions (fast_build_all_Hs(), fast_buildHs_on_1C(),
+### The next 4 functions (fast_build_all_Hs_calc_OP(), fast_buildHs_on_1C(),
 ### make_dic_lipids_with_indexes() and get_indexes()) should be used when the
 ### user doesn't want an output trajectory.
 ### By using fast indexing to individual Catoms and helpers, they
@@ -730,7 +731,7 @@ def get_indexes(atom, universe_woH, dic_lipid):
 
 
 def make_dic_lipids_with_indexes(universe_woH, dic_lipid):
-    """This function expands dic_lipid and add the index of each atom and helper.
+    """This function expands dic_lipid and adds the index of each atom and helper.
 
     IMPORTANT: the index of each atom/helper is given with respect to the
                first atom in that residue.
@@ -819,8 +820,11 @@ def make_dic_lipids_with_indexes(universe_woH, dic_lipid):
     return dic_lipids_with_indexes
 
 
-def fast_build_all_Hs(universe_woH, dic_OP, dic_lipid):
-    """BLABLABLA
+def fast_build_all_Hs_calc_OP(universe_woH, dic_OP, dic_lipid):
+    """Build Hs and calc OP using fast indexing.
+
+    This function uses fast indexing to carbon atoms and helper atoms. It
+    should be used when the user doesn't want any output traj with hydrogens.
 
     Parameters
     ----------
@@ -928,13 +932,37 @@ def fast_build_all_Hs(universe_woH, dic_OP, dic_lipid):
                     print() ; print()
 
 
-# For now make a quick dic (to be removed later).
-def quick_dic():
+def make_dic_OP(filename):
+    """Make a dict of correspondance between generic H names and PDB names.
+
+    This dict will look like the following: {('C1', 'H11'): 'gamma1_1', ...}.
+    Useful for outputing OP with generic names (such as beta1, beta 2, etc.).
+    Such files can be found on the NMRlipids MATCH repository:
+    https://github.com/NMRLipids/MATCH/tree/master/scripts/orderParm_defs.
+
+    Parameters
+    ----------
+    filename : str
+        Name of filename containing OP definition
+        (e.g. `order_parameter_definitions_MODEL_Berger_POPC.def`).
+
+    Returns
+    -------
+    dictionnary
+        Keys are tuples of C / H name, values generic name (as described in
+        this docstring).
+    """
     dic = {}
-    with open("order_parameter_definitions_MODEL_Berger_POPC.def", "r") as f:
-        for line in f:
-            name, _, C, H = line.split()
-            dic[(C, H)] = name
+    try:
+        with open(filename, "r") as f:
+            for line in f:
+                # This line might have to be changed if the file contains more than
+                # 4 columns.
+                name, _, C, H = line.split()
+                dic[(C, H)] = name
+    except:
+        raise UserWarning("Can't read order parameter definition in "
+                          "file {}".format(filename))
     return dic
 
 
@@ -955,6 +983,9 @@ if __name__ == "__main__":
                         "format.")
     parser.add_argument("-l", "--lipid", help="Residue name of lipid to "
                         "calculate the OP on (e.g. POPC).")
+    parser.add_argument("-d", "--defop", help="Order parameter definition "
+                        "file. Can be found on NMRlipids MATCH repository:"
+                        "https://github.com/NMRLipids/MATCH/tree/master/scripts/orderParm_defs")
     parser.add_argument("-opx", "--opdbxtc", help="Base name for trajectory "
                         "output with hydrogens. The extension will be "
                         "automatically added. For example -opx trajH will "
@@ -973,7 +1004,8 @@ if __name__ == "__main__":
                                          " or gro format")
     # Check residue name validity.
     if not args.lipid:
-        raise argparse.ArgumentTypeError("Resname is a mandatory argument.")
+        raise argparse.ArgumentTypeError("Lipid resname is a mandatory "
+                                         "argument (option -l).")
     # Get the dictionnary with helper info using residue name (args.lipid
     # argument). Beware, this dict is then called `dic_lipid` *without s*,
     # while `dic_lipids.py` (with an s) is a module with many different dicts
@@ -983,21 +1015,31 @@ if __name__ == "__main__":
     except:
         raise argparse.ArgumentTypeError("Lipid resname {} doesn't exist in "
                                          "dic_lipids.py".format(args.lipid))
+    # Check if order param def file has been passed.
+    if not args.defop:
+        raise argparse.ArgumentTypeError("Order parameter definition file is "
+                                         "a mandatory argument (option -d).")
 
     # 2) Create universe without H.
     print("Constructing the system...")
     if args.xtc:
-        universe_woH = mda.Universe(args.topfile, args.xtc)
+        try:
+            universe_woH = mda.Universe(args.topfile, args.xtc)
+        except:
+            raise UserWarning("Can't create MDAnalysis universe with files {}"
+                              " and {}".format(args.topfile, args.xtc))
     else:
-        universe_woH = mda.Universe(args.topfile)
+        try:
+            universe_woH = mda.Universe(args.topfile)
+        except:
+            raise UserWarning("Can't create MDAnalysis universe with file {}"
+                              .format(args.topfile))
     print("System has {} atoms".format(len(universe_woH.coord)))
 
     # 2) Initialize dic for storing OP.
     # Init dic of correspondance : {('C1', 'H11'): 'gamma1_1',
     # {('C1', 'H11'): 'gamma1_1', ...}.
-    # TODO --> Add arguments for passing file name with OP definition.
-    # TODO --> Make a class for storing all this stuff!
-    dic_atname2genericname = quick_dic()
+    dic_atname2genericname = make_dic_OP(args.defop)
     dic_OP = {}
     for key in dic_atname2genericname:
         dic_OP[key] = []
@@ -1040,7 +1082,7 @@ if __name__ == "__main__":
     # calculation. The function fast_build_all_Hs() returns nothing, dic_OP
     # is modified in place.
     if not args.opdbxtc:
-        fast_build_all_Hs(universe_woH, dic_OP, dic_lipid)
+        fast_build_all_Hs_calc_OP(universe_woH, dic_OP, dic_lipid)
 
     # 7) Output results.
     # Pickle results? (migth be useful in the future)
