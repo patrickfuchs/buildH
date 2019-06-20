@@ -459,6 +459,10 @@ def buildHs_on_1C(atom, dic_lipid):
     Parameters
     ----------
     atom : MDAnalysis Atom instance
+        This instance contains the carbon on which we want to build Hs.
+    dic_lipid : dictionnary
+        Comes from dic_lipids.py. Contains carbon names and helper names needed
+        for reconstructing hydrogens.
 
     Returns
     -------
@@ -533,6 +537,9 @@ def build_all_Hs_calc_OP(universe_woH, dic_lipid, universe_wH=None, dic_OP=None,
     ----------
     universe_woH : MDAnalysis universe instance
         This is the universe *without* hydrogen.
+    dic_lipid : dictionnary
+        Comes from dic_lipids.py. Contains carbon names and helper names needed
+        for reconstructing hydrogens.
     universe_wH : MDAnalysis universe instance (optional)
         This is the universe *with* hydrogens.
     dic_OP : dictionnary
@@ -690,6 +697,9 @@ def get_indexes(atom, universe_woH, dic_lipid):
         This is an Atom instance of a carbon on which we want to build Hs.
     universe_woH : MDAnalysis universe instance
         The universe without hydrogens.
+    dic_lipid : dictionnary
+        Comes from dic_lipids.py. Contains carbon names and helper names needed
+        for reconstructing hydrogens.
 
     Returns
     -------
@@ -739,6 +749,9 @@ def make_dic_lipids_with_indexes(universe_woH, dic_lipid):
     ----------
     universe_woH : MDAnalysis Universe insstance
         This is an Atom instance of a carbon on which we want to build Hs.
+    dic_lipid : dictionnary
+        Comes from dic_lipids.py. Contains carbon names and helper names needed
+        for reconstructing hydrogens.
 
     Returns
     -------
@@ -816,6 +829,9 @@ def fast_build_all_Hs(universe_woH, dic_OP, dic_lipid):
     dic_OP : dictionnary
         Each key of this dict is a couple carbon/H, and at the beginning it
         contains an empty list, e.g. {('C1', 'H11): []; ('C1', 'H12'): [], ...}
+    dic_lipid : dictionnary
+        Comes from dic_lipids.py. Contains carbon names and helper names needed
+        for reconstructing hydrogens.
 
     Returns
     -------
