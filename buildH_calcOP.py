@@ -38,6 +38,7 @@ __date__ = "2019/05"
 import argparse
 import copy
 import pickle
+import collections
 
 import numpy as np
 import pandas as pd
@@ -948,11 +949,12 @@ def make_dic_OP(filename):
 
     Returns
     -------
-    dictionnary
-        Keys are tuples of C / H name, values generic name (as described in
-        this docstring).
+    Ordered dictionnary
+        Keys are tuples of (C, H) name, values generic name (as described
+        above in this docstring). The use of an ordered dictionnary ensures
+        we get always the same order in the output OP.
     """
-    dic = {}
+    dic = collections.OrderedDict()
     try:
         with open(filename, "r") as f:
             for line in f:
