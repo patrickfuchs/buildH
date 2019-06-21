@@ -732,7 +732,7 @@ def get_indexes(atom, universe_woH, dic_lipid):
 
 
 def make_dic_lipids_with_indexes(universe_woH, dic_lipid):
-    """This function expands dic_lipid and adds the index of each atom and helper.
+    """Expands dic_lipid and adds the index of each atom and helper.
 
     IMPORTANT: the index of each atom/helper is given with respect to the
                first atom in that residue.
@@ -786,34 +786,33 @@ def make_dic_lipids_with_indexes(universe_woH, dic_lipid):
     # dict) the index (ix) of each helper of a given carbon with respect to
     # the index of the first atom in that lipid residue.
     # Loop over each carbon on which we want to reconstruct Hs.
-    for Cname in dic_lipid.keys():
-        if Cname != "resname":
-            # Loop over residues for a given Cname atom.
-            selection = "resid {} and name {}".format(resnum_1st_lipid, Cname)
-            for Catom in universe_woH.select_atoms(selection):
-                # Get the (absolute) index of helpers.
-                if dic_lipid[Cname][0] == "CH":
-                    helper1_ix, helper2_ix, helper3_ix = get_indexes(Catom,
-                                                                     universe_woH,
-                                                                     dic_lipid)
-                else:
-                    helper1_ix, helper2_ix = get_indexes(Catom, universe_woH,
-                                                         dic_lipid)
-                # If the first lipid doesn't start at residue 1 we must
-                # substract the index of the first atom of that lipid.
-                Catom_ix_inres = Catom.ix - first_atom_ix
-                helper1_ix_inres = helper1_ix - first_atom_ix
-                helper2_ix_inres = helper2_ix - first_atom_ix
-                # Then add these indexes to dic_lipids_with_indexes.
-                if dic_lipid[Cname][0] == "CH":
-                    helper3_ix_inres = helper3_ix - first_atom_ix
-                    tmp_tuple = (Catom_ix_inres, helper1_ix_inres,
-                                 helper2_ix_inres, helper3_ix_inres)
-                    dic_lipids_with_indexes[Cname] += tmp_tuple
-                else:
-                    tmp_tuple = (Catom_ix_inres, helper1_ix_inres,
-                                 helper2_ix_inres)
-                    dic_lipids_with_indexes[Cname] += tmp_tuple
+    for Cname in dic_lipids_with_indexes.keys():
+        # Loop over residues for a given Cname atom.
+        selection = "resid {} and name {}".format(resnum_1st_lipid, Cname)
+        for Catom in universe_woH.select_atoms(selection):
+            # Get the (absolute) index of helpers.
+            if dic_lipid[Cname][0] == "CH":
+                helper1_ix, helper2_ix, helper3_ix = get_indexes(Catom,
+                                                                 universe_woH,
+                                                                 dic_lipid)
+            else:
+                helper1_ix, helper2_ix = get_indexes(Catom, universe_woH,
+                                                     dic_lipid)
+            # If the first lipid doesn't start at residue 1 we must
+            # substract the index of the first atom of that lipid.
+            Catom_ix_inres = Catom.ix - first_atom_ix
+            helper1_ix_inres = helper1_ix - first_atom_ix
+            helper2_ix_inres = helper2_ix - first_atom_ix
+            # Then add these indexes to dic_lipids_with_indexes.
+            if dic_lipid[Cname][0] == "CH":
+                helper3_ix_inres = helper3_ix - first_atom_ix
+                tmp_tuple = (Catom_ix_inres, helper1_ix_inres,
+                             helper2_ix_inres, helper3_ix_inres)
+                dic_lipids_with_indexes[Cname] += tmp_tuple
+            else:
+                tmp_tuple = (Catom_ix_inres, helper1_ix_inres,
+                             helper2_ix_inres)
+                dic_lipids_with_indexes[Cname] += tmp_tuple
     if DEBUG:
         print("Everything is based on the following dic_lipids_with_indexes\n{}"
               .format(dic_lipids_with_indexes))
@@ -852,7 +851,8 @@ def fast_build_all_Hs_calc_OP(universe_woH, dic_OP, dic_lipid):
     ### (possibly helper3) with respect to the first atom
     ### (e.g. 0 is index of C1, N4 is 3 atoms away from C1, etc).
     ###
-    dic_lipids_with_indexes = make_dic_lipids_with_indexes(universe_woH, dic_lipid)
+    dic_lipids_with_indexes = make_dic_lipids_with_indexes(universe_woH,
+                                                           dic_lipid)
     # Get lipid name.
     resname = dic_lipid["resname"]
     # Select first residue of that lipid.
@@ -914,10 +914,13 @@ def fast_build_all_Hs_calc_OP(universe_woH, dic_OP, dic_lipid):
                 # Loop over all Hs.
                 if DEBUG:
                     print("Cname_position with fast indexing:", Cname_position)
-                    print("helper1_position with fast indexing:", ts[helper1_ix+ix_first_atom_res])
-                    print("helper2_position with fast indexing:", ts[helper2_ix+ix_first_atom_res])
+                    print("helper1_position with fast indexing:",
+                          ts[helper1_ix+ix_first_atom_res])
+                    print("helper2_position with fast indexing:",
+                          ts[helper2_ix+ix_first_atom_res])
                     if len(dic_lipid[Cname]) == 4:
-                        print("helper3_position with fast indexing:", ts[helper3_ix+ix_first_atom_res])
+                        print("helper3_position with fast indexing:",
+                              ts[helper3_ix+ix_first_atom_res])
                 for i, H_coor in enumerate(Hs_coor):
                     # Give a name to newly built H
                     # (e.g. if C18 has 3 H, their name will be H181,H182 & H183).
@@ -1015,8 +1018,8 @@ if __name__ == "__main__":
     try:
         dic_lipid = getattr(dic_lipids, args.lipid)
     except:
-        raise argparse.ArgumentTypeError("Lipid resname {} doesn't exist in "
-                                         "dic_lipids.py".format(args.lipid))
+        raise argparse.ArgumentTypeError("Lipid dictionnary {} doesn't exist "
+                                         "in dic_lipids.py".format(args.lipid))
     # Check if order param def file has been passed.
     if not args.defop:
         raise argparse.ArgumentTypeError("Order parameter definition file is "
@@ -1028,8 +1031,8 @@ if __name__ == "__main__":
         try:
             universe_woH = mda.Universe(args.topfile, args.xtc)
         except:
-            raise UserWarning("Can't create MDAnalysis universe with files {}"
-                              " and {}".format(args.topfile, args.xtc))
+            raise UserWarning("Can't create MDAnalysis universe with files {} "
+                              "and {}".format(args.topfile, args.xtc))
     else:
         try:
             universe_woH = mda.Universe(args.topfile)
@@ -1054,7 +1057,8 @@ if __name__ == "__main__":
         xtcout_filename = args.opdbxtc + ".xtc"
         # Build a new universe with H.
         # Build a pandas df with H.
-        new_df_atoms = build_all_Hs_calc_OP(universe_woH, dic_lipid, return_coors=True)
+        new_df_atoms = build_all_Hs_calc_OP(universe_woH, dic_lipid,
+                                            return_coors=True)
         # Create a new universe with H using that df.
         print("Writing new pdb with hydrogens.")
         # Write pdb with H to disk.
@@ -1074,7 +1078,8 @@ if __name__ == "__main__":
             print("Dealing with frame {} at {} ps."
                 .format(ts.frame, universe_woH.trajectory.time))
             # Build H and update their positions in the universe *with* H (in place).
-            build_all_Hs_calc_OP(universe_woH, dic_lipid, universe_wH=universe_wH, dic_OP=dic_OP)
+            build_all_Hs_calc_OP(universe_woH, dic_lipid,
+                                universe_wH=universe_wH, dic_OP=dic_OP)
             # Write new frame to xtc.
             newxtc.write(universe_wH)
         # Close xtc.
