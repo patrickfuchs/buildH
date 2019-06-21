@@ -568,7 +568,7 @@ def build_all_Hs_calc_OP(universe_woH, dic_lipid, universe_wH=None, dic_OP=None,
         newrows = []
         # Counter for numbering the new mlcs with H.
         new_atom_num = 1
-    # Loop over all atoms in the universe without H..
+    # Loop over all atoms in the universe without H.
     for atom in universe_woH.atoms:
         if universe_wH:
             # Update the position of the current atom in the universe with H.
@@ -631,8 +631,8 @@ def build_all_Hs_calc_OP(universe_woH, dic_lipid, universe_wH=None, dic_OP=None,
 def fast_buildHs_on_1C(dic_lipids_with_indexes, ts, Cname, ix_first_atom_res):
     """Builds fastly 1, 2 or 3 H on a given carbon.
 
-    This function is a fast wrapper which gathers the coordinates of the helpers
-    and call the function that builds 1, 2 or 3 H.
+    This function is a fast wrapper which gathers the coordinates of the
+    helpers and call the function that builds 1, 2 or 3 H.
 
     The name of the helpers as well as the type of H to build are described
     in a dictionnary stored in dic_lipids.py.
