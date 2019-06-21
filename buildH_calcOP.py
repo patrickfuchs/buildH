@@ -31,7 +31,7 @@ __authors__ = ("Patrick Fuchs", "Amélie Bâcle", "Hubert Santuz",
                "Pierre Poulain")
 __contact__ = ("patrickfuchs", "abacle", "hublot", "pierrepo") # on github
 __version__ = "1.0.3"
-__copyright__ = "copyleft"
+__copyright__ = "MIT"
 __date__ = "2019/05"
 
 # Modules.

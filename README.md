@@ -73,7 +73,7 @@ This file is used as module and contains a list of dictionaries based on the typ
 The dictionary is a list of carbon atoms from whom the hydrogens are reconstructed.
 For each carbon atom, there is the type of bonds (CH3,CH2,etc) and the 2 others atom needed for the reconstruction (see Algorithm).
 
-### order_parameters_definitions_MODEL_X_Y.def
+#### order_parameters_definitions_MODEL_X_Y.def
 
 This file is a mapping file created for the  [NMRlipids](https://nmrlipids.blogspot.com/) project.
 It aims to give a unique name for each order parameter value along the lipid regardless the model of lipid used.
@@ -81,7 +81,7 @@ It aims to give a unique name for each order parameter value along the lipid reg
 
 ## Examples
 
-You can find some test cases in the corresponding folder
+You can find some test cases in the corresponding folder.
 
 Examples of ways of launching the program:
 
@@ -100,6 +100,19 @@ python ./buildH_calcOP.py popc_start.pdb -l Berger_POPC -d order_parameter_defin
 The way of building H is largely inspired from a code of Jon Kapla originally written in fortran :
 https://github.com/kaplajon/trajman/blob/master/module_trajop.f90#L242.
 
+Below, an example of a reconstruction of 2 hydrogens (*H51* and *H52*) attached to a carbon *C5* with the help of 2 others atom *C6* and *N4*.
+
+![Vectors](vectors.png)
+
+First, we compute the cross product between the vector C5-C6 and C5-N4 (red).
+
+We determine a rotational axis determined by the vector N4-C6. (green)
+
+We compute the cross product between the red one and green one. (orange)
+
+This orange vector is the rotational vector to construct the hydrogens.
+
+For this case, 2 hydrogens are constructed (yellow) : we apply a rotation of 109.47 deg for one and -109.47 deg for the other one.
 
 
 ## Contributors
@@ -109,6 +122,7 @@ https://github.com/kaplajon/trajman/blob/master/module_trajop.f90#L242.
   - Hubert Santuz
   - Pierre Poulain
 
-## Licence
 
-buildH is licensed under the MIT License.
+## Licence
+
+buildH is licensed under the [MIT License](LICENSE).
