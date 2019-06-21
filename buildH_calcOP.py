@@ -1045,7 +1045,7 @@ if __name__ == "__main__":
     # Init dic of correspondance : {('C1', 'H11'): 'gamma1_1',
     # {('C1', 'H11'): 'gamma1_1', ...}.
     dic_atname2genericname = make_dic_OP(args.defop)
-    dic_OP = {}
+    dic_OP = collections.OrderedDict()
     for key in dic_atname2genericname:
         dic_OP[key] = []
 
