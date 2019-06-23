@@ -510,7 +510,7 @@ def buildHs_on_1C(atom, dic_lipid):
 
 
 def build_all_Hs_calc_OP(universe_woH, dic_lipid, universe_wH=None, dic_OP=None, return_coors=False):
-    """Main function that builds all hydrogens from an MDAnalysis universe and calculate order parameters.
+    """Main function that builds all hydrogens and calculates order parameters.
 
     This function shall be used in two modes :
 
@@ -629,7 +629,7 @@ def build_all_Hs_calc_OP(universe_woH, dic_lipid, universe_wH=None, dic_OP=None,
 ### are much faster.
 ###
 def fast_buildHs_on_1C(dic_lipids_with_indexes, ts, Cname, ix_first_atom_res):
-    """Builds fastly 1, 2 or 3 H on a given carbon.
+    """Builds 1, 2 or 3 H on a given carbon using fast indexing.
 
     This function is a fast wrapper which gathers the coordinates of the
     helpers and call the function that builds 1, 2 or 3 H.
@@ -777,10 +777,15 @@ def make_dic_lipids_with_indexes(universe_woH, dic_lipid):
               .format(resname, first_lipid_residue, resnum_1st_lipid,
                       first_atom_name, first_atom_ix))
         print()
-    # Deep copy of dic_lipid.
-    dic_lipids_with_indexes = copy.deepcopy(dic_lipid)
-    # At this point, we no longer need the "resname" key, so remove it.
-    del dic_lipids_with_indexes["resname"]
+    # Keep only carbons on which we want to build Hs.
+    carbons2keep = []
+    for Cname, Hname in dic_OP:
+        if Cname not in carbons2keep:
+            carbons2keep.append(Cname)
+    dic_lipids_with_indexes = {}
+    for Cname in dic_lipid.keys():
+        if Cname in carbons2keep:
+            dic_lipids_with_indexes[Cname] = dic_lipid[Cname]
     # Now add the helper indexes.
     # The reasonning is over one residue (e.g. POPC). We want to add (to the
     # dict) the index (ix) of each helper of a given carbon with respect to
@@ -862,7 +867,25 @@ def fast_build_all_Hs_calc_OP(universe_woH, dic_OP, dic_lipid):
     first_atom_name = first_lipid_residue.atoms[0].name
 
     ###
-    ### 2) Now loop over the traj, residues and Catoms.
+    ### 2) To calculate the error, we need to first average over the
+    ### trajectory, then over residues.
+    ### Thus in dic_OP, we want for each key a list of lists, for example:
+    ### OrderedDict([
+    ###              (('C1', 'H11'), [[], [], ..., [], []]),
+    ###              (('C1', 'H12'), [[], ..., []]),
+    ###              ...
+    ###              ])
+    ### Thus each sublist will contain OPs for one residue.
+    # Create these sublists by looping over each lipid.
+    selection = "resname {} and name {}".format(resname, first_atom_name)
+    for i, first_lipid_atom in enumerate(universe_woH.select_atoms(selection)):
+        for key in dic_OP.keys():
+            dic_OP[key].append([])
+    if DEBUG:
+        print("Initial dic_OP:", dic_OP)
+
+    ###
+    ### 3) Now loop over the traj, residues and Catoms.
     ### At each iteration build Hs and calc OP.
     ###
     # Loop over frames (ts is a Timestep instance).
@@ -873,9 +896,11 @@ def fast_build_all_Hs_calc_OP(universe_woH, dic_OP, dic_lipid):
             print("Looping now over residues...")
             print()
         # Loop over the 1st atom of each lipid, which is equiv to loop *over
-        # residues* (first_lipid_atom is an Atom instance).
+        # residues* (first_lipid_atom is an Atom instance, lipid_ix is an int
+        # that will be used for storing OPs in dic_OP).
         selection = "resname {} and name {}".format(resname, first_atom_name)
-        for first_lipid_atom in universe_woH.select_atoms(selection):
+        for lipid_ix, first_lipid_atom in enumerate(universe_woH.select_atoms(selection)):
+            # here i should create a new list in dic_OP <=============================================================
             if DEBUG:
                 print("Dealing with Cname", first_lipid_atom)
                 print("which is part of residue", first_lipid_atom.residue)
@@ -911,7 +936,6 @@ def fast_build_all_Hs_calc_OP(universe_woH, dic_OP, dic_lipid):
                 # Get newly built H(s) on that atom.
                 Hs_coor = fast_buildHs_on_1C(dic_lipids_with_indexes, ts,
                                              Cname, ix_first_atom_res)
-                # Loop over all Hs.
                 if DEBUG:
                     print("Cname_position with fast indexing:", Cname_position)
                     print("helper1_position with fast indexing:",
@@ -921,6 +945,7 @@ def fast_build_all_Hs_calc_OP(universe_woH, dic_OP, dic_lipid):
                     if len(dic_lipid[Cname]) == 4:
                         print("helper3_position with fast indexing:",
                               ts[helper3_ix+ix_first_atom_res])
+                # Loop over all Hs.
                 for i, H_coor in enumerate(Hs_coor):
                     # Give a name to newly built H
                     # (e.g. if C18 has 3 H, their name will be H181,H182 & H183).
@@ -929,11 +954,15 @@ def fast_build_all_Hs_calc_OP(universe_woH, dic_OP, dic_lipid):
                     # Calc and store OP for that couple C-H.
                     Cname_position = ts[Cname_ix+ix_first_atom_res]
                     op = calc_OP(Cname_position, H_coor)
-                    dic_OP[(Cname, H_name)].append(op)
+                    #dic_OP[(Cname, H_name)].append(op)
+                    if (Cname, H_name) in dic_OP:
+                        dic_OP[(Cname, H_name)][lipid_ix].append(op)
                     if DEBUG:
                         print(H_name, H_coor, "OP:", op)
                 if DEBUG:
                     print() ; print()
+    if DEBUG:
+        print("Final dic_OP:", print(dic_OP))
 
 
 def make_dic_OP(filename):
@@ -978,7 +1007,7 @@ if __name__ == "__main__":
     parameters
     (OP) from a united-atom trajectory. If -opx is requested, pdb and xtc
     output files with hydrogens are created but OP calculation will be slow.
-    If no output argument is requested (no use of flag -opx), it uses a
+    If no trajectory output is requested (no use of flag -opx), it uses a
     fast procedure to build hydrogens and calculate the OP.
     """
     parser = argparse.ArgumentParser(description=message)
@@ -1103,13 +1132,30 @@ if __name__ == "__main__":
         #    dic_OP = pickle.load(f)
     # Output to a file (same format as in the prog of @jmelcr).
     with open(args.out, "w") as f:
-        f.write("# OP_name    resname    atom1    atom2    OP_mean   OP_stddev  OP_stem\n"
-                "#--------------------------------------------------------------------\n")
+        f.write("# {:18s} {:7s} {:5s} {:5s}  {:7s} {:7s} {:7s}\n"
+                .format("OP_name", "resname", "atom1", "atom2", "OP_mean",
+                "OP_stddev", "OP_stem"))
+        f.write("#--------------------------------------------------------------------\n")
+        # Loop for each pair (C, H).
         for key in dic_atname2genericname.keys():
             name = dic_atname2genericname[key]
             at1, at2 = key
+            if DEBUG:
+                print("Pair ({}, {}):".format(at1, at2))
+            # Cast list of lists to a 2D-array. It should have dimensions
+            # (nb_lipids, nb_frames).
             a = np.array(dic_OP[key])
+            if DEBUG:
+                print("Final OP array has shape (nb_lipids, nb_frames):", a.shape)
+            # General mean over lipids and over frames (for that (C, H) pair).
+            mean = np.mean(a)
+            # Average over frames for each (C, H) pair (means is a 1D-array
+            # with nb_lipids elements).
+            means = np.mean(a, axis=0)
+            # Calc standard deviation and STEM (std error of the mean).
+            std_dev = np.std(means)
+            stem = np.std(means) / np.sqrt(len(means))
             f.write("{:20s} {:7s} {:5s} {:5s} {: 2.5f} {: 2.5f} {: 2.5f}\n"
-                    .format(name, "POPC", at1, at2, a.mean(), a.std(), 0.0))
+                    .format(name, "POPC", at1, at2, mean, std_dev, stem))
     print("Results written to {}".format(args.out))
 
