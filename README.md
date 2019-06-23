@@ -36,7 +36,7 @@ usage: buildH_calcOP.py [-h] [-x XTC] [-l LIPID] [-d DEFOP] [-opx OPDBXTC]
 
 This program builds hydrogens and calculate the order parameters (OP) from a
 united-atom trajectory. If -opx is requested, pdb and xtc output files with
-hydrogens are created but OP calculation will be slow. If no output argument
+hydrogens are created but OP calculation will be slow. If no trajectory output
 is requested (no use of flag -opx), it uses a fast procedure to build
 hydrogens and calculate the OP.
 
@@ -48,7 +48,7 @@ optional arguments:
   -x XTC, --xtc XTC     Input trajectory file in xtc format.
   -l LIPID, --lipid LIPID
                         Residue name of lipid to calculate the OP on (e.g.
-                        POPC).
+                        Berger_POPC).
   -d DEFOP, --defop DEFOP
                         Order parameter definition file. Can be found on
                         NMRlipids MATCH repository:https://github.com/NMRLipid
@@ -69,9 +69,9 @@ The program needs two mandatory files (present in this repo):
 
 #### dic_lipids.py
 
-This file is used as module and contains a list of dictionaries based on the type (POPC,DOPC,...) and the model (Berger, Charmm36) of lipids given in input.
-The dictionary is a list of carbon atoms from whom the hydrogens are reconstructed.
-For each carbon atom, there is the type of bonds (CH3,CH2,etc) and the 2 others atom needed for the reconstruction (see Algorithm).
+This file is used as a module and contains a list of dictionaries based on the type of lipids (POPC,DOPC,...) and the force field (Berger, GROMOS, etc). The chosen lipid/FF is passed to `buildH_calcOP.py` with `-l` option (e.g. `-l Berger_POPC`).
+The dictionary is a list of carbon atoms from which the hydrogens are built.
+For each carbon atom, there is the type of bonds (CH3, CH2, etc) and the 2 (or 3) others atoms needed for the reconstruction (see Algorithm).
 
 #### order_parameters_definitions_MODEL_X_Y.def
 
@@ -125,4 +125,4 @@ For this case, 2 hydrogens are constructed (yellow) : we apply a rotation of 109
 
 ## Licence
 
-buildH is licensed under the [MIT License](LICENSE).
+buildH is licensed under the [BSD License](LICENSE).
