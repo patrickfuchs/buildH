@@ -55,7 +55,7 @@ LENGTH_CH_BOND = 1.09 # in Angst
 # arccos(-1/3) ~ 1.9106 rad ~ 109.47 deg.
 TETRAHEDRAL_ANGLE = np.arccos(-1/3)
 # For debugging.
-DEBUG = False
+DEBUG = False #True
 # For pickling results (useful for future analyses, e.g. drawing distributions).
 PICKLE = False
 
@@ -509,7 +509,8 @@ def buildHs_on_1C(atom, dic_lipid):
                           .format(typeofH2build))
 
 
-def build_all_Hs_calc_OP(universe_woH, dic_lipid, universe_wH=None, dic_OP=None, return_coors=False):
+def build_all_Hs_calc_OP(universe_woH, dic_lipid, universe_wH=None, dic_OP=None,
+                         dic_corresp_numres_index_dic_OP=False, return_coors=False):
     """Main function that builds all hydrogens and calculates order parameters.
 
     This function shall be used in two modes :
@@ -529,7 +530,7 @@ def build_all_Hs_calc_OP(universe_woH, dic_lipid, universe_wH=None, dic_OP=None,
     build_all_Hs_calc_OP(universe_woH, universe_wH=universe_wH, dic_OP=dic_OP)
 
     In this case, the function also calculates the order parameter and returns
-    nothing. The coordinates of the universe *with* H are update in place.
+    nothing. The coordinates of the universe *with* H are updated in place.
     The order parameter is also added in place (within dic_OP dictionnary).
 
     NOTE: This function in mode 2 is slow, thus it shall be used when one wants
@@ -544,9 +545,14 @@ def build_all_Hs_calc_OP(universe_woH, dic_lipid, universe_wH=None, dic_OP=None,
         for reconstructing hydrogens.
     universe_wH : MDAnalysis universe instance (optional)
         This is the universe *with* hydrogens.
-    dic_OP : dictionnary
-        This dictionnary contains all the order parameters. It is structured
-        like this: {("C1", "H11"): [val1, val2, ...], ("C1", "H12"): [...], ...}.
+    dic_OP : ordered dictionnary
+        Each key of this dict is a couple carbon/H, and at the beginning it
+        contains an empty list, e.g.
+        OrderedDict([ ('C1', 'H11): [], ('C1', 'H12'): [], ... ])
+    dic_corresp_numres_index_dic_OP : dictionnary
+        This dict should contain the correspondance between the numres and
+        the corresponding index in dic_OP. For example {..., 15: 14, ...} means
+        the residue numbered 15 in the PDB has an index of 14 in dic_OP.
     return_coors : boolean (optional)
         If True, the function will return a pandas dataframe containing the
         system *with* hydrogens.
@@ -603,8 +609,17 @@ def build_all_Hs_calc_OP(universe_woH, dic_lipid, universe_wH=None, dic_OP=None,
                 #### We calculate here the order param on the fly :-D !
                 ####
                 if dic_OP:
-                    op = calc_OP(atom.position, H_coor)
-                    dic_OP[(atom.name, H_name)].append(op)
+                    if (atom.name, H_name) in dic_OP:
+                        op = calc_OP(atom.position, H_coor)
+                        # We should get here the index of the residue in dic_OP.
+                        # For that we can use dic_corresp_numres_index_dic_OP
+                        # (key: resnum in pdb, value: index residue in dic_OP)
+                        lipid_ix = dic_corresp_numres_index_dic_OP[atom.resid]
+                        # OLD way: dic_OP[(atom.name, H_name)].append(op)
+                        if (atom.name, H_name) in dic_OP:
+                            dic_OP[(atom.name, H_name)][lipid_ix].append(op)
+                        if DEBUG:
+                            print(atom.name, H_coor, "OP:", op)
                 if return_coors:
                     # Add them to newrows.
                     newrows.append([new_atom_num, H_name, resname, resnum]
@@ -614,6 +629,11 @@ def build_all_Hs_calc_OP(universe_woH, dic_lipid, universe_wH=None, dic_OP=None,
                     # Update the position of the current H in the universe with H.
                     universe_wH.coord.positions[row_index_coor_array, :] = H_coor
                     row_index_coor_array += 1
+            if dic_OP and DEBUG:
+                print() ; print()
+    if dic_OP and DEBUG:
+        print("Final dic_OP:", dic_OP)
+        print()
     if return_coors:
         # Create a dataframe to store the mlc with added hydrogens.
         new_df_atoms = pd.DataFrame(newrows, columns=["atnum", "atname",
@@ -837,7 +857,8 @@ def fast_build_all_Hs_calc_OP(universe_woH, dic_OP, dic_lipid):
         This is the universe *without* hydrogen.
     dic_OP : ordered dictionnary
         Each key of this dict is a couple carbon/H, and at the beginning it
-        contains an empty list, e.g. {('C1', 'H11): []; ('C1', 'H12'): [], ...}
+        contains an empty list, e.g.
+        OrderedDict([ ('C1', 'H11): [], ('C1', 'H12'): [], ... ])
     dic_lipid : dictionnary
         Comes from dic_lipids.py. Contains carbon names and helper names needed
         for reconstructing hydrogens.
@@ -867,25 +888,7 @@ def fast_build_all_Hs_calc_OP(universe_woH, dic_OP, dic_lipid):
     first_atom_name = first_lipid_residue.atoms[0].name
 
     ###
-    ### 2) To calculate the error, we need to first average over the
-    ### trajectory, then over residues.
-    ### Thus in dic_OP, we want for each key a list of lists, for example:
-    ### OrderedDict([
-    ###              (('C1', 'H11'), [[], [], ..., [], []]),
-    ###              (('C1', 'H12'), [[], ..., []]),
-    ###              ...
-    ###              ])
-    ### Thus each sublist will contain OPs for one residue.
-    # Create these sublists by looping over each lipid.
-    selection = "resname {} and name {}".format(resname, first_atom_name)
-    for i, first_lipid_atom in enumerate(universe_woH.select_atoms(selection)):
-        for key in dic_OP.keys():
-            dic_OP[key].append([])
-    if DEBUG:
-        print("Initial dic_OP:", dic_OP)
-
-    ###
-    ### 3) Now loop over the traj, residues and Catoms.
+    ### 2) Now loop over the traj, residues and Catoms.
     ### At each iteration build Hs and calc OP.
     ###
     # Loop over frames (ts is a Timestep instance).
@@ -900,7 +903,6 @@ def fast_build_all_Hs_calc_OP(universe_woH, dic_OP, dic_lipid):
         # that will be used for storing OPs in dic_OP).
         selection = "resname {} and name {}".format(resname, first_atom_name)
         for lipid_ix, first_lipid_atom in enumerate(universe_woH.select_atoms(selection)):
-            # here i should create a new list in dic_OP <=============================================================
             if DEBUG:
                 print("Dealing with Cname", first_lipid_atom)
                 print("which is part of residue", first_lipid_atom.residue)
@@ -954,7 +956,7 @@ def fast_build_all_Hs_calc_OP(universe_woH, dic_OP, dic_lipid):
                     # Calc and store OP for that couple C-H.
                     Cname_position = ts[Cname_ix+ix_first_atom_res]
                     op = calc_OP(Cname_position, H_coor)
-                    #dic_OP[(Cname, H_name)].append(op)
+                    # Old way: dic_OP[(Cname, H_name)].append(op)
                     if (Cname, H_name) in dic_OP:
                         dic_OP[(Cname, H_name)][lipid_ix].append(op)
                     if DEBUG:
@@ -962,10 +964,11 @@ def fast_build_all_Hs_calc_OP(universe_woH, dic_OP, dic_lipid):
                 if DEBUG:
                     print() ; print()
     if DEBUG:
-        print("Final dic_OP:", print(dic_OP))
+        print("Final dic_OP:", dic_OP)
+        print()
 
 
-def make_dic_OP(filename):
+def make_dic_atname2genericname(filename):
     """Make a dict of correspondance between generic H names and PDB names.
 
     This dict will look like the following: {('C1', 'H11'): 'gamma1_1', ...}.
@@ -976,7 +979,7 @@ def make_dic_OP(filename):
     Parameters
     ----------
     filename : str
-        Name of filename containing OP definition
+        Filename containing OP definition
         (e.g. `order_parameter_definitions_MODEL_Berger_POPC.def`).
 
     Returns
@@ -990,7 +993,7 @@ def make_dic_OP(filename):
     try:
         with open(filename, "r") as f:
             for line in f:
-                # This line might have to be changed if the file contains more than
+                # TODO: This line might have to be changed if the file contains more than
                 # 4 columns.
                 name, _, C, H = line.split()
                 dic[(C, H)] = name
@@ -998,6 +1001,37 @@ def make_dic_OP(filename):
         raise UserWarning("Can't read order parameter definition in "
                           "file {}".format(filename))
     return dic
+
+def init_dic_OP(universe_woH, dic_atname2genericname):
+    ### To calculate the error, we need to first average over the
+    ### trajectory, then over residues.
+    ### Thus in dic_OP, we want for each key a list of lists, for example:
+    ### OrderedDict([
+    ###              (('C1', 'H11'), [[], [], ..., [], []]),
+    ###              (('C1', 'H12'), [[], ..., []]),
+    ###              ...
+    ###              ])
+    ### Thus each sublist will contain OPs for one residue.
+    ### e.g. ('C1', 'H11'), [[OP res 1 frame1, OP res1 frame2, ...],
+    ###                      [OP res 2 frame1, OP res2 frame2, ...], ...]
+    dic_OP = collections.OrderedDict()
+    # We also need the correspondance between residue number (resnum) and
+    # its index in dic_OP.
+    dic_corresp_numres_index_dic_OP = {}
+    # Create these sublists by looping over each lipid.
+    for key in dic_atname2genericname:
+        dic_OP[key] = []
+        # Get lipid name.
+        resname = dic_lipid["resname"]
+        selection = "resname {}".format(resname)
+        # Loop over each residue on which we want to calculate the OP on.
+        for i, residue in enumerate(universe_woH.select_atoms(selection).residues):
+            dic_OP[key].append([])
+            dic_corresp_numres_index_dic_OP[residue.resid] = i
+    if DEBUG:
+        print("Initial dic_OP:", dic_OP)
+        print("dic_corresp_numres_index_dic_OP:", dic_corresp_numres_index_dic_OP)
+    return dic_OP, dic_corresp_numres_index_dic_OP
 
 
 if __name__ == "__main__":
@@ -1073,10 +1107,10 @@ if __name__ == "__main__":
     # 2) Initialize dic for storing OP.
     # Init dic of correspondance : {('C1', 'H11'): 'gamma1_1',
     # {('C1', 'H11'): 'gamma1_1', ...}.
-    dic_atname2genericname = make_dic_OP(args.defop)
-    dic_OP = collections.OrderedDict()
-    for key in dic_atname2genericname:
-        dic_OP[key] = []
+    dic_atname2genericname = make_dic_atname2genericname(args.defop)
+    # Initialize dic_OP.
+    dic_OP, dic_corresp_numres_index_dic_OP = init_dic_OP(universe_woH,
+                                                          dic_atname2genericname)
 
     # If traj output files are requested.
     if args.opdbxtc:
@@ -1107,8 +1141,10 @@ if __name__ == "__main__":
             print("Dealing with frame {} at {} ps."
                 .format(ts.frame, universe_woH.trajectory.time))
             # Build H and update their positions in the universe *with* H (in place).
+            # Calculate OPs on the fly.
             build_all_Hs_calc_OP(universe_woH, dic_lipid,
-                                universe_wH=universe_wH, dic_OP=dic_OP)
+                                universe_wH=universe_wH, dic_OP=dic_OP,
+                                dic_corresp_numres_index_dic_OP=dic_corresp_numres_index_dic_OP)
             # Write new frame to xtc.
             newxtc.write(universe_wH)
         # Close xtc.
@@ -1130,8 +1166,9 @@ if __name__ == "__main__":
         #  To unpickle
         #with open("OP.pickle", "rb") as f:
         #    dic_OP = pickle.load(f)
-    # Output to a file (same format as in the prog of @jmelcr).
-    with open(args.out, "w") as f:
+    # Output to a file.
+    with open(args.out+".jmelcr_style", "w") as f, open(args.out+".apineiro_style", "w") as f2:
+        # J. Melcr output style.
         f.write("# {:18s} {:7s} {:5s} {:5s}  {:7s} {:7s} {:7s}\n"
                 .format("OP_name", "resname", "atom1", "atom2", "OP_mean",
                 "OP_stddev", "OP_stem"))
@@ -1147,6 +1184,7 @@ if __name__ == "__main__":
             a = np.array(dic_OP[key])
             if DEBUG:
                 print("Final OP array has shape (nb_lipids, nb_frames):", a.shape)
+                print()
             # General mean over lipids and over frames (for that (C, H) pair).
             mean = np.mean(a)
             # Average over frames for each (C, H) pair (means is a 1D-array
@@ -1156,6 +1194,41 @@ if __name__ == "__main__":
             std_dev = np.std(means)
             stem = np.std(means) / np.sqrt(len(means))
             f.write("{:20s} {:7s} {:5s} {:5s} {: 2.5f} {: 2.5f} {: 2.5f}\n"
-                    .format(name, "POPC", at1, at2, mean, std_dev, stem))
+                    .format(name, dic_lipid["resname"], at1, at2, mean, std_dev, stem))
+        # A. Pineiro output style.
+        f2.write("Atom_name  Hydrogen\tOP\t      STD\t   STDmean\n")
+        list_unique_Cnames = []
+        for Cname, Hname in dic_OP.keys():
+            if Cname not in list_unique_Cnames:
+                list_unique_Cnames.append(Cname)
+        # Order of carbons is similar to that in the PDB.
+        list_unique_Cnames_ordered = []
+        selection = "resname {}".format(dic_lipid["resname"])
+        for atom in universe_woH.select_atoms(selection).residues[0].atoms:
+            if atom.name in list_unique_Cnames:
+                list_unique_Cnames_ordered.append(atom.name)
+        # Now write output.
+        for Cname in list_unique_Cnames_ordered:
+            cumulative_list_for_that_carbon = []
+            for i, Hname in enumerate([H for C, H in dic_OP.keys() if C == Cname]):
+                cumulative_list_for_that_carbon += dic_OP[Cname, Hname]
+                a = np.array(dic_OP[Cname, Hname])
+                mean = np.mean(a)
+                means = np.mean(a, axis=0)
+                std_dev = np.std(means)
+                stem = np.std(means) / np.sqrt(len(means))
+                if i == 0:
+                    f2.write("{:>7s}\t{:>8s}  {:10.5f}\t{:10.5f}\t{:10.5f}\n".format(Cname, "HR", mean, std_dev, stem))
+                elif i == 1:
+                    f2.write("{:>7s}\t{:>8s}  {:10.5f}\t{:10.5f}\t{:10.5f}\n".format("", "HS", mean, std_dev, stem))
+                elif i == 2:
+                    f2.write("{:>7s}\t{:>8s}  {:10.5f}\t{:10.5f}\t{:10.5f}\n".format("", "HT", mean, std_dev, stem))
+            a = np.array(cumulative_list_for_that_carbon)
+            mean = np.mean(a)
+            means = np.mean(a, axis=0)
+            std_dev = np.std(means)
+            stem = np.std(means) / np.sqrt(len(means))
+            f2.write("{:>7s}\t{:>8s}  {:10.5f}\t{:10.5f}\t{:10.5f}\n\n".format("", "AVG", mean, std_dev, stem))
+
     print("Results written to {}".format(args.out))
 
