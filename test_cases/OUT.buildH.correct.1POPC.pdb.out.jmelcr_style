@@ -1,4 +1,4 @@
-# OP_name    resname    atom1    atom2    OP_mean   OP_stddev  OP_stem
+# OP_name            resname atom1 atom2  OP_mean OP_stddev OP_stem
 #--------------------------------------------------------------------
 gamma1_1             POPC    C1    H11   -0.02585  0.00000  0.00000
 gamma1_2             POPC    C1    H12   -0.17639  0.00000  0.00000
