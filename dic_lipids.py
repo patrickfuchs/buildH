@@ -1,8 +1,9 @@
-# dic for reconstructing hydrogens in POPC
+# Dicts for reconstructing hydrogens in POPC
 # Format:
 # dic= { "atom1": ("typeofH2build", "helper1", "helper2"),
 #        "atom2": ("typeofH2build", "helper1", "helper2"),
 #        ...}
+# NOTE If you add a new lipid, we advice the user to add all the possible carbons on which we want to rebuild hydrogens. If the -opx option of buildH is used, it is strictly mandatory.
 
 import copy
 
@@ -62,3 +63,54 @@ Berger_PLA["resname"] = "PLA"
 
 Berger_POP = copy.deepcopy(Berger_POPC)
 Berger_POP["resname"] = "POP"
+
+# CHARMM POPC.
+CHARMM_POPC = {
+        # residue name
+        "resname": "POPC",
+        # choline
+        "C13": ("CH3", "N", "C12"),
+        "C14": ("CH3", "N", "C12"),
+        "C15": ("CH3", "N", "C12"),
+        "C12": ("CH2", "N", "C11"),
+        "C11": ("CH2", "C12", "O12"),
+        # glycerol
+        "C1": ("CH2", "O11", "C2"),
+        "C2": ("CH", "C1", "C3", "O21"),
+        "C3": ("CH2", "C2", "O31"),
+        # sn2
+        "C22": ("CH2", "C21", "C23"),
+        "C23": ("CH2", "C22", "C24"),
+        "C24": ("CH2", "C23", "C25"),
+        "C25": ("CH2", "C24", "C26"),
+        "C26": ("CH2", "C25", "C27"),
+        "C27": ("CH2", "C26", "C28"),
+        "C28": ("CH2", "C27", "C29"),
+         # C29=C210 --> double bond
+        "C29": ("CHdoublebond", "C28", "C210"),
+        "C210": ("CHdoublebond", "C29", "C211"),
+        "C211": ("CH2", "C210", "C212"),
+        "C212": ("CH2", "C211", "C213"),
+        "C213": ("CH2", "C212", "C214"),
+        "C214": ("CH2", "C213", "C215"),
+        "C215": ("CH2", "C214", "C216"),
+        "C216": ("CH2", "C215", "C217"),
+        "C217": ("CH2", "C216", "C218"),
+        "C218": ("CH3", "C216", "C217"),
+        # sn1
+        "C32": ("CH2", "C31", "C33"),
+        "C33": ("CH2", "C32", "C34"),
+        "C34": ("CH2", "C33", "C35"),
+        "C35": ("CH2", "C34", "C36"),
+        "C36": ("CH2", "C35", "C37"),
+        "C37": ("CH2", "C36", "C38"),
+        "C38": ("CH2", "C37", "C39"),
+        "C39": ("CH2", "C38", "C310"),
+        "C310": ("CH2", "C39", "C311"),
+        "C311": ("CH2", "C310", "C312"),
+        "C312": ("CH2", "C311", "C313"),
+        "C313": ("CH2", "C312", "C314"),
+        "C314": ("CH2", "C313", "C315"),
+        "C315": ("CH2", "C314", "C316"),
+        "C316": ("CH3", "C314", "C315")
+        }
