@@ -38,7 +38,7 @@ Berger_POPC = {
         "C30": ("CH2", "C29", "C31"),
         "C31": ("CH2", "C30", "CA1"),
         "CA1": ("CH2", "C31", "CA2"),
-        "CA2": ("CH3", "CA1", "C31"),
+        "CA2": ("CH3", "CA1", "C31"), # helper1 is the first C connected to CH3, helper is 2 atoms away
         # sn1
         "C36": ("CH2", "C34", "C37"),
         "C37": ("CH2", "C36", "C38"),
@@ -54,7 +54,7 @@ Berger_POPC = {
         "C47": ("CH2", "C46", "C48"),
         "C48": ("CH2", "C47", "C49"),
         "C49": ("CH2", "C48", "C50"),
-        "C50": ("CH3", "C49", "C48")
+        "C50": ("CH3", "C49", "C48") # helper1 is the first C connected to CH3, helper is 2 atoms away
         }
 
 # Alternative name for POPC in Berger lipids.
@@ -96,7 +96,7 @@ CHARMM_POPC = {
         "C215": ("CH2", "C214", "C216"),
         "C216": ("CH2", "C215", "C217"),
         "C217": ("CH2", "C216", "C218"),
-        "C218": ("CH3", "C216", "C217"),
+        "C218": ("CH3", "C217", "C216"), # helper1 is the first C connected to CH3, helper is 2 atoms away
         # sn1
         "C32": ("CH2", "C31", "C33"),
         "C33": ("CH2", "C32", "C34"),
@@ -112,5 +112,5 @@ CHARMM_POPC = {
         "C313": ("CH2", "C312", "C314"),
         "C314": ("CH2", "C313", "C315"),
         "C315": ("CH2", "C314", "C316"),
-        "C316": ("CH3", "C314", "C315")
+        "C316": ("CH3", "C315", "C314") # helper1 is the first C connected to CH3, helper is 2 atoms away
         }
