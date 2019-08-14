@@ -55,7 +55,7 @@ LENGTH_CH_BOND = 1.09 # in Angst
 # arccos(-1/3) ~ 1.9106 rad ~ 109.47 deg.
 TETRAHEDRAL_ANGLE = np.arccos(-1/3)
 # For debugging.
-DEBUG = False #True
+DEBUG = False
 # For pickling results (useful for future analyses, e.g. drawing distributions).
 PICKLE = False
 
@@ -379,8 +379,11 @@ def get_CH_double_bond(atom, helper1, helper2):
     tuple of numpy 1D-arrays
         Coordinates of the rebuilt hydrogen: ([x_H, y_H, z_H]).
     """
-    # calc angle theta helper1-atom-helper2 (in rad).
-    theta = calc_angle(helper1, atom, helper2)
+    # calc CCC_angle helper1-atom-helper2 (in rad).
+    CCC_angle = calc_angle(helper1, atom, helper2)
+    # We want to bissect the C-C-C angle ==> we take half of (2pi-CCC_angle).
+    # Factorizing yields: pi - CCC_angle/2.
+    theta = np.pi - (CCC_angle / 2)
     # atom->helper1 vector.
     v2 = helper1 - atom
     # atom->helper2 vector.
@@ -1072,7 +1075,7 @@ def make_dic_Cname2Hnames(dic_OP):
         else:
             dic[Cname] += (Hname,)
     if DEBUG:
-        print("dic_Cname2Hnames contains:", dic_Cname2Hnames)
+        print("dic_Cname2Hnames contains:", dic)
     return dic
 
 
