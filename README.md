@@ -80,6 +80,21 @@ So far, the file contains Berger POPC and CHARMM36 POPC (this latter is used for
 This file is a mapping file created for the [NMRlipids](https://nmrlipids.blogspot.com/) project.
 It aims at giving a unique name for each order parameter value along the lipid regardless the model of lipid used. This `.def` files can be found on the [MATCH repository](https://github.com/NMRLipids/MATCH/tree/master/scripts/orderParm_defs). Two examples of such files are present in the subdirs [Berger_POPC_test_case](Berger_POPC_test_case) and [CHARMM36_POPC_validation](CHARMM36_POPC_validation).
 
+If an output trajecotry (option `-opx`) is requested, this `.def` file **must** contain all possible pairs of C-H to reconstruct (since the whole trajectory with Hs will be reconstructed). This option is slow, we do not recommend it if an output xtc file is not wanted.
+
+If no option `-opx` is used buildH uses fast indexing. In this case the `.def` file can contain any subset of all possible C-H pairs. For example, if one wants to get OPs for the polar head only (Berger POPC), the `.def` file could look like the following:
+
+```
+beta1 POPC C5  H51
+beta2 POPC C5  H52
+alpha1 POPC C6  H61
+alpha2 POPC C6  H62
+g3_1 POPC C12 H121
+g3_2 POPC C12 H122
+g2_1 POPC C13 H131
+g1_1 POPC C32 H321
+g1_2 POPC C32 H322
+```
 
 ## Examples
 
@@ -99,18 +114,18 @@ Here are some examples on how to launch buildH:
   -o OP_buildH.out
   ```
 - Launch buildH on a trajectory `traj.xtc`:
-```
-python ./buildH_calcOP.py start_128popc.pdb -l Berger_POPC \
-	-d order_parameter_definitions_MODEL_Berger_POPC.def \
-	-x traj.xtc
-```
+  ```
+  python ./buildH_calcOP.py start_128popc.pdb -l Berger_POPC \
+  -d order_parameter_definitions_MODEL_Berger_POPC.def \
+  -x traj.xtc
+  ```
 - Launch buildH on a trajectory `traj.xtc` with the trajecory outputs with hydrogens (`traj_with_H.xtc` and `traj_with_H.pdb`), and a default file name for the OP:
   ```
   python ./buildH_calcOP.py start_128popc.pdb -l Berger_POPC \
   -d order_parameter_definitions_MODEL_Berger_POPC.def \
   -x traj.xtc -opx traj_with_H
   ```
-  Note that in this last case, the `.def` file **must** contain all possible 
+  Note that in this last case, the `.def` file **must** contain all possible pairs of C-H to reconstruct. (since the whole trajectory with Hs will be reconstructed).
 
 ## Validation of buildH
 
