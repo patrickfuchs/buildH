@@ -516,12 +516,6 @@ def build_all_Hs_calc_OP(universe_woH, dic_lipid, dic_Cname2Hnames,
                          universe_wH=None, dic_OP=None,
                          dic_corresp_numres_index_dic_OP=None,
                          return_coors=False):
-    ###
-    ### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    ### REWRITE Docstring
-    ### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    ## !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
-    ###
     """Main function that builds all hydrogens and calculates order parameters.
 
     This function shall be used in two modes :
@@ -538,7 +532,9 @@ def build_all_Hs_calc_OP(universe_woH, dic_lipid, dic_Cname2Hnames,
     2) For all the other frames, we just need to update the coordinates in
     the universe *with* hydrogens. One shall call it like this :
 
-    build_all_Hs_calc_OP(universe_woH, universe_wH=universe_wH, dic_OP=dic_OP)
+    build_all_Hs_calc_OP(universe_woH, dic_lipid, dic_Cname2Hnames,
+                         universe_wH=universe_wH, dic_OP=dic_OP,
+                         dic_corresp_numres_index_dic_OP=dic_corresp_numres_index_dic_OP)
 
     In this case, the function also calculates the order parameter and returns
     nothing. The coordinates of the universe *with* H are updated in place.
@@ -547,6 +543,11 @@ def build_all_Hs_calc_OP(universe_woH, dic_lipid, dic_Cname2Hnames,
     NOTE: This function in mode 2 is slow, thus it shall be used when one wants
     to create a trajectory with H (such as .xtc or whatever format).
 
+    NOTE2: This function assumes all possible C-H pairs are present in the .def 
+    file (with -d option). They are needed since we want to build an xtc with 
+    the whole system. If one is interested in calculating only a subset of OPs,
+    please use the function fast_build_all_Hs_calc_OP() instead.
+
     Parameters
     ----------
     universe_woH : MDAnalysis universe instance
@@ -554,26 +555,23 @@ def build_all_Hs_calc_OP(universe_woH, dic_lipid, dic_Cname2Hnames,
     dic_lipid : dictionnary
         Comes from dic_lipids.py. Contains carbon names and helper names needed
         for reconstructing hydrogens.
-    universe_wH : MDAnalysis universe instance (optional)
-        This is the universe *with* hydrogens.
-    dic_OP : ordered dictionnary
-        Each key of this dict is a couple carbon/H, and at the beginning it
-        contains an empty list, e.g.
-        OrderedDict([ ('C1', 'H11): [], ('C1', 'H12'): [], ... ])
-        TODO !!! In this function we need all the Hs because we need their name to write the PDB !!!
-        TODO ==> !!! This needs to be checked in the main() !!!
-        TODO
-        TODO
-    dic_corresp_numres_index_dic_OP : dictionnary
-        This dict should contain the correspondance between the numres and
-        the corresponding index in dic_OP. For example {..., 15: 14, ...} means
-        the residue numbered 15 in the PDB has an index of 14 in dic_OP.
     dic_Cname2Hnames : dictionnary
         This dict gives the correspondance Cname -> Hname. It is a dict of
         tuples. If there is more than 1 H for a given C, they need to be
         *ordered* like in the PDB. e.g. for CHARMM POPC :
         {'C13': ('H13A', 'H13B', 'H13C'), ..., 'C33': ('H3X', 'H3Y'),
           ..., 'C216': ('H16R', 'H16S'), ...}
+    universe_wH : MDAnalysis universe instance (optional)
+        This is the universe *with* hydrogens.
+    dic_OP : ordered dictionnary
+        Each key of this dict is a couple carbon/H, and at the beginning it
+        contains an empty list, e.g.
+        OrderedDict([ ('C1', 'H11): [], ('C1', 'H12'): [], ... ])
+        See function init_dic_OP() below to see how it is organized.
+    dic_corresp_numres_index_dic_OP : dictionnary
+        This dict should contain the correspondance between the numres and
+        the corresponding index in dic_OP. For example {..., 15: 14, ...} means
+        the residue numbered 15 in the PDB has an index of 14 in dic_OP.
     return_coors : boolean (optional)
         If True, the function will return a pandas dataframe containing the
         system *with* hydrogens.
@@ -883,6 +881,7 @@ def fast_build_all_Hs_calc_OP(universe_woH, dic_OP, dic_lipid, dic_Cname2Hnames)
         Each key of this dict is a couple carbon/H, and at the beginning it
         contains an empty list, e.g.
         OrderedDict([ ('C1', 'H11): [], ('C1', 'H12'): [], ... ])
+        See function init_dic_OP() below to see how it is organized.
     dic_lipid : dictionnary
         Comes from dic_lipids.py. Contains carbon names and helper names needed
         for reconstructing hydrogens.
@@ -1034,6 +1033,8 @@ def make_dic_atname2genericname(filename):
     return dic
 
 def init_dic_OP(universe_woH, dic_atname2genericname):
+    """TODO Complete docstring.
+    """
     ### To calculate the error, we need to first average over the
     ### trajectory, then over residues.
     ### Thus in dic_OP, we want for each key a list of lists, for example:
@@ -1066,7 +1067,7 @@ def init_dic_OP(universe_woH, dic_atname2genericname):
 
 
 def make_dic_Cname2Hnames(dic_OP):
-    """TODO Complete Docstring
+    """TODO Complete Docstring.
     """
     dic = {}
     for Cname, Hname in dic_OP.keys():
