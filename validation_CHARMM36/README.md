@@ -1,0 +1,1 @@
+Here is described a validation of **buildH** on a POPC trajectory generated with the CHARMM36 force field. To view the full report, the best is to view the [notebook report_buildH.ipynb](report_buildH.ipynb) which is rendered by default in github. A [pdf](report_buildH.pdf) with the same content is also available.
