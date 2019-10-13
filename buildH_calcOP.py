@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+!/usr/bin/env python3
 # coding: utf-8
 
 """
@@ -37,8 +37,10 @@ __date__ = "2019/05"
 # Modules.
 import argparse
 import copy
-import pickle
 import collections
+import pickle
+import sys
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -1081,6 +1083,16 @@ def make_dic_Cname2Hnames(dic_OP):
 
 
 if __name__ == "__main__":
+    # 0) Fist ensure Python 3 is used!!!
+    major, minor, _, _, _ = sys.version_info
+    if major != 3:
+        raise UserWarning("buildH only works with Python 3.")
+    else:
+       if minor < 7:
+           warnings.warn("Python version >= 3.7 is recommended with buildH.", UserWarning)
+       else:
+           print("Python version OK!")
+
     # 1) Parse arguments.
     # TODO --> Make a function for that.
     message="""This program builds hydrogens and calculate the order

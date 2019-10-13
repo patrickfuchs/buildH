@@ -25,6 +25,7 @@ buildH is written in Python 3 and need the following modules :
   - pandas
   - MDAnalysis.
 
+Python version >= 3.7 is recommended for running buildH. The code will raise an Exception if a user attempts to use Python 2.
 
 ## Usage
 
