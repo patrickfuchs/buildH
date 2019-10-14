@@ -1,4 +1,4 @@
-!/usr/bin/env python3
+#!/usr/bin/env python3
 # coding: utf-8
 
 """
@@ -1088,8 +1088,8 @@ if __name__ == "__main__":
     if major != 3:
         raise UserWarning("buildH only works with Python 3.")
     else:
-       if minor < 7:
-           warnings.warn("Python version >= 3.7 is recommended with buildH.", UserWarning)
+       if minor < 6:
+           warnings.warn("Python version >= 3.6 is recommended with buildH.", UserWarning)
        else:
            print("Python version OK!")
 
