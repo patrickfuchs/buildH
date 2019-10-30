@@ -383,7 +383,7 @@ def get_CH_double_bond(atom, helper1, helper2):
     """
     # calc CCC_angle helper1-atom-helper2 (in rad).
     CCC_angle = calc_angle(helper1, atom, helper2)
-    # We want to bissect the C-C-C angle ==> we take half of (2pi-CCC_angle).
+    # We want to bisect the C-C-C angle ==> we take half of (2pi-CCC_angle).
     # Factorizing yields: pi - CCC_angle/2.
     theta = np.pi - (CCC_angle / 2)
     # atom->helper1 vector.
