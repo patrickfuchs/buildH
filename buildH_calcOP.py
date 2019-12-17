@@ -41,6 +41,7 @@ import collections
 import pickle
 import sys
 import warnings
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -60,6 +61,19 @@ TETRAHEDRAL_ANGLE = np.arccos(-1/3)
 DEBUG = False
 # For pickling results (useful for future analyses, e.g. drawing distributions).
 PICKLE = False
+
+def isfile(path):
+    """Check if path is an existing file.
+    If not, raise an error. Else, return the path."""
+    source = Path(path)
+    if not Path.is_file(source):
+        if Path.is_dir(source):
+            msg = f"{source} is a directory"
+        else:
+            msg = f"{source} does not exist."
+        raise argparse.ArgumentTypeError(msg)
+    return path
+
 
 
 def calc_OP(C, H):
@@ -1104,14 +1118,15 @@ if __name__ == "__main__":
     """
     parser = argparse.ArgumentParser(description=message)
     # Avoid tpr for topology cause there's no .coord there!
-    parser.add_argument("topfile", type=str,
+    parser.add_argument("topfile", type=isfile,
                         help="Topology file (pdb or gro).")
-    parser.add_argument("-x", "--xtc", help="Input trajectory file in xtc "
-                        "format.")
-    parser.add_argument("-l", "--lipid", help="Residue name of lipid to "
-                        "calculate the OP on (e.g. POPC).")
-    parser.add_argument("-d", "--defop", help="Order parameter definition "
-                        "file. Can be found on NMRlipids MATCH repository:"
+    parser.add_argument("-x", "--xtc", type=isfile, 
+                        help="Input trajectory file in xtc format.")
+    parser.add_argument("-l", "--lipid", type=str, required=True,
+                        help="Residue name of lipid to calculate the OP on (e.g. POPC).")
+    parser.add_argument("-d", "--defop", required=True, type=isfile, 
+                        help="Order parameter definition file. Can be found on "
+                        "NMRlipids MATCH repository:"
                         "https://github.com/NMRLipids/MATCH/tree/master/scripts/orderParm_defs")
     parser.add_argument("-opx", "--opdbxtc", help="Base name for trajectory "
                         "output with hydrogens. File extension will be "
@@ -1128,12 +1143,8 @@ if __name__ == "__main__":
     # "args.pdbout", xtc output file is "args.xtcout".
     # Check topology file extension.
     if not args.topfile.endswith("pdb") and not args.topfile.endswith("gro"):
-        raise argparse.ArgumentTypeError("Topology must be given in pdb"
-                                         " or gro format")
+        parser.error("Topology must be given in pdb or gro format")
     # Check residue name validity.
-    if not args.lipid:
-        raise argparse.ArgumentTypeError("Lipid resname is a mandatory "
-                                         "argument (option -l).")
     # Get the dictionnary with helper info using residue name (args.lipid
     # argument). Beware, this dict is then called `dic_lipid` *without s*,
     # while `dic_lipids.py` (with an s) is a module with many different dicts
@@ -1141,12 +1152,7 @@ if __name__ == "__main__":
     try:
         dic_lipid = getattr(dic_lipids, args.lipid)
     except:
-        raise argparse.ArgumentTypeError("Lipid dictionnary {} doesn't exist "
-                                         "in dic_lipids.py".format(args.lipid))
-    # Check if order param def file has been passed.
-    if not args.defop:
-        raise argparse.ArgumentTypeError("Order parameter definition file is "
-                                         "a mandatory argument (option -d).")
+        parser.error("Lipid dictionnary {} doesn't exist in dic_lipids.py".format(args.lipid))
 
     # 2) Create universe without H.
     print("Constructing the system...")
