@@ -41,7 +41,7 @@ import collections
 import pickle
 import sys
 import warnings
-from pathlib import Path
+import pathlib
 
 import numpy as np
 import pandas as pd
@@ -63,17 +63,29 @@ DEBUG = False
 PICKLE = False
 
 def isfile(path):
-    """Check if path is an existing file.
-    If not, raise an error. Else, return the path."""
-    source = Path(path)
-    if not Path.is_file(source):
-        if Path.is_dir(source):
+    """Callback for checking file existence.
+
+    This function checks if path is an existing file.
+    If not, raise an error. Else, return the path.
+
+    Parameters
+    ----------
+    path : str
+        The path to be checked.
+
+    Returns
+    -------
+    str
+        The validated path.
+"""
+    source = pathlib.Path(path)
+    if not pathlib.Path.is_file(source):
+        if pathlib.Path.is_dir(source):
             msg = f"{source} is a directory"
         else:
             msg = f"{source} does not exist."
         raise argparse.ArgumentTypeError(msg)
     return path
-
 
 
 def calc_OP(C, H):
