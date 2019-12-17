@@ -1,0 +1,11 @@
+#Python
+*.pyc
+__pycache__/
+
+#IDE
+.vscode
+*.code-workspace
+
+#Project
+*.npz
+*.out
