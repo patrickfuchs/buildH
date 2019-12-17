@@ -1108,6 +1108,65 @@ def make_dic_Cname2Hnames(dic_OP):
     return dic
 
 
+def check_slice_options(system, first_frame, last_frame):
+    """Verify the slicing options given by the user and translate
+    to it to a range of frame in MDAnalysis.
+
+    This function check whether the first frame and the last frame are consistent 
+    within themselves (``first_frame`` cant be superior to ``last_frame``) and
+    with the trajectory supplied (if the trajectory starts at 1000ps, ``first_frame``
+    cant be equal to 0 for example).
+    Then, the function translate the range from picosecond-time to the number of frame
+    in MDanalysis.
+
+
+    Parameters
+    ----------
+    universe_woH : MDAnalysis universe instance
+        This is the universe *without* hydrogen.
+    first_frame : int
+        the first frame to read (in ps)
+    last_frame : int
+        the last frame to read (in ps)
+
+    Return
+    ------
+    tuple of int
+        The number of first and last frame
+
+    Raises
+    ------
+    """
+
+    # Check abnormal range
+    if first_frame < 0 or last_frame < 0:
+        raise UserWarning
+    if first_frame > last_frame:
+        raise UserWarning
+    
+    # From the trajectory, get the time of the first and last frame
+    traj_first_frame = universe_woH.trajectory.time
+    traj_last_frame = universe_woH.trajectory.time + universe_woH.trajectory.dt * (universe_woH.trajectory.n_frames - 1)
+
+    # Check if the range fits into the range of the trajectory
+    if first_frame < traj_first_frame or last_frame < traj_first_frame:
+        raise UserWarning
+    if first_frame > traj_last_frame or last_frame > traj_last_frame:
+        raise UserWarning
+
+    # Translate the time range into a number range.
+    l = list(range(traj_first_frame,traj_last_frame, universe_woH.trajectory.dt))
+    if first_frame:
+        number_first_frame = min(l,key=lambda x:abs(x-first_frame)) # need to get the index not the value
+    else:
+        number_first_frame = 0
+    if last_frame:
+        number_last_frame = min(l,key=lambda x:abs(x-last_frame)) # need to get the index not the value
+    else:
+        number_last_frame = universe_woH.trajectory.n_frames - 1
+
+    return (number_first_frame, number_last_frame)
+
 if __name__ == "__main__":
     # 0) Fist ensure Python 3 is used!!!
     major, minor, _, _, _ = sys.version_info
@@ -1149,6 +1208,10 @@ if __name__ == "__main__":
                         "order parameters. Extention \".out\" will be "
                         "automatically added. Default name is OP_buildH.out.",
                         default="OP_buildH.out")
+    parser.add_argument("-b","--begin",type=int,
+                        help="The first frame (ps) to read from the trajectory.")
+    parser.add_argument("-e","--end",type=int,
+                        help="The last frame (ps) to read from the trajectory.")
     args = parser.parse_args()
 
     # Top file is "args.topfile", xtc file is "args.xtc", pdb output file is
@@ -1166,14 +1229,22 @@ if __name__ == "__main__":
     except:
         parser.error("Lipid dictionnary {} doesn't exist in dic_lipids.py".format(args.lipid))
 
+    # Slicing only make sense with a trajectory
+    if not args.xtc and (args.begin or args.end):
+        parser.error("Slicing is only possible with a trajectory file.")
+
     # 2) Create universe without H.
     print("Constructing the system...")
     if args.xtc:
         try:
             universe_woH = mda.Universe(args.topfile, args.xtc)
+            check_slice_options(universe_woH, args.begin, args.end)
         except:
             raise UserWarning("Can't create MDAnalysis universe with files {} "
                               "and {}".format(args.topfile, args.xtc))
+
+        if args.begin or args.end:
+            check_slice_options(universe_woH, args.begin, args.end)
     else:
         try:
             universe_woH = mda.Universe(args.topfile)
