@@ -1159,15 +1159,15 @@ def check_slice_options(system, first_frame=None, last_frame=None):
 
     # Check abnormal range
     if first_frame < 0 or last_frame < 0:
-        raise UserWarning
+        raise IndexError("Incorrect slice options.")
     if first_frame > last_frame:
-        raise UserWarning
+        raise  IndexError("Incorrect slice options")
     
     # Check if the range fits into the range of the trajectory
     if first_frame < traj_first_frame or last_frame < traj_first_frame:
-        raise UserWarning
+        raise  IndexError("Incorrect slice options")
     if first_frame > traj_last_frame or last_frame > traj_last_frame:
-        raise UserWarning
+        raise  IndexError("Incorrect slice options")
 
     # Translate the time range into a number range.
     # Find the index of element in the list of frames (in ps) which has the minimum distance
@@ -1252,9 +1252,11 @@ if __name__ == "__main__":
         try:
             universe_woH = mda.Universe(args.topfile, args.xtc)
             begin, end = check_slice_options(universe_woH, args.begin, args.end)
+        except IndexError:
+            raise UserWarning("Slicing options are not correct.") from None
         except:
             raise UserWarning("Can't create MDAnalysis universe with files {} "
-                              "and {}".format(args.topfile, args.xtc))
+                              "and {}".format(args.topfile, args.xtc)) from None
     else:
         try:
             universe_woH = mda.Universe(args.topfile)
