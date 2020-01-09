@@ -895,7 +895,8 @@ def make_dic_lipids_with_indexes(universe_woH, dic_lipid):
     return dic_lipids_with_indexes
 
 
-def fast_build_all_Hs_calc_OP(universe_woH, dic_OP, dic_lipid, dic_Cname2Hnames):
+def fast_build_all_Hs_calc_OP(universe_woH, begin, end, 
+                             dic_OP, dic_lipid, dic_Cname2Hnames):
     """Build Hs and calc OP using fast indexing.
 
     This function uses fast indexing to carbon atoms and helper atoms. It
@@ -905,6 +906,10 @@ def fast_build_all_Hs_calc_OP(universe_woH, dic_OP, dic_lipid, dic_Cname2Hnames)
     ----------
     universe_woH : MDAnalysis universe instance
         This is the universe *without* hydrogen.
+    begin: int
+        index of the first frame of trajectory
+    end: int
+        index of the last frame of trajectory
     dic_OP : ordered dictionnary
         Each key of this dict is a couple carbon/H, and at the beginning it
         contains an empty list, e.g.
@@ -948,7 +953,7 @@ def fast_build_all_Hs_calc_OP(universe_woH, dic_OP, dic_lipid, dic_Cname2Hnames)
     ### At each iteration build Hs and calc OP.
     ###
     # Loop over frames (ts is a Timestep instance).
-    for ts in universe_woH.trajectory:
+    for ts in universe_woH.trajectory[begin:end]:
         print("Dealing with frame {} at {} ps."
               .format(ts.frame, universe_woH.trajectory.time))
         if DEBUG:
@@ -1108,6 +1113,73 @@ def make_dic_Cname2Hnames(dic_OP):
     return dic
 
 
+def check_slice_options(system, first_frame=None, last_frame=None):
+    """Verify the slicing options given by the user and translate
+    to it to a range of frame in MDAnalysis.
+
+    This function check whether the first frame and the last frame are consistent 
+    within themselves (``first_frame`` cant be superior to ``last_frame``) and
+    with the trajectory supplied (if the trajectory starts at 1000ps, ``first_frame``
+    cant be equal to 0 for example).
+    Then, the function translate the range from picosecond-time to the number of frame
+    in MDanalysis.
+
+
+    Parameters
+    ----------
+    system : MDAnalysis universe instance
+        This is the universe *without* hydrogen.
+    first_frame : int
+        the first frame to read (in ps)
+    last_frame : int
+        the last frame to read (in ps)
+
+    Return
+    ------
+    tuple of int
+        The number of first and last frame
+
+    Raises
+    ------
+    """
+    # From the trajectory, get the time of the first and last frame
+    traj_first_frame = int(universe_woH.trajectory.time)
+    traj_last_frame = int(universe_woH.trajectory.time + universe_woH.trajectory.dt * (universe_woH.trajectory.n_frames - 1))
+
+    # If no bound is given, take the full trajectory
+    if not first_frame and not last_frame:
+        return (0, universe_woH.trajectory.n_frames)
+
+    # If only one bound is given
+    if not first_frame:
+        first_frame = traj_first_frame
+    if not last_frame:
+        last_frame = traj_last_frame
+    
+
+    # Check abnormal range
+    if first_frame < 0 or last_frame < 0:
+        raise IndexError("Incorrect slice options.")
+    if first_frame > last_frame:
+        raise  IndexError("Incorrect slice options")
+    
+    # Check if the range fits into the range of the trajectory
+    if first_frame < traj_first_frame or last_frame < traj_first_frame:
+        raise  IndexError("Incorrect slice options")
+    if first_frame > traj_last_frame or last_frame > traj_last_frame:
+        raise  IndexError("Incorrect slice options")
+
+    # Translate the time range into a number range.
+    # Find the index of element in the list of frames (in ps) which has the minimum distance
+    # from the first or last frame (in ps) given.
+    frames = np.arange(traj_first_frame,traj_last_frame + 1, int(universe_woH.trajectory.dt))
+    number_first_frame = (np.abs(frames - first_frame)).argmin()
+    number_last_frame  = (np.abs(frames -  last_frame)).argmin()
+    # Include last frame into account for slicing by adding 1
+    number_last_frame = number_last_frame + 1
+
+    return (number_first_frame, number_last_frame)
+
 if __name__ == "__main__":
     # 0) Fist ensure Python 3 is used!!!
     major, minor, _, _, _ = sys.version_info
@@ -1149,6 +1221,10 @@ if __name__ == "__main__":
                         "order parameters. Extention \".out\" will be "
                         "automatically added. Default name is OP_buildH.out.",
                         default="OP_buildH.out")
+    parser.add_argument("-b","--begin",type=int,
+                        help="The first frame (ps) to read from the trajectory.")
+    parser.add_argument("-e","--end",type=int,
+                        help="The last frame (ps) to read from the trajectory.")
     args = parser.parse_args()
 
     # Top file is "args.topfile", xtc file is "args.xtc", pdb output file is
@@ -1166,14 +1242,21 @@ if __name__ == "__main__":
     except:
         parser.error("Lipid dictionnary {} doesn't exist in dic_lipids.py".format(args.lipid))
 
+    # Slicing only makes sense with a trajectory
+    if not args.xtc and (args.begin or args.end):
+        parser.error("Slicing is only possible with a trajectory file.")
+
     # 2) Create universe without H.
     print("Constructing the system...")
     if args.xtc:
         try:
             universe_woH = mda.Universe(args.topfile, args.xtc)
+            begin, end = check_slice_options(universe_woH, args.begin, args.end)
+        except IndexError:
+            raise UserWarning("Slicing options are not correct.") from None
         except:
             raise UserWarning("Can't create MDAnalysis universe with files {} "
-                              "and {}".format(args.topfile, args.xtc))
+                              "and {}".format(args.topfile, args.xtc)) from None
     else:
         try:
             universe_woH = mda.Universe(args.topfile)
@@ -1246,7 +1329,7 @@ if __name__ == "__main__":
 
         # 4) Loop over all frames of the traj *without* H, build Hs and
         # calc OP (ts is a Timestep instance).
-        for ts in universe_woH.trajectory:
+        for ts in universe_woH.trajectory[begin,end]:
             print("Dealing with frame {} at {} ps."
                   .format(ts.frame, universe_woH.trajectory.time))
             # Build H and update their positions in the universe *with* H (in place).
@@ -1263,7 +1346,7 @@ if __name__ == "__main__":
     # calculation. The function fast_build_all_Hs() returns nothing, dic_OP
     # is modified in place.
     if not args.opdbxtc:
-        fast_build_all_Hs_calc_OP(universe_woH, dic_OP, dic_lipid, dic_Cname2Hnames)
+        fast_build_all_Hs_calc_OP(universe_woH, begin, end, dic_OP, dic_lipid, dic_Cname2Hnames)
 
     # 7) Output results.
     # Pickle results? (migth be useful in the future)
