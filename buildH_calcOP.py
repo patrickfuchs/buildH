@@ -1260,6 +1260,8 @@ if __name__ == "__main__":
     else:
         try:
             universe_woH = mda.Universe(args.topfile)
+            begin = 0
+            end = 1
         except:
             raise UserWarning("Can't create MDAnalysis universe with file {}"
                               .format(args.topfile))
@@ -1329,7 +1331,7 @@ if __name__ == "__main__":
 
         # 4) Loop over all frames of the traj *without* H, build Hs and
         # calc OP (ts is a Timestep instance).
-        for ts in universe_woH.trajectory[begin,end]:
+        for ts in universe_woH.trajectory[begin:end]:
             print("Dealing with frame {} at {} ps."
                   .format(ts.frame, universe_woH.trajectory.time))
             # Build H and update their positions in the universe *with* H (in place).
