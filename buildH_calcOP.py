@@ -36,7 +36,6 @@ __date__ = "2019/05"
 
 # Modules.
 import argparse
-import collections
 import pickle
 import sys
 import warnings
@@ -48,6 +47,7 @@ import MDAnalysis.coordinates.XTC as XTC
 
 import dic_lipids
 import OP
+import writers
 
 
 # For debugging.
@@ -81,137 +81,6 @@ def isfile(path):
     return path
 
 
-
-
-
-
-
-def pandasdf2pdb(df):
-    """Returns a string in PDB format from a pandas dataframe.
-
-    Parameters
-    ----------
-    df : pandas dataframe with columns "atnum", "atname", "resname", "resnum",
-         "x", "y", "z"
-
-    Returns
-    -------
-    str
-        A string representing the PDB.
-    """
-    s = ""
-    chain = ""
-    for _, row_atom in df.iterrows():
-        atnum, atname, resname, resnum, x, y, z = row_atom
-        atnum = int(atnum)
-        resnum = int(resnum)
-        # See for pdb format:
-        # https://www.cgl.ucsf.edu/chimera/docs/UsersGuide/tutorials/pdbintro.html.
-        # "alt" means alternate location indicator
-        # "code" means code for insertions of residues
-    	# "seg" means segment identifier
-        # "elt" means element symbol
-        if len(atname) == 4:
-            s += ("{record_type:6s}{atnum:5d} {atname:<4s}{alt:1s}{resname:>4s}"
-                  "{chain:1s}{resnum:>4d}{code:1s}   {x:>8.3f}{y:>8.3f}{z:>8.3f}"
-                  "{occupancy:>6.2f}{temp_fact:>6.2f}          {seg:<2s}{elt:>2s}\n"
-                  .format(record_type="ATOM", atnum=atnum, atname=atname, alt="",
-                          resname=resname, chain=chain, resnum=resnum, code="",
-                          x=x, y=y, z=z, occupancy=1.0, temp_fact=0.0, seg="",
-                          elt=atname[0]))
-        else:
-            s += ("{record_type:6s}{atnum:5d}  {atname:<3s}{alt:1s}{resname:>4s}"
-                  "{chain:1s}{resnum:>4d}{code:1s}   {x:>8.3f}{y:>8.3f}{z:>8.3f}"
-                  "{occupancy:>6.2f}{temp_fact:>6.2f}          {seg:<2s}{elt:>2s}\n"
-                  .format(record_type="ATOM", atnum=atnum, atname=atname, alt="",
-                          resname=resname, chain=chain, resnum=resnum, code="",
-                          x=x, y=y, z=z, occupancy=1.0, temp_fact=0.0, seg="",
-                          elt=atname[0]))
-    return s
-
-
-def make_dic_atname2genericname(filename):
-    """Make a dict of correspondance between generic H names and PDB names.
-
-    This dict will look like the following: {('C1', 'H11'): 'gamma1_1', ...}.
-    Useful for outputing OP with generic names (such as beta1, beta 2, etc.).
-    Such files can be found on the NMRlipids MATCH repository:
-    https://github.com/NMRLipids/MATCH/tree/master/scripts/orderParm_defs.
-
-    Parameters
-    ----------
-    filename : str
-        Filename containing OP definition
-        (e.g. `order_parameter_definitions_MODEL_Berger_POPC.def`).
-
-    Returns
-    -------
-    Ordered dictionnary
-        Keys are tuples of (C, H) name, values generic name (as described
-        above in this docstring). The use of an ordered dictionnary ensures
-        we get always the same order in the output OP.
-    """
-    dic = collections.OrderedDict()
-    try:
-        with open(filename, "r") as f:
-            for line in f:
-                # TODO: This line might have to be changed if the file contains more than
-                # 4 columns.
-                name, _, C, H = line.split()
-                dic[(C, H)] = name
-    except:
-        raise UserWarning("Can't read order parameter definition in "
-                          "file {}".format(filename))
-    return dic
-
-def init_dic_OP(universe_woH, dic_atname2genericname):
-    """TODO Complete docstring.
-    """
-    ### To calculate the error, we need to first average over the
-    ### trajectory, then over residues.
-    ### Thus in dic_OP, we want for each key a list of lists, for example:
-    ### OrderedDict([
-    ###              (('C1', 'H11'), [[], [], ..., [], []]),
-    ###              (('C1', 'H12'), [[], ..., []]),
-    ###              ...
-    ###              ])
-    ### Thus each sublist will contain OPs for one residue.
-    ### e.g. ('C1', 'H11'), [[OP res 1 frame1, OP res1 frame2, ...],
-    ###                      [OP res 2 frame1, OP res2 frame2, ...], ...]
-    dic_OP = collections.OrderedDict()
-    # We also need the correspondance between residue number (resnum) and
-    # its index in dic_OP.
-    dic_corresp_numres_index_dic_OP = {}
-    # Create these sublists by looping over each lipid.
-    for key in dic_atname2genericname:
-        dic_OP[key] = []
-        # Get lipid name.
-        resname = dic_lipid["resname"]
-        selection = "resname {}".format(resname)
-        # Loop over each residue on which we want to calculate the OP on.
-        for i, residue in enumerate(universe_woH.select_atoms(selection).residues):
-            dic_OP[key].append([])
-            dic_corresp_numres_index_dic_OP[residue.resid] = i
-    if DEBUG:
-        print("Initial dic_OP:", dic_OP)
-        print("dic_corresp_numres_index_dic_OP:", dic_corresp_numres_index_dic_OP)
-    return dic_OP, dic_corresp_numres_index_dic_OP
-
-
-def make_dic_Cname2Hnames(dic_OP):
-    """TODO Complete Docstring.
-    """
-    dic = {}
-    for Cname, Hname in dic_OP.keys():
-        if Cname not in dic:
-            dic[Cname] = (Hname,)
-        else:
-            dic[Cname] += (Hname,)
-    if DEBUG:
-        print("dic_Cname2Hnames contains:", dic)
-    return dic
-
-
 def check_slice_options(system, first_frame=None, last_frame=None):
     """Verify the slicing options given by the user and translate
     to it to a range of frame in MDAnalysis.
@@ -242,12 +111,12 @@ def check_slice_options(system, first_frame=None, last_frame=None):
     ------
     """
     # From the trajectory, get the time of the first and last frame
-    traj_first_frame = int(universe_woH.trajectory.time)
-    traj_last_frame = int(universe_woH.trajectory.time + universe_woH.trajectory.dt * (universe_woH.trajectory.n_frames - 1))
+    traj_first_frame = int(system.trajectory.time)
+    traj_last_frame = int(system.trajectory.time + system.trajectory.dt * (system.trajectory.n_frames - 1))
 
     # If no bound is given, take the full trajectory
     if not first_frame and not last_frame:
-        return (0, universe_woH.trajectory.n_frames)
+        return (0, system.trajectory.n_frames)
 
     # If only one bound is given
     if not first_frame:
@@ -271,7 +140,7 @@ def check_slice_options(system, first_frame=None, last_frame=None):
     # Translate the time range into a number range.
     # Find the index of element in the list of frames (in ps) which has the minimum distance
     # from the first or last frame (in ps) given.
-    frames = np.arange(traj_first_frame, traj_last_frame + 1, int(universe_woH.trajectory.dt))
+    frames = np.arange(traj_first_frame, traj_last_frame + 1, int(system.trajectory.dt))
     number_first_frame = (np.abs(frames - first_frame)).argmin()
     number_last_frame  = (np.abs(frames -  last_frame)).argmin()
     # Include last frame into account for slicing by adding 1
@@ -279,18 +148,12 @@ def check_slice_options(system, first_frame=None, last_frame=None):
 
     return (number_first_frame, number_last_frame)
 
-if __name__ == "__main__":
-    # 0) Fist ensure Python 3 is used!!!
-    major, minor, _, _, _ = sys.version_info
-    if major != 3:
-        raise UserWarning("buildH only works with Python 3.")
-    if minor < 6:
-        warnings.warn("Python version >= 3.6 is recommended with buildH.", UserWarning)
-    else:
-        print("Python version OK!")
 
-    # 1) Parse arguments.
-    # TODO --> Make a function for that.
+def parse_cli():
+    """
+    Handle the user parameters from the command line
+    """
+
     message = """This program builds hydrogens and calculate the order
     parameters
     (OP) from a united-atom trajectory. If -opx is requested, pdb and xtc
@@ -323,26 +186,42 @@ if __name__ == "__main__":
                         help="The first frame (ps) to read from the trajectory.")
     parser.add_argument("-e", "--end", type=int,
                         help="The last frame (ps) to read from the trajectory.")
-    args = parser.parse_args()
+    options = parser.parse_args()
 
-    # Top file is "args.topfile", xtc file is "args.xtc", pdb output file is
-    # "args.pdbout", xtc output file is "args.xtcout".
+    # Top file is "options.topfile", xtc file is "options.xtc", pdb output file is
+    # "options.pdbout", xtc output file is "options.xtcout".
     # Check topology file extension.
-    if not args.topfile.endswith("pdb") and not args.topfile.endswith("gro"):
+    if not options.topfile.endswith("pdb") and not options.topfile.endswith("gro"):
         parser.error("Topology must be given in pdb or gro format")
     # Check residue name validity.
-    # Get the dictionnary with helper info using residue name (args.lipid
+    # Get the dictionnary with helper info using residue name (options.lipid
     # argument). Beware, this dict is then called `dic_lipid` *without s*,
     # while `dic_lipids.py` (with an s) is a module with many different dicts
     # (of different lipids) the user can choose.
     try:
-        dic_lipid = getattr(dic_lipids, args.lipid)
-    except:
-        parser.error("Lipid dictionnary {} doesn't exist in dic_lipids.py".format(args.lipid))
+        lipids_info = getattr(dic_lipids, options.lipid)
+    except AttributeError:
+        parser.error("Lipid dictionnary {} doesn't exist in dic_lipids.py".format(options.lipid))
 
     # Slicing only makes sense with a trajectory
-    if not args.xtc and (args.begin or args.end):
+    if not options.xtc and (options.begin or options.end):
         parser.error("Slicing is only possible with a trajectory file.")
+
+    return options, lipids_info
+
+if __name__ == "__main__":
+    # 0) Fist ensure Python 3 is used!!!
+    major, minor, _, _, _ = sys.version_info
+    if major != 3:
+        raise UserWarning("buildH only works with Python 3.")
+    if minor < 6:
+        warnings.warn("Python version >= 3.6 is recommended with buildH.", UserWarning)
+    else:
+        print("Python version OK!")
+
+    # 1) Parse arguments.
+    args, dic_lipid = parse_cli()
+
 
     # 2) Create universe without H.
     print("Constructing the system...")
@@ -368,12 +247,13 @@ if __name__ == "__main__":
     # 2) Initialize dic for storing OP.
     # Init dic of correspondance : {('C1', 'H11'): 'gamma1_1',
     # {('C1', 'H11'): 'gamma1_1', ...}.
-    dic_atname2genericname = make_dic_atname2genericname(args.defop)
+    dic_atname2genericname = OP.make_dic_atname2genericname(args.defop)
     # Initialize dic_OP (see function init_dic_OP() for the format).
-    dic_OP, dic_corresp_numres_index_dic_OP = init_dic_OP(universe_woH,
-                                                          dic_atname2genericname)
+    dic_OP, dic_corresp_numres_index_dic_OP = OP.init_dic_OP(universe_woH,
+                                                             dic_atname2genericname,
+                                                             dic_lipid)
     # Initialize dic_Cname2Hnames.
-    dic_Cname2Hnames = make_dic_Cname2Hnames(dic_OP)
+    dic_Cname2Hnames = OP.make_dic_Cname2Hnames(dic_OP)
 
     # If traj output files are requested.
     # NOTE Here, we need to reconstruct all Hs. Thus the op definition file (passed
@@ -412,13 +292,13 @@ if __name__ == "__main__":
         # Build a new universe with H.
         # Build a pandas df with H.
         new_df_atoms = OP.build_all_Hs_calc_OP(universe_woH, dic_lipid,
-                                            dic_Cname2Hnames,
-                                            return_coors=True)
+                                               dic_Cname2Hnames,
+                                               return_coors=True)
         # Create a new universe with H using that df.
         print("Writing new pdb with hydrogens.")
         # Write pdb with H to disk.
         with open(pdbout_filename, "w") as f:
-            f.write(pandasdf2pdb(new_df_atoms))
+            f.write(writers.pandasdf2pdb(new_df_atoms))
         # Then create the universe with H from that pdb.
         universe_wH = mda.Universe(pdbout_filename)
         # Create an xtc writer.
@@ -458,81 +338,10 @@ if __name__ == "__main__":
         #  To unpickle
         #with open("OP.pickle", "rb") as f:
         #    dic_OP = pickle.load(f)
-    # Output to a file.
-    with open("{}.jmelcr_style.out".format(args.out), "w") as f, \
-        open("{}.apineiro_style.out".format(args.out), "w") as f2:
-        # J. Melcr output style.
-        f.write("# {:18s} {:7s} {:5s} {:5s}  {:7s} {:7s} {:7s}\n"
-                .format("OP_name", "resname", "atom1", "atom2", "OP_mean",
-                        "OP_stddev", "OP_stem"))
-        f.write("#-------------------------------"
-                "-------------------------------------\n")
-        # Loop over each pair (C, H).
-        for Cname, Hname in dic_atname2genericname.keys():
-            name = dic_atname2genericname[(Cname, Hname)]
-            if DEBUG:
-                print("Pair ({}, {}):".format(Cname, Hname))
-            # Cast list of lists to a 2D-array. It should have dimensions
-            # (nb_lipids, nb_frames).
-            ### Thus each sublist will contain OPs for one residue.
-            ### e.g. ('C1', 'H11'), [[OP res 1 frame1, OP res1 frame2, ...],
-            ###                      [OP res 2 frame1, OP res2 frame2, ...],
-            ####                     ...]
-            a = np.array(dic_OP[(Cname, Hname)])
-            if DEBUG:
-                print("Final OP array has shape (nb_lipids, nb_frames):",
-                      a.shape)
-                print()
-            # General mean over lipids and over frames (for that (C, H) pair).
-            mean = np.mean(a)
-            # Average over frames for each (C, H) pair.  Because of how the
-            # array is organized (see above), we need to average horizontally
-            # (i.e. using axis=1).
-            # means is a 1D-array with nb_lipids elements.
-            means = np.mean(a, axis=1)
-            # Calc standard deviation and STEM (std error of the mean).
-            std_dev = np.std(means)
-            stem = np.std(means) / np.sqrt(len(means))
-            f.write("{:20s} {:7s} {:5s} {:5s} {: 2.5f} {: 2.5f} {: 2.5f}\n"
-                    .format(name, dic_lipid["resname"], Cname, Hname, mean,
-                            std_dev, stem))
-        # A. Pineiro output style.
-        f2.write("Atom_name  Hydrogen\tOP\t      STD\t   STDmean\n")
-        list_unique_Cnames = []
-        for Cname, Hname in dic_OP.keys():
-            if Cname not in list_unique_Cnames:
-                list_unique_Cnames.append(Cname)
-        # Order of carbons is similar to that in the PDB.
-        list_unique_Cnames_ordered = []
-        selection = "resname {}".format(dic_lipid["resname"])
-        for atom in universe_woH.select_atoms(selection).residues[0].atoms:
-            if atom.name in list_unique_Cnames:
-                list_unique_Cnames_ordered.append(atom.name)
-        # Now write output.
-        for Cname in list_unique_Cnames_ordered:
-            cumulative_list_for_that_carbon = []
-            for i, Hname in enumerate([H for C, H in dic_OP.keys() if C == Cname]):
-                cumulative_list_for_that_carbon += dic_OP[Cname, Hname]
-                a = np.array(dic_OP[Cname, Hname])
-                mean = np.mean(a)
-                means = np.mean(a, axis=1)
-                std_dev = np.std(means)
-                stem = np.std(means) / np.sqrt(len(means))
-                if i == 0:
-                    f2.write("{:>7s}\t{:>8s}  {:10.5f}\t{:10.5f}\t{:10.5f}\n"
-                             .format(Cname, "HR", mean, std_dev, stem))
-                elif i == 1:
-                    f2.write("{:>7s}\t{:>8s}  {:10.5f}\t{:10.5f}\t{:10.5f}\n"
-                             .format("", "HS", mean, std_dev, stem))
-                elif i == 2:
-                    f2.write("{:>7s}\t{:>8s}  {:10.5f}\t{:10.5f}\t{:10.5f}\n"
-                             .format("", "HT", mean, std_dev, stem))
-            a = np.array(cumulative_list_for_that_carbon)
-            mean = np.mean(a)
-            means = np.mean(a, axis=1)
-            std_dev = np.std(means)
-            stem = np.std(means) / np.sqrt(len(means))
-            f2.write("{:>7s}\t{:>8s}  {:10.5f}\t{:10.5f}\t{:10.5f}\n\n"
-                     .format("", "AVG", mean, std_dev, stem))
 
+    # Output to a file.
+    writers.write_OP_jmelcr("{}.jmelcr_style.out".format(args.out), dic_atname2genericname,
+                            dic_OP, dic_lipid)
+    writers.write_OP_apineiro("{}.apineiro_style.out".format(args.out), universe_woH,
+                              dic_OP, dic_lipid)
     print("Results written to {}".format(args.out))

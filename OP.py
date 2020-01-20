@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import collections
+
 import numpy as np
 import pandas as pd
 
@@ -8,7 +10,91 @@ from hydrogens import get_CH, get_CH2, get_CH3, get_CH_double_bond
 
 
 # For debugging.
-from buildH_calcOP import DEBUG
+# TODO: Remove it after implement logging feature
+DEBUG=False
+
+def make_dic_atname2genericname(filename):
+    """Make a dict of correspondance between generic H names and PDB names.
+
+    This dict will look like the following: {('C1', 'H11'): 'gamma1_1', ...}.
+    Useful for outputing OP with generic names (such as beta1, beta 2, etc.).
+    Such files can be found on the NMRlipids MATCH repository:
+    https://github.com/NMRLipids/MATCH/tree/master/scripts/orderParm_defs.
+
+    Parameters
+    ----------
+    filename : str
+        Filename containing OP definition
+        (e.g. `order_parameter_definitions_MODEL_Berger_POPC.def`).
+
+    Returns
+    -------
+    Ordered dictionnary
+        Keys are tuples of (C, H) name, values generic name (as described
+        above in this docstring). The use of an ordered dictionnary ensures
+        we get always the same order in the output OP.
+    """
+    dic = collections.OrderedDict()
+    try:
+        with open(filename, "r") as f:
+            for line in f:
+                # TODO: This line might have to be changed if the file contains more than
+                # 4 columns.
+                name, _, C, H = line.split()
+                dic[(C, H)] = name
+    except:
+        raise UserWarning("Can't read order parameter definition in "
+                          "file {}".format(filename))
+    return dic
+
+def init_dic_OP(universe_woH, dic_atname2genericname, dic_lipid):
+    """TODO Complete docstring.
+    """
+    ### To calculate the error, we need to first average over the
+    ### trajectory, then over residues.
+    ### Thus in dic_OP, we want for each key a list of lists, for example:
+    ### OrderedDict([
+    ###              (('C1', 'H11'), [[], [], ..., [], []]),
+    ###              (('C1', 'H12'), [[], ..., []]),
+    ###              ...
+    ###              ])
+    ### Thus each sublist will contain OPs for one residue.
+    ### e.g. ('C1', 'H11'), [[OP res 1 frame1, OP res1 frame2, ...],
+    ###                      [OP res 2 frame1, OP res2 frame2, ...], ...]
+    dic_OP = collections.OrderedDict()
+    # We also need the correspondance between residue number (resnum) and
+    # its index in dic_OP.
+    dic_corresp_numres_index_dic_OP = {}
+    # Create these sublists by looping over each lipid.
+    for key in dic_atname2genericname:
+        dic_OP[key] = []
+        # Get lipid name.
+        resname = dic_lipid["resname"]
+        selection = "resname {}".format(resname)
+        # Loop over each residue on which we want to calculate the OP on.
+        for i, residue in enumerate(universe_woH.select_atoms(selection).residues):
+            dic_OP[key].append([])
+            dic_corresp_numres_index_dic_OP[residue.resid] = i
+    if DEBUG:
+        print("Initial dic_OP:", dic_OP)
+        print("dic_corresp_numres_index_dic_OP:", dic_corresp_numres_index_dic_OP)
+    return dic_OP, dic_corresp_numres_index_dic_OP
+
+
+def make_dic_Cname2Hnames(dic_OP):
+    """TODO Complete Docstring.
+    """
+    dic = {}
+    for Cname, Hname in dic_OP.keys():
+        if Cname not in dic:
+            dic[Cname] = (Hname,)
+        else:
+            dic[Cname] += (Hname,)
+    if DEBUG:
+        print("dic_Cname2Hnames contains:", dic)
+    return dic
+
+
 
 ###
 ### The next two functions (buildHs_on_1C() and build_all_Hs_calc_OP())
@@ -186,7 +272,7 @@ def build_all_Hs_calc_OP(universe_woH, dic_lipid, dic_Cname2Hnames,
             # To retrieve Hname, we need a counter.
             counter4Hname = 0
             # Loop over Hs_coor (H_coor is a 1D-array with the 3 coors of 1 H).
-            for i, H_coor in enumerate(Hs_coor):
+            for H_coor in Hs_coor:
                 # Retrieve name of newly built H.
                 Hname = dic_Cname2Hnames[atom.name][counter4Hname]
                 ####
@@ -297,15 +383,13 @@ def fast_buildHs_on_1C(dic_lipids_with_indexes, ts, Cname, ix_first_atom_res):
                           .format(typeofH2build))
 
 
-def get_indexes(atom, universe_woH, dic_lipid):
+def get_indexes(atom, dic_lipid):
     """Returns the index of helpers for a given carbon.
 
     Parameters
     ----------
     atom : MDAnalysis Atom instance
         This is an Atom instance of a carbon on which we want to build Hs.
-    universe_woH : MDAnalysis universe instance
-        The universe without hydrogens.
     dic_lipid : dictionnary
         Comes from dic_lipids.py. Contains carbon names and helper names needed
         for reconstructing hydrogens.
@@ -391,7 +475,7 @@ def make_dic_lipids_with_indexes(universe_woH, dic_lipid, dic_OP):
         print()
     # Keep only carbons on which we want to build Hs.
     carbons2keep = []
-    for Cname, Hname in dic_OP:
+    for Cname, _ in dic_OP:
         if Cname not in carbons2keep:
             carbons2keep.append(Cname)
     dic_lipids_with_indexes = {}
@@ -403,18 +487,15 @@ def make_dic_lipids_with_indexes(universe_woH, dic_lipid, dic_OP):
     # dict) the index (ix) of each helper of a given carbon with respect to
     # the index of the first atom in that lipid residue.
     # Loop over each carbon on which we want to reconstruct Hs.
-    for Cname in dic_lipids_with_indexes.keys():
+    for Cname in dic_lipids_with_indexes:
         # Loop over residues for a given Cname atom.
         selection = "resid {} and name {}".format(resnum_1st_lipid, Cname)
         for Catom in universe_woH.select_atoms(selection):
             # Get the (absolute) index of helpers.
             if dic_lipid[Cname][0] == "CH":
-                helper1_ix, helper2_ix, helper3_ix = get_indexes(Catom,
-                                                                 universe_woH,
-                                                                 dic_lipid)
+                helper1_ix, helper2_ix, helper3_ix = get_indexes(Catom, dic_lipid)
             else:
-                helper1_ix, helper2_ix = get_indexes(Catom, universe_woH,
-                                                     dic_lipid)
+                helper1_ix, helper2_ix = get_indexes(Catom, dic_lipid)
             # If the first lipid doesn't start at residue 1 we must
             # substract the index of the first atom of that lipid.
             Catom_ix_inres = Catom.ix - first_atom_ix
@@ -438,7 +519,7 @@ def make_dic_lipids_with_indexes(universe_woH, dic_lipid, dic_OP):
 
 
 def fast_build_all_Hs_calc_OP(universe_woH, begin, end,
-                             dic_OP, dic_lipid, dic_Cname2Hnames):
+                              dic_OP, dic_lipid, dic_Cname2Hnames):
     """Build Hs and calc OP using fast indexing.
 
     This function uses fast indexing to carbon atoms and helper atoms. It
@@ -515,7 +596,7 @@ def fast_build_all_Hs_calc_OP(universe_woH, begin, end,
             ix_first_atom_res = first_lipid_atom.ix
             # Now loop over each carbon on which we want to build Hs
             # (Cname is a string).
-            for Cname in dic_lipids_with_indexes.keys():
+            for Cname in dic_lipids_with_indexes:
                 # Get Cname coords.
                 if len(dic_lipids_with_indexes[Cname]) == 6:
                     _, _, _, Cname_ix, helper1_ix, helper2_ix = dic_lipids_with_indexes[Cname]
@@ -553,7 +634,7 @@ def fast_build_all_Hs_calc_OP(universe_woH, begin, end,
                 # To retrieve Hname, we need a counter.
                 counter4Hname = 0
                 # Loop over all Hs.
-                for i, H_coor in enumerate(Hs_coor):
+                for H_coor in Hs_coor:
                     # Retrieve name of newly built H.
                     Hname = dic_Cname2Hnames[Cname][counter4Hname]
                     # Calc and store OP for that couple C-H.
