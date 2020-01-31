@@ -3,8 +3,8 @@
 
 import pandas as pd
 
-from hydrogens import get_CH, get_CH2, get_CH3, get_CH_double_bond
-import geometry
+import hydrogens
+import geometry as geo
 
 
 # For debugging.
@@ -57,21 +57,21 @@ def buildHs_on_1C(atom, dic_lipid):
     helper1_coor = sel("name {0}".format(helper1_name))[0].position
     helper2_coor = sel("name {0}".format(helper2_name))[0].position
     if typeofH2build == "CH2":
-        H1_coor, H2_coor = get_CH2(atom.position, helper1_coor, helper2_coor)
+        H1_coor, H2_coor = hydrogens.get_CH2(atom.position, helper1_coor, helper2_coor)
         return (H1_coor, H2_coor)
     elif typeofH2build == "CH":
         # If we reconstruct a single H, we have a 3rd helper.
         helper3_coor = sel("name {0}".format(helper3_name))[0].position
-        H1_coor = get_CH(atom.position, helper1_coor, helper2_coor,
-                         helper3_coor)
+        H1_coor = hydrogens.get_CH(atom.position, helper1_coor, helper2_coor,
+                                   helper3_coor)
         return (H1_coor,)
     elif typeofH2build == "CHdoublebond":
-        H1_coor = get_CH_double_bond(atom.position, helper1_coor,
-                                     helper2_coor)
+        H1_coor = hydrogens.get_CH_double_bond(atom.position, helper1_coor,
+                                               helper2_coor)
         return (H1_coor,)
     elif typeofH2build == "CH3":
-        H1_coor, H2_coor, H3_coor = get_CH3(atom.position,
-                                            helper1_coor, helper2_coor)
+        H1_coor, H2_coor, H3_coor = hydrogens.get_CH3(atom.position,
+                                                      helper1_coor, helper2_coor)
         return (H1_coor, H2_coor, H3_coor)
     else:
         raise UserWarning("Wrong code for typeofH2build, expected 'CH2', 'CH'"
@@ -196,7 +196,7 @@ def build_all_Hs_calc_OP(universe_woH, dic_lipid, dic_Cname2Hnames,
                 ####
                 if dic_OP:
                     if (atom.name, Hname) in dic_OP:
-                        op = geometry.calc_OP(atom.position, H_coor)
+                        op = geo.calc_OP(atom.position, H_coor)
                         # We should get here the index of the residue in dic_OP.
                         # For that we can use dic_corresp_numres_index_dic_OP
                         # (key: resnum in pdb, value: index residue in dic_OP).
@@ -277,21 +277,21 @@ def fast_buildHs_on_1C(dic_lipids_with_indexes, ts, Cname, ix_first_atom_res):
     helper2_coor = ts[helper2_ix+ix_first_atom_res]
     # Build new H(s) and get coordinates.
     if typeofH2build == "CH2":
-        H1_coor, H2_coor = get_CH2(Cname_position, helper1_coor, helper2_coor)
+        H1_coor, H2_coor = hydrogens.get_CH2(Cname_position, helper1_coor, helper2_coor)
         return (H1_coor, H2_coor)
     elif typeofH2build == "CH":
         # If we reconstruct a single H, we have a 3rd helper.
         helper3_coor = ts[helper3_ix+ix_first_atom_res]
-        H1_coor = get_CH(Cname_position, helper1_coor, helper2_coor,
-                         helper3_coor)
+        H1_coor = hydrogens.get_CH(Cname_position, helper1_coor, helper2_coor,
+                                   helper3_coor)
         return (H1_coor,)
     elif typeofH2build == "CHdoublebond":
-        H1_coor = get_CH_double_bond(Cname_position, helper1_coor,
-                                     helper2_coor)
+        H1_coor = hydrogens.get_CH_double_bond(Cname_position, helper1_coor,
+                                               helper2_coor)
         return (H1_coor,)
     elif typeofH2build == "CH3":
-        H1_coor, H2_coor, H3_coor = get_CH3(Cname_position,
-                                            helper1_coor, helper2_coor)
+        H1_coor, H2_coor, H3_coor = hydrogens.get_CH3(Cname_position,
+                                                      helper1_coor, helper2_coor)
         return (H1_coor, H2_coor, H3_coor)
     else:
         raise UserWarning("Wrong code for typeofH2build, expected 'CH2', 'CH'"
@@ -555,7 +555,7 @@ def fast_build_all_Hs_calc_OP(universe_woH, begin, end,
                     Hname = dic_Cname2Hnames[Cname][counter4Hname]
                     # Calc and store OP for that couple C-H.
                     Cname_position = ts[Cname_ix+ix_first_atom_res]
-                    op = geometry.calc_OP(Cname_position, H_coor)
+                    op = geo.calc_OP(Cname_position, H_coor)
                     # Old way: dic_OP[(Cname, Hname)].append(op)
                     if (Cname, Hname) in dic_OP:
                         dic_OP[(Cname, Hname)][lipid_ix].append(op)
