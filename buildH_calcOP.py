@@ -46,7 +46,8 @@ import MDAnalysis as mda
 import MDAnalysis.coordinates.XTC as XTC
 
 import dic_lipids
-import OP
+import init_dics
+import core
 import writers
 
 
@@ -247,13 +248,13 @@ if __name__ == "__main__":
     # 2) Initialize dic for storing OP.
     # Init dic of correspondance : {('C1', 'H11'): 'gamma1_1',
     # {('C1', 'H11'): 'gamma1_1', ...}.
-    dic_atname2genericname = OP.make_dic_atname2genericname(args.defop)
+    dic_atname2genericname = init_dics.make_dic_atname2genericname(args.defop)
     # Initialize dic_OP (see function init_dic_OP() for the format).
-    dic_OP, dic_corresp_numres_index_dic_OP = OP.init_dic_OP(universe_woH,
-                                                             dic_atname2genericname,
-                                                             dic_lipid)
+    dic_OP, dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(universe_woH,
+                                                                    dic_atname2genericname,
+                                                                    dic_lipid)
     # Initialize dic_Cname2Hnames.
-    dic_Cname2Hnames = OP.make_dic_Cname2Hnames(dic_OP)
+    dic_Cname2Hnames = init_dics.make_dic_Cname2Hnames(dic_OP)
 
     # If traj output files are requested.
     # NOTE Here, we need to reconstruct all Hs. Thus the op definition file (passed
@@ -291,9 +292,9 @@ if __name__ == "__main__":
         xtcout_filename = args.opdbxtc + ".xtc"
         # Build a new universe with H.
         # Build a pandas df with H.
-        new_df_atoms = OP.build_all_Hs_calc_OP(universe_woH, dic_lipid,
-                                               dic_Cname2Hnames,
-                                               return_coors=True)
+        new_df_atoms = core.build_all_Hs_calc_OP(universe_woH, dic_lipid,
+                                                 dic_Cname2Hnames,
+                                                 return_coors=True)
         # Create a new universe with H using that df.
         print("Writing new pdb with hydrogens.")
         # Write pdb with H to disk.
@@ -314,9 +315,9 @@ if __name__ == "__main__":
                   .format(ts.frame, universe_woH.trajectory.time))
             # Build H and update their positions in the universe *with* H (in place).
             # Calculate OPs on the fly while building Hs  (dic_OP changed in place).
-            OP.build_all_Hs_calc_OP(universe_woH, dic_lipid, dic_Cname2Hnames,
-                                    universe_wH=universe_wH, dic_OP=dic_OP,
-                                    dic_corresp_numres_index_dic_OP=dic_corresp_numres_index_dic_OP)
+            core.build_all_Hs_calc_OP(universe_woH, dic_lipid, dic_Cname2Hnames,
+                                      universe_wH=universe_wH, dic_OP=dic_OP,
+                                      dic_corresp_numres_index_dic_OP=dic_corresp_numres_index_dic_OP)
             # Write new frame to xtc.
             newxtc.write(universe_wH)
         # Close xtc.
@@ -326,7 +327,7 @@ if __name__ == "__main__":
     # calculation. The function fast_build_all_Hs() returns nothing, dic_OP
     # is modified in place.
     if not args.opdbxtc:
-        OP.fast_build_all_Hs_calc_OP(universe_woH, begin, end, dic_OP, dic_lipid, dic_Cname2Hnames)
+        core.fast_build_all_Hs_calc_OP(universe_woH, begin, end, dic_OP, dic_lipid, dic_Cname2Hnames)
 
     # 7) Output results.
     # Pickle results? (migth be useful in the future)

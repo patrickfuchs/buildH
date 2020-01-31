@@ -161,3 +161,38 @@ def cross_product(A, B):
     y = (A[0]*B[2]) - (A[2]*B[0])
     z = (A[0]*B[1]) - (A[1]*B[0])
     return np.array((x, -y, z))
+
+
+def calc_OP(C, H):
+    """Returns the Order Parameter of a CH bond (OP).
+
+    OP is calculated according to equation:
+
+    S = 1/2 * (3*cos(theta)^2 -1)
+
+    theta is the angle between CH bond and the z(vertical) axis:
+    z
+    ^  H
+    | /
+    |/
+    C
+
+    Inspired from a function written by @jmelcr.
+
+    Parameters
+    ----------
+    C : numpy 1D-array
+        Coordinates of C atom.
+    H : numpy 1D-array
+        Coordinates of H atom.
+
+    Returns
+    -------
+    float
+        The normalized vector.
+    """
+    vec = H - C
+    d2 = np.square(vec).sum()
+    cos2 = vec[2]**2/d2
+    S = 0.5*(3.0*cos2 - 1.0)
+    return S
