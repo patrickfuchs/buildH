@@ -211,14 +211,6 @@ def parse_cli():
     return options, lipids_info
 
 if __name__ == "__main__":
-    # 0) Fist ensure Python 3 is used!!!
-    major, minor, _, _, _ = sys.version_info
-    if major != 3:
-        raise UserWarning("buildH only works with Python 3.")
-    if minor < 6:
-        warnings.warn("Python version >= 3.6 is recommended with buildH.", UserWarning)
-    else:
-        print("Python version OK!")
 
     # 1) Parse arguments.
     args, dic_lipid = parse_cli()
