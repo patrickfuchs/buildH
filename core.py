@@ -2,9 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import pandas as pd
+import MDAnalysis as mda
+import MDAnalysis.coordinates.XTC as XTC
 
 import hydrogens
 import geometry as geo
+import writers
 
 
 # For debugging.
@@ -569,3 +572,48 @@ def fast_build_all_Hs_calc_OP(universe_woH, begin, end,
     if DEBUG:
         print("Final dic_OP:", dic_OP)
         print()
+
+
+def gen_XTC_calcOP(basename, universe_woH, dic_OP, dic_lipid,
+                   dic_Cname2Hnames, dic_corresp_numres_index_dic_OP,
+                   begin, end):
+    """
+    Generate a new trajectory with computed hydrogens
+    and compute the order parameter.
+    """
+
+    # Create filenames.
+    pdbout_filename = basename + ".pdb"
+    xtcout_filename = basename + ".xtc"
+    # Build a new universe with H.
+    # Build a pandas df with H.
+    new_df_atoms = build_all_Hs_calc_OP(universe_woH, dic_lipid,
+                                        dic_Cname2Hnames,
+                                        return_coors=True)
+    # Create a new universe with H using that df.
+    print("Writing new pdb with hydrogens.")
+    # Write pdb with H to disk.
+    with open(pdbout_filename, "w") as f:
+        f.write(writers.pandasdf2pdb(new_df_atoms))
+    # Then create the universe with H from that pdb.
+    universe_wH = mda.Universe(pdbout_filename)
+    # Create an xtc writer.
+    print("Writing trajectory with hydrogens in xtc file.")
+    newxtc = XTC.XTCWriter(xtcout_filename, len(universe_wH.atoms))
+    # Write 1st frame.
+    newxtc.write(universe_wH)
+
+    # 4) Loop over all frames of the traj *without* H, build Hs and
+    # calc OP (ts is a Timestep instance).
+    for ts in universe_woH.trajectory[begin:end]:
+        print("Dealing with frame {} at {} ps."
+              .format(ts.frame, universe_woH.trajectory.time))
+        # Build H and update their positions in the universe *with* H (in place).
+        # Calculate OPs on the fly while building Hs  (dic_OP changed in place).
+        build_all_Hs_calc_OP(universe_woH, dic_lipid, dic_Cname2Hnames,
+                             universe_wH=universe_wH, dic_OP=dic_OP,
+                             dic_corresp_numres_index_dic_OP=dic_corresp_numres_index_dic_OP)
+        # Write new frame to xtc.
+        newxtc.write(universe_wH)
+    # Close xtc.
+    newxtc.close()

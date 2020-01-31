@@ -37,13 +37,10 @@ __date__ = "2019/05"
 # Modules.
 import argparse
 import pickle
-import sys
-import warnings
 import pathlib
 
 import numpy as np
 import MDAnalysis as mda
-import MDAnalysis.coordinates.XTC as XTC
 
 import dic_lipids
 import init_dics
@@ -210,11 +207,62 @@ def parse_cli():
 
     return options, lipids_info
 
+
+def is_allHs_present(def_file, lipids_name, dic_ref_CHnames):
+    """
+    Check if all H's to be rebuild are present in the def file.
+
+    Parameters
+    ----------
+    def_file : str
+        Filename containing OP definition
+        (e.g. `order_parameter_definitions_MODEL_Berger_POPC.def`).
+    lipids_name : dictionnary
+        Comes from dic_lipids.py. Contains carbon names and helper names needed
+        for reconstructing hydrogens.
+    dic_ref_CHnames: dictionnary
+        Contains all CH molecules
+
+    Returns
+    -------
+    boolean
+        whether or not all Hs are present.
+    """
+
+    # check that dic_OP contains all possible C-H pairs.
+    # NOTE The user has to take care that .def file has the right atom names !!!
+    for atname in dic_lipid.keys():
+        if atname != "resname":
+            # Check if carbon is present in the definition file.
+            if atname not in dic_ref_CHnames:
+                print("Error: When -opx option is used, the order param "
+                      "definition file (passed with -d arg) must contain "
+                      "all possible carbons on which we want to rebuild "
+                      "hydrogens.")
+                print("Found:", list(dic_ref_CHnames.keys()))
+                print("Needs:", list(lipids_name.keys()))
+                return False
+            # Check that the 3 Hs are in there for that C.
+            nbHs_in_def_file = len(dic_ref_CHnames[atname])
+            tmp_dic = {"CH": 1, "CHdoublebond": 1, "CH2": 2, "CH3": 3}
+            correct_nb_of_Hs = tmp_dic[lipids_name[atname][0]]
+            if  correct_nb_of_Hs != nbHs_in_def_file:
+                print("Error: When -opx option is used, the order param "
+                      "definition file (passed with -d arg) must contain "
+                      "all possible C-H pairs to rebuild.")
+                print("Expected {} hydrogen(s) to rebuild for carbon {}, "
+                      "got {} in definition file {}."
+                      .format(correct_nb_of_Hs, atname,
+                              dic_ref_CHnames[atname], def_file))
+                return False
+
+    return True
+
+
 if __name__ == "__main__":
 
     # 1) Parse arguments.
     args, dic_lipid = parse_cli()
-
 
     # 2) Create universe without H.
     print("Constructing the system...")
@@ -252,68 +300,13 @@ if __name__ == "__main__":
     # NOTE Here, we need to reconstruct all Hs. Thus the op definition file (passed
     #  with arg -d) needs to contain all possible C-H pairs !!!
     if args.opdbxtc:
-        #3) Prepare the system.
-        # First check that dic_OP contains all possible C-H pairs.
-        # NOTE The user has to take care that .def file has the right atom names !!!
-        for atname in dic_lipid.keys():
-            if atname != "resname":
-                # Check if carbon is present in the definition file.
-                if atname not in dic_Cname2Hnames:
-                    print("Error: When -opx option is used, the order param "
-                          "definition file (passed with -d arg) must contain "
-                          "all possible carbons on which we want to rebuild "
-                          "hydrogens.")
-                    print("Found:", list(dic_Cname2Hnames.keys()))
-                    print("Needs:", list(dic_lipid.keys()))
-                    raise UserWarning("Order param definition file incomplete.")
-                # Check that the 3 Hs are in there for that C.
-                nbHs_in_def_file = len(dic_Cname2Hnames[atname])
-                tmp_dic = {"CH": 1, "CHdoublebond": 1, "CH2": 2, "CH3": 3}
-                correct_nb_of_Hs = tmp_dic[dic_lipid[atname][0]]
-                if  correct_nb_of_Hs != nbHs_in_def_file:
-                    print("Error: When -opx option is used, the order param "
-                          "definition file (passed with -d arg) must contain "
-                          "all possible C-H pairs to rebuild.")
-                    print("Expected {} hydrogen(s) to rebuild for carbon {}, "
-                          "got {} in definition file {}."
-                          .format(correct_nb_of_Hs, atname,
-                                  dic_Cname2Hnames[atname], args.defop))
-                    raise UserWarning("Wrong number of Hs to rebuild.")
-        # Create filenames.
-        pdbout_filename = args.opdbxtc + ".pdb"
-        xtcout_filename = args.opdbxtc + ".xtc"
-        # Build a new universe with H.
-        # Build a pandas df with H.
-        new_df_atoms = core.build_all_Hs_calc_OP(universe_woH, dic_lipid,
-                                                 dic_Cname2Hnames,
-                                                 return_coors=True)
-        # Create a new universe with H using that df.
-        print("Writing new pdb with hydrogens.")
-        # Write pdb with H to disk.
-        with open(pdbout_filename, "w") as f:
-            f.write(writers.pandasdf2pdb(new_df_atoms))
-        # Then create the universe with H from that pdb.
-        universe_wH = mda.Universe(pdbout_filename)
-        # Create an xtc writer.
-        print("Writing trajectory with hydrogens in xtc file.")
-        newxtc = XTC.XTCWriter(xtcout_filename, len(universe_wH.atoms))
-        # Write 1st frame.
-        newxtc.write(universe_wH)
 
-        # 4) Loop over all frames of the traj *without* H, build Hs and
-        # calc OP (ts is a Timestep instance).
-        for ts in universe_woH.trajectory[begin:end]:
-            print("Dealing with frame {} at {} ps."
-                  .format(ts.frame, universe_woH.trajectory.time))
-            # Build H and update their positions in the universe *with* H (in place).
-            # Calculate OPs on the fly while building Hs  (dic_OP changed in place).
-            core.build_all_Hs_calc_OP(universe_woH, dic_lipid, dic_Cname2Hnames,
-                                      universe_wH=universe_wH, dic_OP=dic_OP,
-                                      dic_corresp_numres_index_dic_OP=dic_corresp_numres_index_dic_OP)
-            # Write new frame to xtc.
-            newxtc.write(universe_wH)
-        # Close xtc.
-        newxtc.close()
+        if is_allHs_present(args.defop, dic_lipid, dic_Cname2Hnames):
+            core.gen_XTC_calcOP(args.opdbxtc, universe_woH, dic_OP, dic_lipid,
+                                dic_Cname2Hnames, dic_corresp_numres_index_dic_OP,
+                                begin, end)
+        else:
+            raise UserWarning("Error on the number of H's to rebuild.")
 
     # 6) If no traj output file requested, use fast indexing to speed up OP
     # calculation. The function fast_build_all_Hs() returns nothing, dic_OP
