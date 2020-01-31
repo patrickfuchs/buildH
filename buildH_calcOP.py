@@ -184,6 +184,9 @@ def parse_cli():
                         help="The first frame (ps) to read from the trajectory.")
     parser.add_argument("-e", "--end", type=int,
                         help="The last frame (ps) to read from the trajectory.")
+    parser.add_argument("-pi", "--pickle", type=str,
+                        help="Output pickle filename. The structure pickled is a dictonnary "
+                        "containing for each Order parameter, the value of each lipid and each frame as a matric")
     options = parser.parse_args()
 
     # Top file is "options.topfile", xtc file is "options.xtc", pdb output file is
@@ -314,16 +317,6 @@ if __name__ == "__main__":
     if not args.opdbxtc:
         core.fast_build_all_Hs_calc_OP(universe_woH, begin, end, dic_OP, dic_lipid, dic_Cname2Hnames)
 
-    # 7) Output results.
-    # Pickle results? (migth be useful in the future)
-    # TODO Implement that option.
-    if PICKLE:
-        with open("OP.pickle", "wb") as f:
-            # Pickle the dic using the highest protocol available.
-            pickle.dump(dic_OP, f, pickle.HIGHEST_PROTOCOL)
-        #  To unpickle
-        #with open("OP.pickle", "rb") as f:
-        #    dic_OP = pickle.load(f)
 
     # Output to a file.
     writers.write_OP_jmelcr("{}.jmelcr_style.out".format(args.out), dic_atname2genericname,
@@ -331,3 +324,13 @@ if __name__ == "__main__":
     writers.write_OP_apineiro("{}.apineiro_style.out".format(args.out), universe_woH,
                               dic_OP, dic_lipid)
     print("Results written to {}".format(args.out))
+
+    # Pickle results
+    if args.pickle:
+        with open(args.pickle, "wb") as f:
+            # Pickle the dic using the highest protocol available.
+            pickle.dump(dic_OP, f, pickle.HIGHEST_PROTOCOL)
+            print("Dictionnary pickled and written to {}".format(args.pickle))
+        #  To unpickle
+        #with open("OP.pickle", "rb") as f:
+        #    dic_OP = pickle.load(f)
