@@ -28,7 +28,7 @@ Berger_POPC = {
         "C21": ("CH2", "C20", "C22"),
         "C22": ("CH2", "C21", "C23"),
         "C23": ("CH2", "C22", "C24"),
-         # C24=C25 --> double bond
+        # C24=C25 --> double bond
         "C24": ("CHdoublebond", "C23", "C25"),
         "C25": ("CHdoublebond", "C24", "C26"),
         "C26": ("CH2", "C25", "C27"),
@@ -86,7 +86,7 @@ CHARMM_POPC = {
         "C26": ("CH2", "C25", "C27"),
         "C27": ("CH2", "C26", "C28"),
         "C28": ("CH2", "C27", "C29"),
-         # C29=C210 --> double bond
+        # C29=C210 --> double bond
         "C29": ("CHdoublebond", "C28", "C210"),
         "C210": ("CHdoublebond", "C29", "C211"),
         "C211": ("CH2", "C210", "C212"),
