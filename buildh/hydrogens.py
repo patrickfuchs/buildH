@@ -16,6 +16,35 @@ LENGTH_CH_BOND = 1.09  # in Angst
 # arccos(-1/3) ~ 1.9106 rad ~ 109.47 deg.
 TETRAHEDRAL_ANGLE = np.arccos(-1/3)
 
+
+def get_CH(atom, helper1, helper2, helper3):
+    """Reconstructs the unique hydrogen of a sp3 carbon.
+
+    Parameters
+    ----------
+    atom : numpy 1D-array
+        Central atom on which we want to reconstruct the hydrogen.
+    helper1 : numpy 1D-array
+        First neighbor of central atom.
+    helper2 : numpy 1D-array
+        Second neighbor of central atom.
+    helper3 : numpy 1D-array
+        Third neighbor of central atom.
+
+    Returns
+    -------
+    numpy 1D-array
+        Coordinates of the rebuilt hydrogen: ([x_H, y_H, z_H]).
+    """
+    helpers = np.array((helper1, helper2, helper3))
+    v2 = np.zeros(3)
+    for i in range(len(helpers)):
+        v2 = v2 + geo.normalize(helpers[i] - atom)
+    v2 = v2 / (len(helpers)) + atom
+    unit_vect_H = geo.normalize(atom - v2)
+    coor_H = LENGTH_CH_BOND * unit_vect_H + atom
+    return coor_H
+
 def get_CH2(atom, helper1, helper2):
     """Reconstructs the 2 hydrogens of a sp3 carbon (methylene group).
 
@@ -54,70 +83,6 @@ def get_CH2(atom, helper1, helper2):
                                       TETRAHEDRAL_ANGLE/2)
     hcoor_H2 = LENGTH_CH_BOND * unit_vect_H2 + atom
     return (hcoor_H1, hcoor_H2)
-
-
-def get_CH(atom, helper1, helper2, helper3):
-    """Reconstructs the unique hydrogen of a sp3 carbon.
-
-    Parameters
-    ----------
-    atom : numpy 1D-array
-        Central atom on which we want to reconstruct the hydrogen.
-    helper1 : numpy 1D-array
-        First neighbor of central atom.
-    helper2 : numpy 1D-array
-        Second neighbor of central atom.
-    helper3 : numpy 1D-array
-        Third neighbor of central atom.
-
-    Returns
-    -------
-    numpy 1D-array
-        Coordinates of the rebuilt hydrogen: ([x_H, y_H, z_H]).
-    """
-    helpers = np.array((helper1, helper2, helper3))
-    v2 = np.zeros(3)
-    for i in range(len(helpers)):
-        v2 = v2 + geo.normalize(helpers[i] - atom)
-    v2 = v2 / (len(helpers)) + atom
-    unit_vect_H = geo.normalize(atom - v2)
-    coor_H = LENGTH_CH_BOND * unit_vect_H + atom
-    return coor_H
-
-
-def get_CH_double_bond(atom, helper1, helper2):
-    """Reconstructs the hydrogen of a sp2 carbon.
-
-    Parameters
-    ----------
-    atom : numpy 1D-array
-        Central atom on which we want to reconstruct the hydrogen.
-    helper1 : numpy 1D-array
-        Heavy atom before central atom.
-    helper2 : numpy 1D-array
-        Heavy atom after central atom.
-
-    Returns
-    -------
-    tuple of numpy 1D-arrays
-        Coordinates of the rebuilt hydrogen: ([x_H, y_H, z_H]).
-    """
-    # calc CCC_angle helper1-atom-helper2 (in rad).
-    CCC_angle = geo.calc_angle(helper1, atom, helper2)
-    # We want to bisect the C-C-C angle ==> we take half of (2pi-CCC_angle).
-    # Factorizing yields: pi - CCC_angle/2.
-    theta = np.pi - (CCC_angle / 2)
-    # atom->helper1 vector.
-    v2 = helper1 - atom
-    # atom->helper2 vector.
-    v3 = helper2 - atom
-    # The rotation axis is orthogonal to the atom/helpers plane.
-    #rotation_axis = normalize(np.cross(v2, v3))
-    rotation_axis = geo.normalize(geo.cross_product(v2, v3))
-    # Reconstruct H by rotating v3 by theta.
-    unit_vect_H = geo.apply_rotation(v3, rotation_axis, theta)
-    coor_H = LENGTH_CH_BOND * unit_vect_H + atom
-    return coor_H
 
 
 def get_CH3(atom, helper1, helper2):
@@ -166,3 +131,38 @@ def get_CH3(atom, helper1, helper2):
     unit_vect_Hs = geo.apply_rotation(v5, rotation_axis, theta)
     coor_Hs = LENGTH_CH_BOND * unit_vect_Hs + atom
     return coor_He, coor_Hr, coor_Hs
+
+
+def get_CH_double_bond(atom, helper1, helper2):
+    """Reconstructs the hydrogen of a sp2 carbon.
+
+    Parameters
+    ----------
+    atom : numpy 1D-array
+        Central atom on which we want to reconstruct the hydrogen.
+    helper1 : numpy 1D-array
+        Heavy atom before central atom.
+    helper2 : numpy 1D-array
+        Heavy atom after central atom.
+
+    Returns
+    -------
+    tuple of numpy 1D-arrays
+        Coordinates of the rebuilt hydrogen: ([x_H, y_H, z_H]).
+    """
+    # calc CCC_angle helper1-atom-helper2 (in rad).
+    CCC_angle = geo.calc_angle(helper1, atom, helper2)
+    # We want to bisect the C-C-C angle ==> we take half of (2pi-CCC_angle).
+    # Factorizing yields: pi - CCC_angle/2.
+    theta = np.pi - (CCC_angle / 2)
+    # atom->helper1 vector.
+    v2 = helper1 - atom
+    # atom->helper2 vector.
+    v3 = helper2 - atom
+    # The rotation axis is orthogonal to the atom/helpers plane.
+    #rotation_axis = normalize(np.cross(v2, v3))
+    rotation_axis = geo.normalize(geo.cross_product(v2, v3))
+    # Reconstruct H by rotating v3 by theta.
+    unit_vect_H = geo.apply_rotation(v3, rotation_axis, theta)
+    coor_H = LENGTH_CH_BOND * unit_vect_H + atom
+    return coor_H
