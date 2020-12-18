@@ -59,14 +59,13 @@ class TestPDBPOPC:
                                                                                   self.dic_lipid)
         self.dic_Cname2Hnames = init_dics.make_dic_Cname2Hnames(self.dic_OP)
 
-        self.dic_lipids_with_indexes = core.make_dic_lipids_with_indexes(self.universe_woH,
-                                                                         self.dic_lipid,
-                                                                         self.dic_OP)
 
     # Method called before each test method.
     def setup_method(self):
         """
-        self.dic_op needs to be reinitialized since it is modified by the functions tested.
+        self.dic_op needs to be reinitialized since it is modified by some of the functions tested.
+
+        TODO: For now, only one function modify it. Maybe move this in setup_class() if it remains like this.
         """
         self.dic_OP, self.dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(self.universe_woH,
                                                                                   self.dic_atname2genericname,
@@ -91,10 +90,14 @@ class TestPDBPOPC:
             Test for fast_buildHs_on_1C()
             Generate 4 atoms to be tested, each with a different type
         """
-        ts = self.universe_woH.trajectory[0]
-        test_Hs_coords = core.fast_buildHs_on_1C(self.dic_lipids_with_indexes, ts, Cname, index)
 
-        assert_almost_equal(Hs_coords, test_Hs_coords)
+        dic_lipids_with_indexes = core.make_dic_lipids_with_indexes(self.universe_woH,
+                                                                     self.dic_lipid,
+                                                                     self.dic_OP)
+        ts = self.universe_woH.trajectory[0]
+        test_Hs_coords = core.fast_buildHs_on_1C(dic_lipids_with_indexes, ts, Cname, index)
+
+        assert_almost_equal(test_Hs_coords, Hs_coords)
 
 
     def test_fast_build_all_Hs_calc_OP(self, tmpdir):
@@ -119,8 +122,8 @@ class TestPDBPOPC:
 
         ref_file_jmelcr = path_data / "ref_10POPC.jmelcr.out"
         ref_file_apineiro = path_data / "ref_10POPC.apineiro.out"
-        assert filecmp.cmp(ref_file_jmelcr, test_file_jmelcr)
-        assert filecmp.cmp(ref_file_apineiro, test_file_apineiro)
+        assert filecmp.cmp(test_file_jmelcr, ref_file_jmelcr)
+        assert filecmp.cmp(test_file_apineiro, ref_file_apineiro)
 
 
 
