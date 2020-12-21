@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# coding: utf-8
-
 """
 This script builds hydrogens from a united-atom trajectory and calculate the
 order parameter for each C-H bond.
@@ -29,10 +26,9 @@ functions for vectorial operations (e.g. cross product).
 
 __authors__ = ("Patrick Fuchs", "Amélie Bâcle", "Hubert Santuz",
                "Pierre Poulain")
-__contact__ = ("patrickfuchs", "abacle", "hublot", "pierrepo") # on github
+__email__ = "patrick.fuchs@u-paris.fr"
 __version__ = "1.0.3"
-__copyright__ = "BSD"
-__date__ = "2019/05"
+__license__ = "BSD 3-Clause License"
 
 # Modules.
 import argparse
@@ -262,7 +258,8 @@ def is_allHs_present(def_file, lipids_name, dic_ref_CHnames):
     return True
 
 
-if __name__ == "__main__":
+def main():
+    """buildH main function."""
 
     # 1) Parse arguments.
     args, dic_lipid = parse_cli()
