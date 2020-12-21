@@ -5,9 +5,9 @@ import pandas as pd
 import MDAnalysis as mda
 import MDAnalysis.coordinates.XTC as XTC
 
-import hydrogens
-import geometry as geo
-import writers
+from . import hydrogens
+from . import geometry as geo
+from . import writers
 
 
 # For debugging.

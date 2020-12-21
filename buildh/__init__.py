@@ -38,10 +38,10 @@ import pathlib
 import numpy as np
 import MDAnalysis as mda
 
-import dic_lipids
-import init_dics
-import core
-import writers
+from . import dic_lipids
+from . import init_dics
+from . import core
+from . import writers
 
 
 # For debugging.
