@@ -12,6 +12,9 @@ dependencies:
   - matplotlib
   - jupyterlab
   - pytest
+  - pylint
+  - pycodestyle
+  - pydocstyle
   - pip:
     - -r file:../requirements.txt
  
