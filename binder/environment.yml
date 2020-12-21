@@ -1,0 +1,17 @@
+name: buildh
+# channels priority
+# see https://bioconda.github.io/
+# conda-forge has highest prioriy
+channels:
+  - defaults
+  - bioconda
+  - conda-forge
+dependencies:
+  - python=3.8
+  - pip
+  - matplotlib
+  - jupyterlab
+  - pytest
+  - pip:
+    - -r file:../requirements.txt
+ 
