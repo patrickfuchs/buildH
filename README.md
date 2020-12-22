@@ -57,10 +57,10 @@ buildH is written in Python 3 and need the following modules :
 ## Usage
 
 ```
-$ buildH -h
-usage: buildH_calcOP.py [-h] [-x XTC] [-l LIPID] [-d DEFOP] [-opx OPDBXTC]
-                        [-o OUT]
-                        topfile
+$ buildH
+usage: buildH [-h] [-x XTC] -l LIPID -d DEFOP [-opx OPDBXTC] [-o OUT] [-b BEGIN]
+              [-e END] [-pi PICKLE]
+              topfile
 
 This program builds hydrogens and calculate the order parameters (OP) from a
 united-atom trajectory. If -opx is requested, pdb and xtc output files with
@@ -98,7 +98,7 @@ The program needs two mandatory files (present in this repo):
 
 #### dic_lipids.py
 
-This file is used as a module and contains a list of dictionaries based on the type of lipids (POPC,DOPC,...) and the force field (Berger, GROMOS, etc). The chosen lipid/FF is passed to `buildH_calcOP.py` with `-l` option (e.g. `-l Berger_POPC`).
+This file is used as a module and contains a list of dictionaries based on the type of lipids (POPC,DOPC,...) and the force field (Berger, GROMOS, etc). The chosen lipid/FF is passed to `buildH` with `-l` option (e.g. `-l Berger_POPC`).
 The dictionary is a list of carbon atoms from which the hydrogens are built.
 For each carbon atom, there is the type of bonds (CH3, CH2, etc) and the 2 (or 3) others atoms needed for the reconstruction (see Algorithm).
 So far, the file contains Berger POPC and CHARMM36 POPC (this latter is used for validation only, since it is an all-atom force field). It will be updated in the future with some other united-atom force fields and other lipid types models.
@@ -132,51 +132,35 @@ Here are some examples on how to launch buildH:
 
 - Basic launch on a single structure (default name for output OPs will be used):
   ```
-  python ./buildH_calcOP.py start_128popc.pdb -l Berger_POPC \
+  buildH start_128popc.pdb -l Berger_POPC \
   -d order_parameter_definitions_MODEL_Berger_POPC.def
   ```
 - Same but an output file for OPs name is given:
   ```
-  python ./buildH_calcOP.py start_128popc.pdb -l Berger_POPC \
+  buildH start_128popc.pdb -l Berger_POPC \
   -d order_parameter_definitions_MODEL_Berger_POPC.def \
   -o OP_buildH.out
   ```
 - Launch buildH on a trajectory `traj.xtc`:
   ```
-  python ./buildH_calcOP.py start_128popc.pdb -l Berger_POPC \
+  buildH start_128popc.pdb -l Berger_POPC \
   -d order_parameter_definitions_MODEL_Berger_POPC.def \
   -x traj.xtc
   ```
 - Launch buildH on a trajectory `traj.xtc` with the trajecory outputs with hydrogens (`traj_with_H.xtc` and `traj_with_H.pdb`), and a default file name for the OP:
   ```
-  python ./buildH_calcOP.py start_128popc.pdb -l Berger_POPC \
+  buildH start_128popc.pdb -l Berger_POPC \
   -d order_parameter_definitions_MODEL_Berger_POPC.def \
   -x traj.xtc -opx traj_with_H
   ```
   Note that in this last case, the `.def` file **must** contain all possible pairs of C-H to reconstruct. (since the whole trajectory with Hs will be reconstructed).
 
-## Validation of buildH
+## Further documentation
 
-The folder [CHARMM36_POPC_validation](CHARMM36_POPC_validation) contains a thorough validation of buildH using a trajectory created with the CHARMM36 all-atom force field.
+Some more documentation can be found in the directory `doc` :
 
-## Algorithm for building hydrogens
-
-The way of building H is largely inspired from a code of Jon Kapla originally written in fortran:
-https://github.com/kaplajon/trajman/blob/master/module_trajop.f90#L242.
-
-Below is an example of a reconstruction of 2 hydrogens (*H51* and *H52*) attached to a carbon *C5* with the help of 2 others atom *C6* and *N4*.
-
-![Vectors](vectors.png)
-
-First, we compute the cross product between the vector C5-C6 and C5-N4 (red).
-
-We determine a rotational axis determined by the vector N4-C6. (green)
-
-We compute the cross product between the red one and green one. (orange)
-
-This orange vector is the rotational vector to construct the hydrogens.
-
-For this case, 2 hydrogens are constructed (yellow) : we apply a rotation of 109.47 deg for one and -109.47 deg for the other one.
+- Validation of buildH;
+- The geometric algorithm on how H are rebuilt.
 
 
 ## Contributors
