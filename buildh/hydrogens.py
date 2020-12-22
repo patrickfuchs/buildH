@@ -6,7 +6,8 @@ Module to reconstruct hydogens from a group of atoms
 """
 
 import numpy as np
-import geometry as geo
+
+from . import geometry as geo
 
 # Constants.
 # From https://en.wikipedia.org/wiki/Carbon%E2%80%93hydrogen_bond

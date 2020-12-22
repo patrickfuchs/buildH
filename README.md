@@ -1,9 +1,35 @@
 # buildH
 
-This repository contains a project for reconstructing hydrogens from a united-atom trajectory and calculate the order parameter.
+> Build hydrogens from a united-atom MD of lipids and calculate the order parameter. 
+
+## Installation (development)
+
+1. Install conda (either with Miniconda or Anaconda, we recommend Miniconda)
+
+2. Clone this GitHub repository:
+```
+$ git clone https://github.com/patrickfuchs/buildH.git
+$ cd buildH
+```
+
+3. Create environment:
+```
+$ conda env create -f binder/environment.yml
+$ conda activate buildh
+```
+
+4. Install the dev version of buildH:
+```
+$ pip install -e .
+```
+
+
+## Motivation
 
 The initial motivation comes from the [NMRlipids](https://nmrlipids.blogspot.com/) project. As stated in this [post](https://nmrlipids.blogspot.com/2019/04/nmrlipids-ivb-assembling-pe-pg-results.html), so far there is a lack of suitable program for reconstructing hydrogens. In the past, we used to use g_protonate in GROMACS 3.* versions. But now, this program has been removed in recent versions. The idea is to build our own using python and a package such as MDAnalysis for reading a trajectory, as well as numpy and possibly others such as pandas.
 
+
+## Features
 
 BuildH can :
   - reconstruct hydrogens from a **united-atom** structure file (PDB, GRO) or a trajectory.
@@ -31,7 +57,7 @@ buildH is written in Python 3 and need the following modules :
 ## Usage
 
 ```
-$ python ./buildH_calcOP.py -h
+$ buildH -h
 usage: buildH_calcOP.py [-h] [-x XTC] [-l LIPID] [-d DEFOP] [-opx OPDBXTC]
                         [-o OUT]
                         topfile

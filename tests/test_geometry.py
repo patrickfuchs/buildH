@@ -1,6 +1,3 @@
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """
 Unit tests for buildH_calcOP
 
@@ -13,7 +10,7 @@ from numpy.testing import (
 )
 import pytest
 
-import geometry
+from buildh import geometry
 
 
 @pytest.mark.parametrize('atom1, atom2, atom3, result', [
