@@ -11,7 +11,7 @@ buildh.egg-info/
 
 #Project
 *.npz
-*.out
+/*.out
 op_TMP*
 old/
 Berger_POPC_test_case/*_H*
