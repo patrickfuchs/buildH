@@ -14,8 +14,8 @@ import pytest
 import MDAnalysis as mda
 import numpy as np
 
-import dic_lipids
-import init_dics
+from buildh import dic_lipids
+from buildh import init_dics
 
 
 dir_data = "test_data"
@@ -35,7 +35,7 @@ def inputs():
     defop = path_data / "OP_def_BergerPOPC.def"
     dic_lipid = getattr(dic_lipids, "Berger_POPC")
 
-    universe_woH = mda.Universe(pdb)
+    universe_woH = mda.Universe(str(pdb))
     dic_atname2genericname = init_dics.make_dic_atname2genericname(defop)
     return {'universe':universe_woH, 'defop':defop, 'dic_lipid':dic_lipid,
             'dic_atname2genericname': dic_atname2genericname}

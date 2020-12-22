@@ -17,10 +17,10 @@ from numpy.testing import assert_almost_equal
 import MDAnalysis as mda
 import pandas as pd
 
-import dic_lipids
-import init_dics
-import core
-import writers
+from buildh import dic_lipids
+from buildh import init_dics
+from buildh import core
+from buildh import writers
 
 dir_data = "test_data"
 path_data = pathlib.Path(__file__).parent / dir_data
@@ -53,7 +53,7 @@ class TestPDBPOPC:
         self.end = 1
 
         # attributes
-        self.universe_woH = mda.Universe(self.pdb)
+        self.universe_woH = mda.Universe(str(self.pdb))
         self.dic_atname2genericname = init_dics.make_dic_atname2genericname(self.defop)
         self.dic_OP, self.dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(self.universe_woH,
                                                                                   self.dic_atname2genericname,
@@ -242,7 +242,7 @@ class TestXTCPOPC:
         self.end = 11
 
         # attributes
-        self.universe_woH = mda.Universe(self.pdb, str(self.xtc))
+        self.universe_woH = mda.Universe(str(self.pdb), str(self.xtc))
         self.dic_atname2genericname = init_dics.make_dic_atname2genericname(self.defop)
         self.dic_OP, self.dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(self.universe_woH,
                                                                                   self.dic_atname2genericname,

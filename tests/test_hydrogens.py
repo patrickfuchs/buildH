@@ -15,7 +15,7 @@ from numpy.testing import (
 )
 import pytest
 
-import hydrogens
+from buildh import hydrogens
 
 
 class TestComputeHydrogen:
