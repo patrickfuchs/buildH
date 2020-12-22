@@ -157,7 +157,7 @@ Here are some examples on how to launch buildH:
 
 ## Further documentation
 
-Some more documentation can be found in the directory `doc` :
+Some more documentation can be found in the directory `docs` :
 
 - Validation of buildH;
 - The geometric algorithm on how H are rebuilt.
