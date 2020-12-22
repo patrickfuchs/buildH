@@ -199,7 +199,7 @@ def is_allHs_present(def_file, lipids_name, dic_ref_CHnames):
 
     # check that dic_OP contains all possible C-H pairs.
     # NOTE The user has to take care that .def file has the right atom names !!!
-    for atname in dic_lipid.keys():
+    for atname in lipids_name.keys():
         if atname != "resname":
             # Check if carbon is present in the definition file.
             if atname not in dic_ref_CHnames:
