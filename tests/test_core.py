@@ -15,6 +15,7 @@ import pytest
 import numpy as np
 from numpy.testing import assert_almost_equal
 import MDAnalysis as mda
+import pandas as pd
 
 import dic_lipids
 import init_dics
@@ -71,6 +72,9 @@ class TestPDBPOPC:
                                                                                   self.dic_atname2genericname,
                                                                                   self.dic_lipid)
 
+    ########################################
+    # Tests methods for the fast algorithm #
+    ########################################
 
     @pytest.mark.parametrize('atom_index, helpers_indexes', [
          # atom C1
@@ -161,5 +165,138 @@ class TestPDBPOPC:
         assert filecmp.cmp(test_file_jmelcr, ref_file_jmelcr)
         assert filecmp.cmp(test_file_apineiro, ref_file_apineiro)
 
+    ########################################
+    # Tests methods for the slow algorithm #
+    # where hydrogens are saved            #
+    ########################################
+
+    # References values are the same as in test_fast_buildHs_on_1C()
+    @pytest.mark.parametrize('index, Hs_coords', [
+            # atom C1 type CH3
+            (0,  (np.array([35.06161421, 47.69320272, 26.76728762]),
+                  np.array([33.93128850, 47.36328732, 25.43245201]),
+                  np.array([35.02249090, 46.08195972, 26.01188584]))),
+            # atom C5 type CH2
+            (4,  (np.array([31.62418725, 45.50474260, 27.61469385]),
+                  np.array([32.93474471, 44.52992542, 26.90727792]))),
+            # atom C13 type CH
+            (12, (np.array([26.61868981, 44.14296091, 25.55244500]),)),
+            # atom C24 type CHdoublebond
+            (23, (np.array([20.46454439, 38.99866187, 31.19224364]),)),
+    ])
+    def test_buildHs_on_1C(self, index, Hs_coords):
+        """
+            Test for buildHs_on_1C()
+            Generate 4 atoms to be tested, each with a different type
+        """
+        atom = self.universe_woH.atoms[index]
+        test_Hs_coords = core.buildHs_on_1C(atom, self.dic_lipid)
+
+        assert_almost_equal(test_Hs_coords, Hs_coords)
 
 
+    def test_reconstruct_Hs_first_frame(self, tmpdir):
+        """
+            Test for build_all_Hs_calc_OP() in the first mode
+        """
+        new_df_atoms = core.build_all_Hs_calc_OP(self.universe_woH, self.dic_lipid,
+                                                 self.dic_Cname2Hnames, return_coors=True)
+
+        assert new_df_atoms.shape == (1340, 7)
+
+        # Test random atoms
+        col_series=["atnum", "atname","resname", "resnum","x", "y", "z"]
+        ref_atom = pd.Series([1, "C1", "POPC", 2, 34.41999816, 46.93999862, 26.30999946], index=col_series)
+        pd.testing.assert_series_equal(new_df_atoms.loc[0], ref_atom, check_names=False)
+
+        ref_atom = pd.Series([2, "H11", "POPC", 2, 35.06161421, 47.69320272, 26.76728762], index=col_series)
+        pd.testing.assert_series_equal(new_df_atoms.loc[1], ref_atom, check_names=False)
+
+        ref_atom = pd.Series([259, "H501", "POPC", 3, 74.16520229, 36.21701104, 35.03256486], index=col_series)
+        pd.testing.assert_series_equal(new_df_atoms.loc[258], ref_atom, check_names=False)
+
+        ref_atom = pd.Series([1339, "HA22", "POPC", 11, 27.72946942, 16.74704078, 40.53260384], index=col_series)
+        pd.testing.assert_series_equal(new_df_atoms.loc[1338], ref_atom, check_names=False)
+
+
+
+# Ignore some MDAnalysis warnings
+@pytest.mark.filterwarnings('ignore::UserWarning')
+class TestXTCPOPC:
+    """
+    Test class for a trajectory of POPC lipids.
+    """
+
+    # Method called once per class.
+    def setup_class(self):
+        """
+        Initialize all data.
+        """
+
+        # Input parameters
+        self.pdb = path_data / "2POPC.pdb"
+        self.xtc = path_data / "2POPC.xtc"
+        self.defop = path_data / "OP_def_BergerPOPC.def"
+        self.dic_lipid = getattr(dic_lipids, "Berger_POPC")
+        self.begin = 0
+        self.end = 11
+
+        # attributes
+        self.universe_woH = mda.Universe(self.pdb, str(self.xtc))
+        self.dic_atname2genericname = init_dics.make_dic_atname2genericname(self.defop)
+        self.dic_OP, self.dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(self.universe_woH,
+                                                                                  self.dic_atname2genericname,
+                                                                                  self.dic_lipid)
+        self.dic_Cname2Hnames = init_dics.make_dic_Cname2Hnames(self.dic_OP)
+
+    # Method called before each test method.
+    def setup_method(self):
+        """
+        self.dic_op needs to be reinitialized since it is modified by some of the functions tested.
+        """
+        self.dic_OP, self.dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(self.universe_woH,
+                                                                                  self.dic_atname2genericname,
+                                                                                  self.dic_lipid)
+
+    def test_fast_calcOP(self, tmpdir):
+        """
+        Test fast_build_all_Hs_calc_OP() on a trajectory
+        The results should be indentical to the test_gen_XTC_calcOP() test.
+        """
+
+        core.fast_build_all_Hs_calc_OP(self.universe_woH,self.begin, self.end,
+                                       self.dic_OP, self.dic_lipid, self.dic_Cname2Hnames)
+
+        test_file_jmelcr = tmpdir / "test_2POPC_traj.jmelcr.out"
+        test_file_apineiro = tmpdir / "test_2POPC_traj.apineiro.out"
+        writers.write_OP_jmelcr(test_file_jmelcr, self.dic_atname2genericname,
+                                self.dic_OP, self.dic_lipid)
+        writers.write_OP_apineiro(test_file_apineiro, self.universe_woH,
+                                  self.dic_OP, self.dic_lipid)
+
+        ref_file_jmelcr = path_data / "ref_2POPC_traj.jmelcr.out"
+        ref_file_apineiro = path_data / "ref_2POPC_traj.apineiro.out"
+        assert filecmp.cmp(test_file_jmelcr, ref_file_jmelcr)
+        assert filecmp.cmp(test_file_apineiro, ref_file_apineiro)
+
+    def test_gen_XTC_calcOP(self, tmpdir):
+        """
+        Test for gen_XTC_calcOP()
+        The results should be indentical to the test_fast_calcOP() test.
+        """
+        core.gen_XTC_calcOP("test", self.universe_woH, self.dic_OP, self.dic_lipid,
+                            self.dic_Cname2Hnames, self.dic_corresp_numres_index_dic_OP,
+                            self.begin, self.end)
+
+        #Write results
+        test_file_jmelcr = tmpdir / "test_2POPC_traj.jmelcr.out"
+        test_file_apineiro = tmpdir / "test_2POPC_traj.apineiro.out"
+        writers.write_OP_jmelcr(test_file_jmelcr, self.dic_atname2genericname,
+                                self.dic_OP, self.dic_lipid)
+        writers.write_OP_apineiro(test_file_apineiro, self.universe_woH,
+                                  self.dic_OP, self.dic_lipid)
+
+        ref_file_jmelcr = path_data / "ref_2POPC_traj.jmelcr.out"
+        ref_file_apineiro = path_data / "ref_2POPC_traj.apineiro.out"
+        assert filecmp.cmp(test_file_jmelcr, ref_file_jmelcr)
+        assert filecmp.cmp(test_file_apineiro, ref_file_apineiro)
