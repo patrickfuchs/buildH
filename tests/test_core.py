@@ -65,8 +65,6 @@ class TestPDBPOPC:
     def setup_method(self):
         """
         self.dic_op needs to be reinitialized since it is modified by some of the functions tested.
-
-        TODO: For now, only one function modify it. Maybe move this in setup_class() if it remains like this.
         """
         self.dic_OP, self.dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(self.universe_woH,
                                                                                   self.dic_atname2genericname,
@@ -127,8 +125,8 @@ class TestPDBPOPC:
     ])
     def test_fast_buildHs_on_1C(self, Cname, index, Hs_coords):
         """
-            Test for fast_buildHs_on_1C()
-            Generate 4 atoms to be tested, each with a different type
+        Test for fast_buildHs_on_1C()
+        Generate 4 atoms to be tested, each with a different type
         """
 
         dic_lipids_with_indexes = core.make_dic_lipids_with_indexes(self.universe_woH,
@@ -142,11 +140,12 @@ class TestPDBPOPC:
 
     def test_fast_build_all_Hs_calc_OP(self, tmpdir):
         """
-            Test for fast_build_all_Hs_calc_OP()
+        Test for fast_build_all_Hs_calc_OP()
+        The results should be indentical to the test_reconstruct_Hs() test.
 
-            TODO: For now, we test the result file so we test different functions in one test :
-            fast_build_all_Hs_calc_OP and write functions
-            It should be splitted.
+        TODO: For now, we test the result file so we test different functions in one test :
+        fast_build_all_Hs_calc_OP and write functions
+        It should be splitted.
         """
 
         core.fast_build_all_Hs_calc_OP(self.universe_woH,self.begin, self.end,
@@ -186,8 +185,8 @@ class TestPDBPOPC:
     ])
     def test_buildHs_on_1C(self, index, Hs_coords):
         """
-            Test for buildHs_on_1C()
-            Generate 4 atoms to be tested, each with a different type
+        Test for buildHs_on_1C()
+        Generate 4 atoms to be tested, each with a different type
         """
         atom = self.universe_woH.atoms[index]
         test_Hs_coords = core.buildHs_on_1C(atom, self.dic_lipid)
@@ -197,7 +196,7 @@ class TestPDBPOPC:
 
     def test_reconstruct_Hs_first_frame(self, tmpdir):
         """
-            Test for build_all_Hs_calc_OP() in the first mode
+        Test for build_all_Hs_calc_OP() in the first mode
         """
         new_df_atoms = core.build_all_Hs_calc_OP(self.universe_woH, self.dic_lipid,
                                                  self.dic_Cname2Hnames, return_coors=True)
@@ -217,6 +216,32 @@ class TestPDBPOPC:
 
         ref_atom = pd.Series([1339, "HA22", "POPC", 11, 27.72946942, 16.74704078, 40.53260384], index=col_series)
         pd.testing.assert_series_equal(new_df_atoms.loc[1338], ref_atom, check_names=False)
+
+
+    def test_reconstruct_Hs(self, tmpdir):
+        """
+        Test for build_all_Hs_calc_OP() in the second mode
+        The results should be indentical to the test_fast_build_all_Hs_calc_OP() test.
+        """
+        pdb_wH = path_data / "10POPC_wH.pdb"
+        universe_wH = mda.Universe(str(pdb_wH))
+        core.build_all_Hs_calc_OP(self.universe_woH, self.dic_lipid, self.dic_Cname2Hnames,
+                             universe_wH=universe_wH, dic_OP=self.dic_OP,
+                             dic_corresp_numres_index_dic_OP=self.dic_corresp_numres_index_dic_OP)
+
+
+        #Write results
+        test_file_jmelcr = tmpdir / "test_10POPC.jmelcr.out"
+        test_file_apineiro = tmpdir / "test_10POPC.apineiro.out"
+        writers.write_OP_jmelcr(test_file_jmelcr, self.dic_atname2genericname,
+                                self.dic_OP, self.dic_lipid)
+        writers.write_OP_apineiro(test_file_apineiro, self.universe_woH,
+                                  self.dic_OP, self.dic_lipid)
+
+        ref_file_jmelcr = path_data / "ref_10POPC.jmelcr.out"
+        ref_file_apineiro = path_data / "ref_10POPC.apineiro.out"
+        assert filecmp.cmp(test_file_jmelcr, ref_file_jmelcr)
+        assert filecmp.cmp(test_file_apineiro, ref_file_apineiro)
 
 
 
