@@ -12,3 +12,15 @@ buildh.egg-info/
 #Project
 *.npz
 *.out
+op_TMP*
+old/
+Berger_POPC_test_case/*_H*
+Berger_POPC_test_case/popc_3frames.xtc
+doc/CHARMM36_POPC_validation/full_traj/*
+doc/CHARMM36_POPC_validation/movie/*
+doc/CHARMM36_POPC_validation/tex/*
+doc/CHARMM36_POPC_validation/1POPC/*
+doc/CHARMM36_POPC_validation/diff*
+doc/CHARMM36_POPC_validation/op_CHARMM36_mistake.def
+doc/CHARMM36_POPC_validation/launch.sh
+doc/CHARMM36_POPC_validation/.ipynb_checkpoints/
