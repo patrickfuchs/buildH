@@ -1,5 +1,8 @@
 # buildH
 
+[![License: BSD](https://img.shields.io/badge/License-BSD-blue.svg)](https://opensource.org/licenses/BSD-3-Clause) 
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/patrickfuchs/buildH/master?urlpath=lab)
+
 > Build hydrogens from a united-atom MD of lipids and calculate the order parameter. 
 
 ## Installation (development)
