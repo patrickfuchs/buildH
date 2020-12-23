@@ -56,8 +56,12 @@ def pandasdf2pdb(df):
 
 
 
-def write_OP_jmelcr(fileout, dic_atname2genericname, dic_OP, dic_lipid):
-    """ Write the order parameters into a file with J. Melcr output style.
+def write_OP(fileout, dic_atname2genericname, dic_OP, dic_lipid):
+    """ Write the order parameters into a file.
+
+    The output style comes from J. Melcr's script from NMRLipids project
+    (https://github.com/NMRLipids/MATCH/blob/master/scripts/calcOrderParameters.py)
+
 
     Parameters
     ----------
@@ -108,8 +112,12 @@ def write_OP_jmelcr(fileout, dic_atname2genericname, dic_OP, dic_lipid):
                             std_dev, stem))
 
 
-def write_OP_apineiro(fileout, universe_woH, dic_OP, dic_lipid):
-    """ Write the order parameters into a file with A. Pineiro output style.
+def write_OP_alternate(fileout, universe_woH, dic_OP, dic_lipid):
+    """ Write the order parameters into a file with an alternate style.
+
+    This style comes from A. Pineiro's script from NMRLipids project
+    (https://github.com/NMRLipids/MATCH/blob/master/scratch/opAAUA_prod.py)
+
 
     Parameters
     ----------

@@ -148,17 +148,12 @@ class TestPDBPOPC:
                                        self.dic_OP, self.dic_lipid, self.dic_Cname2Hnames)
 
         #Write results
-        test_file_jmelcr = tmpdir / "test_10POPC.jmelcr.out"
-        test_file_apineiro = tmpdir / "test_10POPC.apineiro.out"
-        writers.write_OP_jmelcr(test_file_jmelcr, self.dic_atname2genericname,
+        test_file = tmpdir / "test_10POPC.out"
+        writers.write_OP(test_file, self.dic_atname2genericname,
                                 self.dic_OP, self.dic_lipid)
-        writers.write_OP_apineiro(test_file_apineiro, self.universe_woH,
-                                  self.dic_OP, self.dic_lipid)
 
-        ref_file_jmelcr = path_data / "ref_10POPC.jmelcr.out"
-        ref_file_apineiro = path_data / "ref_10POPC.apineiro.out"
-        assert filecmp.cmp(test_file_jmelcr, ref_file_jmelcr)
-        assert filecmp.cmp(test_file_apineiro, ref_file_apineiro)
+        ref_file = path_data / "ref_10POPC.out"
+        assert filecmp.cmp(test_file, ref_file)
 
     ########################################
     # Tests methods for the slow algorithm #
@@ -225,19 +220,13 @@ class TestPDBPOPC:
                              universe_wH=universe_wH, dic_OP=self.dic_OP,
                              dic_corresp_numres_index_dic_OP=self.dic_corresp_numres_index_dic_OP)
 
-
         #Write results
-        test_file_jmelcr = tmpdir / "test_10POPC.jmelcr.out"
-        test_file_apineiro = tmpdir / "test_10POPC.apineiro.out"
-        writers.write_OP_jmelcr(test_file_jmelcr, self.dic_atname2genericname,
+        test_file = tmpdir / "test_10POPC.out"
+        writers.write_OP(test_file, self.dic_atname2genericname,
                                 self.dic_OP, self.dic_lipid)
-        writers.write_OP_apineiro(test_file_apineiro, self.universe_woH,
-                                  self.dic_OP, self.dic_lipid)
 
-        ref_file_jmelcr = path_data / "ref_10POPC.jmelcr.out"
-        ref_file_apineiro = path_data / "ref_10POPC.apineiro.out"
-        assert filecmp.cmp(test_file_jmelcr, ref_file_jmelcr)
-        assert filecmp.cmp(test_file_apineiro, ref_file_apineiro)
+        ref_file = path_data / "ref_10POPC.out"
+        assert filecmp.cmp(test_file, ref_file)
 
 
 
@@ -288,17 +277,13 @@ class TestXTCPOPC:
         core.fast_build_all_Hs_calc_OP(self.universe_woH,self.begin, self.end,
                                        self.dic_OP, self.dic_lipid, self.dic_Cname2Hnames)
 
-        test_file_jmelcr = tmpdir / "test_2POPC_traj.jmelcr.out"
-        test_file_apineiro = tmpdir / "test_2POPC_traj.apineiro.out"
-        writers.write_OP_jmelcr(test_file_jmelcr, self.dic_atname2genericname,
+        #Write results
+        test_file = tmpdir / "test_2POPC_traj.out"
+        writers.write_OP(test_file, self.dic_atname2genericname,
                                 self.dic_OP, self.dic_lipid)
-        writers.write_OP_apineiro(test_file_apineiro, self.universe_woH,
-                                  self.dic_OP, self.dic_lipid)
 
-        ref_file_jmelcr = path_data / "ref_2POPC_traj.jmelcr.out"
-        ref_file_apineiro = path_data / "ref_2POPC_traj.apineiro.out"
-        assert filecmp.cmp(test_file_jmelcr, ref_file_jmelcr)
-        assert filecmp.cmp(test_file_apineiro, ref_file_apineiro)
+        ref_file = path_data / "ref_2POPC_traj.out"
+        assert filecmp.cmp(test_file, ref_file)
 
     def test_gen_XTC_calcOP(self, tmpdir):
         """
@@ -310,18 +295,12 @@ class TestXTCPOPC:
                             self.begin, self.end)
 
         #Write results
-        test_file_jmelcr = tmpdir / "test_2POPC_traj.jmelcr.out"
-        test_file_apineiro = tmpdir / "test_2POPC_traj.apineiro.out"
-        writers.write_OP_jmelcr(test_file_jmelcr, self.dic_atname2genericname,
+        test_file = tmpdir / "test_2POPC_traj.out"
+        writers.write_OP(test_file, self.dic_atname2genericname,
                                 self.dic_OP, self.dic_lipid)
-        writers.write_OP_apineiro(test_file_apineiro, self.universe_woH,
-                                  self.dic_OP, self.dic_lipid)
 
-        ref_file_jmelcr = path_data / "ref_2POPC_traj.jmelcr.out"
-        ref_file_apineiro = path_data / "ref_2POPC_traj.apineiro.out"
-        assert filecmp.cmp(test_file_jmelcr, ref_file_jmelcr)
-        assert filecmp.cmp(test_file_apineiro, ref_file_apineiro)
-
+        ref_file = path_data / "ref_2POPC_traj.out"
+        assert filecmp.cmp(test_file, ref_file)
 
 
     def test_check_def_file(self):
