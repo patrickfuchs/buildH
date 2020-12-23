@@ -141,9 +141,8 @@ def parse_cli():
                         "automatically added. For example -opx trajH will "
                         "generate trajH.pdb and trajH.xtc. "
                         "So far only xtc is supported.")
-    parser.add_argument("-o", "--out", help="Output base name for storing "
-                        "order parameters. Extention \".out\" will be "
-                        "automatically added. Default name is OP_buildH.out.",
+    parser.add_argument("-o", "--out", help="Output file name for storing "
+                        "order parameters. Default name is OP_buildH.out.",
                         default="OP_buildH.out")
     parser.add_argument("-b", "--begin", type=int,
                         help="The first frame (ps) to read from the trajectory.")
@@ -234,11 +233,9 @@ def main():
 
 
     # Output to a file.
-    writers.write_OP_jmelcr("{}.jmelcr_style.out".format(args.out), dic_atname2genericname,
+    writers.write_OP(args.out, dic_atname2genericname,
                             dic_OP, dic_lipid)
-    writers.write_OP_apineiro("{}.apineiro_style.out".format(args.out), universe_woH,
-                              dic_OP, dic_lipid)
-    print("Results written to {}".format(args.out))
+    print(f"Results written to {args.out}")
 
     # Pickle results
     if args.pickle:
