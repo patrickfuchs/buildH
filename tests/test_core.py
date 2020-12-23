@@ -5,7 +5,6 @@ Test functions from module core
 """
 
 import pathlib
-import filecmp
 import pytest
 
 import numpy as np
@@ -21,12 +20,6 @@ from buildh import writers
 dir_data = "test_data"
 path_data = pathlib.Path(__file__).parent / dir_data
 
-@pytest.fixture(scope='class')
-def tmp_dir(tmp_path_factory):
-    """
-    Create a temp directory for the result files
-    """
-    return tmp_path_factory.mktemp("data")
 
 # Ignore some MDAnalysis warnings
 @pytest.mark.filterwarnings('ignore::UserWarning')
@@ -34,6 +27,23 @@ class TestPDBPOPC:
     """
     Test class for a pdb file (no traj) of POPC lipids.
     """
+
+    # Subset of reference data for dic_OP result
+    # This used for test_fast_build_all_Hs_calc_OP() and test_reconstruct_Hs()
+    ref_OP = {
+            # values = 10 lipids x 1 frame
+            ('C1', 'H11'):   [[-0.23599134], [ 0.57873978], [ 0.02244849], [ 0.32463168], [-0.39586207],
+                              [ 0.87975500], [ 0.41808654], [-0.28873204], [-0.47090717], [-0.11264325]],
+
+            ('C32', 'H321'): [[-0.41362438], [-0.49548668], [ 0.14942125], [ 0.94630508], [ 0.31010313],
+                              [ 0.89795921], [-0.49998903], [-0.49960781], [ 0.79312234], [-0.05705310]],
+
+            ('C19', 'H192'): [[-0.00139740], [-0.26007547], [-0.42209310], [-0.27136435], [-0.35669634],
+                              [-0.46162108], [-0.25302670], [ 0.65296859], [ 0.14922439], [-0.41107602]],
+
+            ('CA1', 'HA11'): [[-0.48614830], [-0.43749174], [-0.40528699], [-0.35136869], [-0.45664981],
+                              [-0.21534578], [ 0.08544719], [ 0.44870156], [-0.10571712], [-0.46312028]]
+    }
 
     # Method called once per class.
     def setup_class(self):
@@ -133,27 +143,25 @@ class TestPDBPOPC:
 
         assert_almost_equal(test_Hs_coords, Hs_coords)
 
-
-    def test_fast_build_all_Hs_calc_OP(self, tmpdir):
+    def test_fast_build_all_Hs_calc_OP(self):
         """
         Test for fast_build_all_Hs_calc_OP()
         The results should be indentical to the test_reconstruct_Hs() test.
-
-        TODO: For now, we test the result file so we test different functions in one test :
-        fast_build_all_Hs_calc_OP and write functions
-        It should be splitted.
         """
 
         core.fast_build_all_Hs_calc_OP(self.universe_woH,self.begin, self.end,
                                        self.dic_OP, self.dic_lipid, self.dic_Cname2Hnames)
 
-        #Write results
-        test_file = tmpdir / "test_10POPC.out"
-        writers.write_OP(test_file, self.dic_atname2genericname,
-                                self.dic_OP, self.dic_lipid)
+        # Check statistics
+        assert_almost_equal(np.mean(self.dic_OP[('C40', 'H401')]), -0.28794656)
+        assert_almost_equal(np.mean(self.dic_OP[('C17', 'H171')]), -0.18843357)
 
-        ref_file = path_data / "ref_10POPC.out"
-        assert filecmp.cmp(test_file, ref_file)
+        # Check few particular cases
+        # Use of a loop to check key and value separately. The values need to be assert with float desired precision.
+        for (key), value in self.ref_OP.items():
+            assert key in self.dic_OP.keys()
+            assert_almost_equal(value, self.dic_OP[key])
+
 
     ########################################
     # Tests methods for the slow algorithm #
@@ -185,7 +193,7 @@ class TestPDBPOPC:
         assert_almost_equal(test_Hs_coords, Hs_coords)
 
 
-    def test_reconstruct_Hs_first_frame(self, tmpdir):
+    def test_reconstruct_Hs_first_frame(self):
         """
         Test for build_all_Hs_calc_OP() in the first mode
         """
@@ -209,7 +217,7 @@ class TestPDBPOPC:
         pd.testing.assert_series_equal(new_df_atoms.loc[1338], ref_atom, check_names=False)
 
 
-    def test_reconstruct_Hs(self, tmpdir):
+    def test_reconstruct_Hs(self):
         """
         Test for build_all_Hs_calc_OP() in the second mode
         The results should be indentical to the test_fast_build_all_Hs_calc_OP() test.
@@ -220,13 +228,15 @@ class TestPDBPOPC:
                              universe_wH=universe_wH, dic_OP=self.dic_OP,
                              dic_corresp_numres_index_dic_OP=self.dic_corresp_numres_index_dic_OP)
 
-        #Write results
-        test_file = tmpdir / "test_10POPC.out"
-        writers.write_OP(test_file, self.dic_atname2genericname,
-                                self.dic_OP, self.dic_lipid)
+        # Check statistics
+        assert_almost_equal(np.mean(self.dic_OP[('C21', 'H212')]), -0.22229490)
+        assert_almost_equal(np.mean(self.dic_OP[('CA2', 'HA23')]),  0.22305860)
 
-        ref_file = path_data / "ref_10POPC.out"
-        assert filecmp.cmp(test_file, ref_file)
+        # Check few particular cases
+        # Use of a loop to check key and value separately. The values need to be assert with float desired precision.
+        for (key), value in self.ref_OP.items():
+            assert key in self.dic_OP.keys()
+            assert_almost_equal(value, self.dic_OP[key])
 
 
 
@@ -236,6 +246,22 @@ class TestXTCPOPC:
     """
     Test class for a trajectory of POPC lipids.
     """
+
+    # Subset of reference data for dic_OP result
+    # This used for test_fast_calcOP() and test_gen_XTC_calcOP()
+    ref_OP = {
+        # values = 2 lipids x 11 frames
+        ('C2', 'H23'):   [ [-0.47293904, -0.48531776, -0.33300023, -0.08279667, -0.49939686,
+                            -0.49903488, -0.35986740,  0.76890823,  0.08157466,  0.19420324, 0.27986448],
+                           [ 0.16147857, -0.34630697,  0.43297339,  0.28733088, -0.29597471,
+                            -0.39957748, -0.48918187, -0.08307259,  0.56356016,  0.75693095,  0.20062960]
+                         ],
+        ('C27', 'H272'): [ [ 0.21477296, -0.49887799, -0.41609987, -0.19329433,  0.30621276,
+                             0.50099123, -0.21682994,  0.50280378,  0.06031779, -0.00397443, -0.49713104],
+                           [ 0.01288211, -0.46547434, -0.37864825, -0.29720486, -0.41992799,
+                            -0.00013077, -0.342879725, -0.464275827, -0.264702934, 0.87274949,-0.20216758]
+                         ]
+    }
 
     # Method called once per class.
     def setup_class(self):
@@ -277,13 +303,15 @@ class TestXTCPOPC:
         core.fast_build_all_Hs_calc_OP(self.universe_woH,self.begin, self.end,
                                        self.dic_OP, self.dic_lipid, self.dic_Cname2Hnames)
 
-        #Write results
-        test_file = tmpdir / "test_2POPC_traj.out"
-        writers.write_OP(test_file, self.dic_atname2genericname,
-                                self.dic_OP, self.dic_lipid)
+        # Check statistics
+        assert_almost_equal(np.mean(self.dic_OP[('C1', 'H11')]),  0.26908040)
+        assert_almost_equal(np.mean(self.dic_OP[('C5', 'H52')]), -0.20147210)
 
-        ref_file = path_data / "ref_2POPC_traj.out"
-        assert filecmp.cmp(test_file, ref_file)
+        # Check few particular cases
+        # Use of a loop to check key and value separately. The values need to be assert with float desired precision.
+        for (key), value in self.ref_OP.items():
+            assert key in self.dic_OP.keys()
+            assert_almost_equal(value, self.dic_OP[key])
 
     def test_gen_XTC_calcOP(self, tmpdir):
         """
@@ -294,13 +322,15 @@ class TestXTCPOPC:
                             self.dic_Cname2Hnames, self.dic_corresp_numres_index_dic_OP,
                             self.begin, self.end)
 
-        #Write results
-        test_file = tmpdir / "test_2POPC_traj.out"
-        writers.write_OP(test_file, self.dic_atname2genericname,
-                                self.dic_OP, self.dic_lipid)
+        # Check  statistics
+        assert_almost_equal(np.mean(self.dic_OP[('C32', 'H321')]),  0.15300163)
+        assert_almost_equal(np.mean(self.dic_OP[('C50', 'H503')]), -0.08801085)
 
-        ref_file = path_data / "ref_2POPC_traj.out"
-        assert filecmp.cmp(test_file, ref_file)
+        # Check few particular cases
+        # Use of a loop to check key and value separately. The values need to be assert with float desired precision.
+        for (key), value in self.ref_OP.items():
+            assert key in self.dic_OP.keys()
+            assert_almost_equal(value, self.dic_OP[key])
 
 
     def test_check_def_file(self):
