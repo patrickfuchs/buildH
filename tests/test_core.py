@@ -321,3 +321,21 @@ class TestXTCPOPC:
         ref_file_apineiro = path_data / "ref_2POPC_traj.apineiro.out"
         assert filecmp.cmp(test_file_jmelcr, ref_file_jmelcr)
         assert filecmp.cmp(test_file_apineiro, ref_file_apineiro)
+
+
+
+    def test_check_def_file(self):
+        """
+        Test for is_allHs_present()
+        """
+        assert core.is_allHs_present(self.defop, self.dic_lipid, self.dic_Cname2Hnames)
+
+        test_dic = self.dic_Cname2Hnames.copy()
+        # Remove a random carbon
+        del test_dic["C26"]
+        assert not core.is_allHs_present(self.defop, self.dic_lipid, test_dic)
+
+        test_dic2 = self.dic_Cname2Hnames.copy()
+        # Change the number of hydrogens attached to a carbon
+        test_dic2["CA2"] = ('HA21', 'HA22') # should be = ('HA21', 'HA22', 'HA23')
+        assert not core.is_allHs_present(self.defop, self.dic_lipid, test_dic2)
