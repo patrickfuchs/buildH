@@ -617,3 +617,54 @@ def gen_XTC_calcOP(basename, universe_woH, dic_OP, dic_lipid,
         newxtc.write(universe_wH)
     # Close xtc.
     newxtc.close()
+
+
+def is_allHs_present(def_file, lipids_name, dic_ref_CHnames):
+    """
+    Check if all H's to be rebuild are present in the def file.
+
+    Parameters
+    ----------
+    def_file : str
+        Filename containing OP definition
+        (e.g. `order_parameter_definitions_MODEL_Berger_POPC.def`).
+    lipids_name : dictionnary
+        Comes from dic_lipids.py. Contains carbon names and helper names needed
+        for reconstructing hydrogens.
+    dic_ref_CHnames: dictionnary
+        Contains all CH molecules
+
+    Returns
+    -------
+    boolean
+        whether or not all Hs are present.
+    """
+
+    # check that dic_ref_CHnames contains all possible C-H pairs.
+    # NOTE The user has to take care that .def file has the right atom names !!!
+    for atname in lipids_name.keys():
+        if atname != "resname":
+            # Check if carbon is present in the definition file.
+            if atname not in dic_ref_CHnames:
+                print("Error: When -opx option is used, the order param "
+                      "definition file (passed with -d arg) must contain "
+                      "all possible carbons on which we want to rebuild "
+                      "hydrogens.")
+                print("Found:", list(dic_ref_CHnames.keys()))
+                print("Needs:", list(lipids_name.keys()))
+                return False
+            # Check that the 3 Hs are in there for that C.
+            nbHs_in_def_file = len(dic_ref_CHnames[atname])
+            tmp_dic = {"CH": 1, "CHdoublebond": 1, "CH2": 2, "CH3": 3}
+            correct_nb_of_Hs = tmp_dic[lipids_name[atname][0]]
+            if  correct_nb_of_Hs != nbHs_in_def_file:
+                print("Error: When -opx option is used, the order param "
+                      "definition file (passed with -d arg) must contain "
+                      "all possible C-H pairs to rebuild.")
+                print("Expected {} hydrogen(s) to rebuild for carbon {}, "
+                      "got {} in definition file {}."
+                      .format(correct_nb_of_Hs, atname,
+                              dic_ref_CHnames[atname], def_file))
+                return False
+
+    return True
