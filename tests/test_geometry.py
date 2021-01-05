@@ -2,7 +2,10 @@
 
 Test functions from module geometry.
 
-Note: All these values were extracted on a simple example test_data/10POPC.pdb. Beware, we realized that sometimes print() displays different values than the real ones, which could make the tests fail when using assert_almost_equal() (probably a rounding problem). To get the right value, use instead a debugger (e.g. in VScode) or test the function in the Python interpreter.
+Note: All these values were extracted on a simple example test_data/10POPC.pdb. Beware, we realized that sometimes print() displays different values than the 
+real ones, which could make the tests fail when using assert_almost_equal() 
+(probably a rounding problem). To get the right value, use instead a debugger
+(e.g. in VScode) or test the function in the Python interpreter.
 """
 
 import numpy as np
