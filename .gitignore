@@ -14,6 +14,11 @@ buildh.egg-info/
 /*.out
 op_TMP*
 old/
+Berger_POPC_test_case/OP_buildH.out
+tests/OP_buildH.out
+tests/test.pdb
+tests/test.xtc
+tmp/
 Berger_POPC_test_case/*_H*
 Berger_POPC_test_case/popc_3frames.xtc
 docs/CHARMM36_POPC_validation/full_traj/*
