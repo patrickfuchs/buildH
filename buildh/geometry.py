@@ -1,9 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-Module for geometric operations
-"""
+"""Module for geometric operations."""
 
 
 import numpy as np
