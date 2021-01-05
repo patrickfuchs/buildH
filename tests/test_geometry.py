@@ -1,6 +1,8 @@
 """Unit tests for buildH_calcOP.
 
 Test functions from module geometry.
+
+Note: All these values were extracted on a simple example test_data/10POPC.pdb. Beware, we realized that sometimes print() displays different values than the real ones, which could make the tests fail when using assert_almost_equal() (probably a rounding problem). To get the right value, use instead a debugger (e.g. in VScode) or test the function in the Python interpreter.
 """
 
 import numpy as np
@@ -72,9 +74,7 @@ def test_cross_product(A, B, result):
 @pytest.mark.parametrize('C, H, result', [
     (np.array([34.42, 46.94, 26.31]),
      np.array([35.06161421, 47.69320272, 26.76728762]),
-     #-0.2359913450725738 # <=== value obtained by launching the prog with a print()
-     #    ===> the test fails...
-    -0.23599087203193325 # <=== value when tested in interpreter using an import geom
+    -0.23599087203193325
      ),
 ])
 def test_calc_OP(C, H, result):
