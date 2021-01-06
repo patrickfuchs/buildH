@@ -25,17 +25,17 @@ $ make tests
 
 We use `bump2version` to update and synchronize the version number across different files.
 
-For patch update (x.y.**z**):
+For patch update (x.y.z → x.y.**z+1**):
 ```
 $ bump2version --verbose --config-file devtools/bumpversion.cfg patch
 ```
 
-For minor update (x.**y**.0):
+For minor update (x.y.z → x.**y+1**.0):
 ```
 $ bump2version --verbose --config-file devtools/bumpversion.cfg minor
 ```
 
-For major update (**x**.0.0):
+For major update (x.y.z → **x+1**.0.0):
 ```
 $ bump2version --verbose --config-file devtools/bumpversion.cfg major
 ```
