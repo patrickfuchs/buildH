@@ -46,10 +46,15 @@ $ git clone https://github.com/patrickfuchs/buildH.git
 $ cd buildH
 ```
 
-3. Create environment:
+3. Create conda environment:
 ```
 $ conda env create -f binder/environment.yml
 $ conda activate buildh
+```
+
+If needed, update your conda env with
+```
+$ conda env update -f binder/environment.yml
 ```
 
 4. Install the dev version of buildH:

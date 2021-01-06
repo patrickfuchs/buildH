@@ -15,6 +15,7 @@ dependencies:
   - pylint
   - pycodestyle
   - pydocstyle
+  - bump2version
   - pip:
     - -r file:../requirements.txt
  
