@@ -34,7 +34,7 @@ def norm(vec):
     float
         The magniture of the vector.
     """
-    return np.sqrt(np.sum(vec**2))
+    return np.sqrt((vec**2).sum())
 
 
 def calc_angle(atom1, atom2, atom3):
@@ -78,8 +78,7 @@ def vec2quaternion(vec, theta):
     """
     w = np.cos(theta/2)
     x, y, z = np.sin(theta/2) * normalize(vec)
-    q = np.array([w, x, y, z])
-    return q
+    return np.array([w, x, y, z])
 
 
 def calc_rotation_matrix(quaternion):
@@ -95,7 +94,7 @@ def calc_rotation_matrix(quaternion):
         The rotation matrix.
     """
     # Initialize rotation matrix.
-    matrix = np.zeros([3, 3])
+    matrix = np.zeros((3, 3))
     # Get quaternion elements.
     w, x, y, z = quaternion
     # Compute rotation matrix.
