@@ -40,7 +40,7 @@ For major update (x.y.z → **x+1**.0.0):
 $ bump2version --verbose --config-file devtools/bumpversion.cfg major
 ```
 
-Remarque : 
+Remark : 
 
 1. For a dry run with `bump2version`, use option `-n`.
 2. `bump2version` will fail if the git working directory is not clean, i.e. all changes are not commited.
