@@ -76,6 +76,44 @@ class TestPDBPOPC:
                                                                                   self.dic_atname2genericname,
                                                                                   self.dic_lipid['resname'])
 
+
+    @pytest.mark.parametrize('index, Hs_coords', [
+            # atom C1 type CH3
+            (0,  (np.array([35.06161421, 47.69320272, 26.76728762]),
+                  np.array([33.93128850, 47.36328732, 25.43245201]),
+                  np.array([35.02249090, 46.08195972, 26.01188584]))),
+            # atom C5 type CH2
+            (4,  (np.array([31.62418725, 45.50474260, 27.61469385]),
+                  np.array([32.93474471, 44.52992542, 26.90727792]))),
+            # atom C13 type CH
+            (12, (np.array([26.61868981, 44.14296091, 25.55244500]),)),
+            # atom C24 type CHdoublebond
+            (23, (np.array([20.46454439, 38.99866187, 31.19224364]),)),
+    ])
+    def test_buildHs_on_1C(self, index, Hs_coords):
+        """
+        Test for buildHs_on_1C()
+        Generate 4 atoms to be tested, each with a different type
+        """
+        atom = self.universe_woH.atoms[index]
+
+        sel = atom.residue.atoms.select_atoms
+        if len(self.dic_lipid[atom.name]) == 3:
+            typeofH2build, helper1_name, helper2_name = self.dic_lipid[atom.name]
+            helper3_coor = None
+        else:
+            typeofH2build, helper1_name, helper2_name, helper3_name = self.dic_lipid[atom.name]
+            helper3_coor = sel("name {0}".format(helper3_name))[0].position
+
+        helper1_coor = sel("name {0}".format(helper1_name))[0].position
+        helper2_coor = sel("name {0}".format(helper2_name))[0].position
+
+
+        test_Hs_coords = core.buildHs_on_1C(atom.position, typeofH2build, helper1_coor, helper2_coor, helper3_coor)
+
+        assert_almost_equal(test_Hs_coords, Hs_coords)
+
+
     ########################################
     # Tests methods for the fast algorithm #
     ########################################
@@ -116,33 +154,6 @@ class TestPDBPOPC:
         assert dic_lipids_with_indexes['C50'] == ('CH3', 'C49', 'C48', 49, 48, 47)
 
 
-    @pytest.mark.parametrize('Cname, index, Hs_coords', [
-            # type CH3
-            ("C1", 0, (np.array([35.06161421, 47.69320272, 26.76728762]),
-                       np.array([33.93128850, 47.36328732, 25.43245201]),
-                       np.array([35.02249090, 46.08195972, 26.01188584]))),
-            # type CH2
-            ("C5", 0, (np.array([31.62418725, 45.50474260, 27.61469385]),
-                       np.array([32.93474471, 44.52992542, 26.90727792]))),
-            # type CH
-            ("C13", 0, (np.array([26.61868981, 44.14296091, 25.55244500]),)),
-            # type CHdoublebond
-            ("C24", 0, (np.array([20.46454439, 38.99866187, 31.19224364]),)),
-    ])
-    def test_fast_buildHs_on_1C(self, Cname, index, Hs_coords):
-        """
-        Test for fast_buildHs_on_1C()
-        Generate 4 atoms to be tested, each with a different type
-        """
-
-        dic_lipids_with_indexes = core.make_dic_lipids_with_indexes(self.universe_woH,
-                                                                     self.dic_lipid,
-                                                                     self.dic_OP)
-        ts = self.universe_woH.trajectory[0]
-        test_Hs_coords = core.fast_buildHs_on_1C(dic_lipids_with_indexes, ts, Cname, index)
-
-        assert_almost_equal(test_Hs_coords, Hs_coords)
-
     def test_fast_build_all_Hs_calc_OP(self):
         """
         Test for fast_build_all_Hs_calc_OP()
@@ -167,30 +178,6 @@ class TestPDBPOPC:
     # Tests methods for the slow algorithm #
     # where hydrogens are saved            #
     ########################################
-
-    # References values are the same as in test_fast_buildHs_on_1C()
-    @pytest.mark.parametrize('index, Hs_coords', [
-            # atom C1 type CH3
-            (0,  (np.array([35.06161421, 47.69320272, 26.76728762]),
-                  np.array([33.93128850, 47.36328732, 25.43245201]),
-                  np.array([35.02249090, 46.08195972, 26.01188584]))),
-            # atom C5 type CH2
-            (4,  (np.array([31.62418725, 45.50474260, 27.61469385]),
-                  np.array([32.93474471, 44.52992542, 26.90727792]))),
-            # atom C13 type CH
-            (12, (np.array([26.61868981, 44.14296091, 25.55244500]),)),
-            # atom C24 type CHdoublebond
-            (23, (np.array([20.46454439, 38.99866187, 31.19224364]),)),
-    ])
-    def test_buildHs_on_1C(self, index, Hs_coords):
-        """
-        Test for buildHs_on_1C()
-        Generate 4 atoms to be tested, each with a different type
-        """
-        atom = self.universe_woH.atoms[index]
-        test_Hs_coords = core.buildHs_on_1C(atom, self.dic_lipid)
-
-        assert_almost_equal(test_Hs_coords, Hs_coords)
 
 
     def test_reconstruct_Hs_first_frame(self):
