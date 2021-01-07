@@ -63,7 +63,7 @@ class TestPDBPOPC:
         self.dic_atname2genericname = init_dics.make_dic_atname2genericname(self.defop)
         self.dic_OP, self.dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(self.universe_woH,
                                                                                   self.dic_atname2genericname,
-                                                                                  self.dic_lipid)
+                                                                                  self.dic_lipid['resname'])
         self.dic_Cname2Hnames = init_dics.make_dic_Cname2Hnames(self.dic_OP)
 
 
@@ -74,7 +74,7 @@ class TestPDBPOPC:
         """
         self.dic_OP, self.dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(self.universe_woH,
                                                                                   self.dic_atname2genericname,
-                                                                                  self.dic_lipid)
+                                                                                  self.dic_lipid['resname'])
 
     ########################################
     # Tests methods for the fast algorithm #
@@ -282,7 +282,7 @@ class TestXTCPOPC:
         self.dic_atname2genericname = init_dics.make_dic_atname2genericname(self.defop)
         self.dic_OP, self.dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(self.universe_woH,
                                                                                   self.dic_atname2genericname,
-                                                                                  self.dic_lipid)
+                                                                                  self.dic_lipid['resname'])
         self.dic_Cname2Hnames = init_dics.make_dic_Cname2Hnames(self.dic_OP)
 
     # Method called before each test method.
@@ -292,7 +292,7 @@ class TestXTCPOPC:
         """
         self.dic_OP, self.dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(self.universe_woH,
                                                                                   self.dic_atname2genericname,
-                                                                                  self.dic_lipid)
+                                                                                  self.dic_lipid['resname'])
 
     def test_fast_calcOP(self, tmpdir):
         """

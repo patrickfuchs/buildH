@@ -209,7 +209,7 @@ def main():
     # Initialize dic_OP (see function init_dic_OP() for the format).
     dic_OP, dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(universe_woH,
                                                                     dic_atname2genericname,
-                                                                    dic_lipid)
+                                                                    dic_lipid['resname'])
     # Initialize dic_Cname2Hnames.
     dic_Cname2Hnames = init_dics.make_dic_Cname2Hnames(dic_OP)
 
