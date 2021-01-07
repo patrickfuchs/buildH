@@ -184,8 +184,12 @@ class TestPDBPOPC:
         """
         Test for build_all_Hs_calc_OP() in the first mode
         """
-        new_df_atoms = core.build_all_Hs_calc_OP(self.universe_woH, self.dic_lipid,
-                                                 self.dic_Cname2Hnames, return_coors=True)
+        dic_lipids_with_indexes = core.make_dic_lipids_with_indexes(self.universe_woH,
+                                                                     self.dic_lipid,
+                                                                     self.dic_OP)
+
+        new_df_atoms = core.build_system_hydrogens(self.universe_woH, self.dic_lipid,
+                                                   self.dic_Cname2Hnames, dic_lipids_with_indexes)
 
         assert new_df_atoms.shape == (1340, 7)
 
@@ -209,11 +213,16 @@ class TestPDBPOPC:
         Test for build_all_Hs_calc_OP() in the second mode
         The results should be indentical to the test_fast_build_all_Hs_calc_OP() test.
         """
+        dic_lipids_with_indexes = core.make_dic_lipids_with_indexes(self.universe_woH,
+                                                                    self.dic_lipid,
+                                                                    self.dic_OP)
+
         pdb_wH = path_data / "10POPC_wH.pdb"
         universe_wH = mda.Universe(str(pdb_wH))
-        core.build_all_Hs_calc_OP(self.universe_woH, self.dic_lipid, self.dic_Cname2Hnames,
-                             universe_wH=universe_wH, dic_OP=self.dic_OP,
-                             dic_corresp_numres_index_dic_OP=self.dic_corresp_numres_index_dic_OP)
+        ts = self.universe_woH.trajectory[0]
+        core.build_all_Hs_calc_OP(self.universe_woH, ts, self.dic_lipid, self.dic_Cname2Hnames,
+                                  universe_wH, self.dic_OP, self.dic_corresp_numres_index_dic_OP,
+                                  dic_lipids_with_indexes)
 
         # Check statistics
         assert_almost_equal(np.mean(self.dic_OP[('C21', 'H212')]), -0.22229490)

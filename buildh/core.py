@@ -66,6 +66,92 @@ def buildHs_on_1C(atom, H_type, helper1, helper2, helper3=None):
                           ", 'CHdoublebond' or 'CH3', got {}."
                           .format(H_type))
 
+
+def build_system_hydrogens(universe_woH, dic_lipid, dic_Cname2Hnames, dic_lipid_indexes):
+    """
+    Build a new system *with* hydrogens.
+
+    The function take the MDAnalysis universe *without* hydrogens, reconstruct all hydrogens
+    and return a pandas dataframe. This latter will be used later to build a new
+    MDAnalysis universe with H.
+
+    NOTE: There is no simple way to create a new MDAnalysis universe directly.
+
+    Parameters
+    ----------
+    universe_woH : MDAnalysis universe instance
+        This is the universe *without* hydrogen.
+    dic_lipid : dictionnary
+        Comes from dic_lipids.py. Contains carbon names and helper names needed
+        for reconstructing hydrogens.
+    dic_Cname2Hnames : dictionnary
+        This dict gives the correspondance Cname -> Hname. It is a dict of
+        tuples. If there is more than 1 H for a given C, they need to be
+        *ordered* like in the PDB. e.g. for CHARMM POPC :
+        {'C13': ('H13A', 'H13B', 'H13C'), ..., 'C33': ('H3X', 'H3Y'),
+          ..., 'C216': ('H16R', 'H16S'), ...}
+    dic_lipids_with_indexes : dictionnary
+        The dictionnary made in function make_dic_lipids_with_indexes().
+
+    Returns
+    -------
+    pandas dataframe
+        contains the system *with* hydrogens.
+    """
+
+    # The list newrows will be used to store the new molecule *with* H.
+    newrows = []
+    # Counter for numbering the new mlcs with H.
+    new_atom_num = 1
+    # Loop over all atoms in the universe without H.
+    for atom in universe_woH.atoms:
+        resnum = atom.resnum
+        resname = atom.resname
+        name = atom.name
+        # Append atom to the new list.
+        # 0      1       2        3       4  5  6
+        # atnum, atname, resname, resnum, x, y, z
+        newrows.append([new_atom_num, name, resname, resnum]
+                        + list(atom.position))
+        new_atom_num += 1
+        # Build new H(s)?
+        if (atom.name in dic_lipid and atom.residue.resname == dic_lipid["resname"]):
+            # Retrieve helpers coordinates
+            # helperX_ix is the index of the helper inside one residue.
+            if len(dic_lipid_indexes[atom.name]) == 6:
+                typeofH2build, _, _, _, helper1_ix, helper2_ix = dic_lipid_indexes[atom.name]
+                helper3_coor = None
+            else:
+                typeofH2build, _, _, _, _, helper1_ix, helper2_ix, helper3_ix = dic_lipid_indexes[atom.name]
+                helper3_coor = atom.residue.atoms[helper3_ix].position
+
+            helper1_coor = atom.residue.atoms[helper1_ix].position
+            helper2_coor = atom.residue.atoms[helper2_ix].position
+
+            # Build Hs and store them in a list of numpy 1D-arrays Hs_coor.
+            # The "s" in Hs_coor means there can be more than 1 H:
+            # For CH2, Hs_coor will contain: [H1_coor, H2_coor].
+            # For CH3, Hs_coor will contain: [H1_coor, H2_coor, H3_coor].
+            # For CH, Hs_coor will contain: [H1_coor].
+            # For CHdoublebond, Hs_coor will contain: [H1_coor].
+            Hs_coor = buildHs_on_1C(atom.position, typeofH2build, helper1_coor, helper2_coor, helper3_coor)
+
+            # Loop over Hs_coor (H_coor is a 1D-array with the 3 coors of 1 H).
+            for i, H_coor in enumerate(Hs_coor):
+                # Retrieve name of newly built H.
+                Hname = dic_Cname2Hnames[atom.name][i]
+                # Add them to newrows.
+                newrows.append([new_atom_num, Hname, resname, resnum]
+                                + list(H_coor))
+                new_atom_num += 1
+
+    # Create a dataframe to store the mlc with added hydrogens.
+    new_df_atoms = pd.DataFrame(newrows, columns=["atnum", "atname",
+                                                  "resname", "resnum",
+                                                  "x", "y", "z"])
+    return new_df_atoms
+
+
 ###
 ### The next function build_all_Hs_calc_OP())
 ### build new H, calculate the order parameter and write the new traj with Hs
@@ -73,38 +159,22 @@ def buildHs_on_1C(atom, H_type, helper1, helper2, helper3=None):
 ### Note: it is slow, it shouldn't be used if the user doesn't want to
 ###       write the trajectory. Instead, fast_build_all_Hs() should be used.
 ###
-def build_all_Hs_calc_OP(universe_woH, dic_lipid, dic_Cname2Hnames,
-                         universe_wH=None, dic_OP=None,
-                         dic_corresp_numres_index_dic_OP=None,
-                         return_coors=False):
-    """Main function that builds all hydrogens and calculates order parameters.
+def build_all_Hs_calc_OP(universe_woH, ts, dic_lipid, dic_Cname2Hnames, universe_wH, dic_OP,
+                         dic_corresp_numres_index_dic_OP, dic_lipid_indexes):
+    """Main function that builds all hydrogens and calculates order parameters
+    for one frame.
 
-    This function shall be used in two modes :
+    This function loop overs *all* atoms of the universe_woH in order to update
+    the atom coordinates and the new H build in the universe_wH.
 
-    1) The first time this function is called, we have to construct a new
-    universe with hydrogens. One shall call it like this :
-
-    new_data_frame = build_all_Hs_calc_OP(universe_woH, return_coors=True)
-
-    The boolean return_coors set to True indicates to the function to return
-    a pandas dataframe. This latter will be used later to build a new
-    universe with H.
-
-    2) For all the other frames, we just need to update the coordinates in
-    the universe *with* hydrogens. One shall call it like this :
-
-    build_all_Hs_calc_OP(universe_woH, dic_lipid, dic_Cname2Hnames,
-                         universe_wH=universe_wH, dic_OP=dic_OP,
-                         dic_corresp_numres_index_dic_OP=dic_corresp_numres_index_dic_OP)
-
-    In this case, the function also calculates the order parameter and returns
-    nothing. The coordinates of the universe *with* H are updated in place.
+    The function also calculates the order parameter.
+    The coordinates of the universe *with* H are updated in place.
     The order parameter is also added in place (within dic_OP dictionnary).
 
-    NOTE: This function in mode 2 is slow, thus it shall be used when one wants
+    NOTE: This function is slow, thus it shall be used when one wants
     to create a trajectory with H (such as .xtc or whatever format).
 
-    NOTE2: This function assumes all possible C-H pairs are present in the .def
+    NOTE: This function assumes all possible C-H pairs are present in the .def
     file (with -d option). They are needed since we want to build an xtc with
     the whole system. If one is interested in calculating only a subset of OPs,
     please use the function fast_build_all_Hs_calc_OP() instead.
@@ -113,6 +183,8 @@ def build_all_Hs_calc_OP(universe_woH, dic_lipid, dic_Cname2Hnames,
     ----------
     universe_woH : MDAnalysis universe instance
         This is the universe *without* hydrogen.
+    ts : Timestep instance
+        the current timestep with the coordinates
     dic_lipid : dictionnary
         Comes from dic_lipids.py. Contains carbon names and helper names needed
         for reconstructing hydrogens.
@@ -133,61 +205,39 @@ def build_all_Hs_calc_OP(universe_woH, dic_lipid, dic_Cname2Hnames,
         This dict should contain the correspondance between the numres and
         the corresponding index in dic_OP. For example {..., 15: 14, ...} means
         the residue numbered 15 in the PDB has an index of 14 in dic_OP.
-    return_coors : boolean (optional)
-        If True, the function will return a pandas dataframe containing the
-        system *with* hydrogens.
-
-    Returns
-    -------
-    pandas dataframe (optional)
-        If parameter return_coors is True, this dataframe contains the
-        system *with* hydrogens is returned.
-    None
-        If parameter return_coors is False.
     """
-    if universe_wH:
-        # We will need the index in the numpy array for updating coordinates
-        # in the universe with H.
-        row_index_coor_array = 0
-    if return_coors:
-        # The list newrows will be used to store the new molecule *with* H.
-        newrows = []
-        # Counter for numbering the new mlcs with H.
-        new_atom_num = 1
+    # We will need the index in the numpy array for updating coordinates
+    # in the universe with H.
+    row_index_coor_array = 0
+    resid = -9999
+
     # Loop over all atoms in the universe without H.
     for atom in universe_woH.atoms:
-        if universe_wH:
-            # Update the position of the current atom in the universe with H.
-            universe_wH.coord.positions[row_index_coor_array, :] = atom.position
-            row_index_coor_array += 1
-        if return_coors:
-            resnum = atom.resnum
-            resname = atom.resname
-            name = atom.name
-            # Append atom to the new list.
-            # 0      1       2        3       4  5  6
-            # atnum, atname, resname, resnum, x, y, z
-            newrows.append([new_atom_num, name, resname, resnum]
-                           + list(atom.position))
-            new_atom_num += 1
+        # Update the position of the current atom in the universe with H.
+        universe_wH.coord.positions[row_index_coor_array, :] = atom.position
+        row_index_coor_array += 1
+
         # Build new H(s)?
         if (atom.name in dic_lipid and atom.residue.resname == dic_lipid["resname"]):
-            # Get helper coordinates using atom, which an instance from Atom class.
-            # atom.residue.atoms is a list of atoms we can select with
-            # method .select_atoms().
-            # To avoid too long line, we shorten its name to `sel`.
-            sel = atom.residue.atoms.select_atoms
 
-            # Get nb of H to build and helper names (we can have 2 or 3 helpers).
-            if len(dic_lipid[atom.name]) == 3:
-                typeofH2build, helper1_name, helper2_name = dic_lipid[atom.name]
+            # Retrieve the index of the first atom in the current residue
+            # Test to avoid refreshing it at every step of the loop
+            if resid != atom.residue.resid:
+                resid = atom.residue.resid
+                ix_first_atom_res = atom.residue.atoms[0].ix
+
+            # Retrieve helpers coordinates
+            if len(dic_lipid_indexes[atom.name]) == 6:
+                typeofH2build, _, _, _, helper1_ix, helper2_ix = dic_lipid_indexes[atom.name]
                 helper3_coor = None
             else:
-                typeofH2build, helper1_name, helper2_name, helper3_name = dic_lipid[atom.name]
-                helper3_coor = sel("name {0}".format(helper3_name))[0].position
+                typeofH2build, _, _, _, _, helper1_ix, helper2_ix, helper3_ix = dic_lipid_indexes[atom.name]
+                helper3_coor = ts[helper3_ix + ix_first_atom_res]
 
-            helper1_coor = sel("name {0}".format(helper1_name))[0].position
-            helper2_coor = sel("name {0}".format(helper2_name))[0].position
+            # Faster to retrieve the coordinates from ts than from universe_woH.atoms.positions
+            helper1_coor = ts[helper1_ix + ix_first_atom_res]
+            helper2_coor = ts[helper2_ix + ix_first_atom_res]
+
             # Build Hs and store them in a list of numpy 1D-arrays Hs_coor.
             # The "s" in Hs_coor means there can be more than 1 H:
             # For CH2, Hs_coor will contain: [H1_coor, H2_coor].
@@ -195,50 +245,37 @@ def build_all_Hs_calc_OP(universe_woH, dic_lipid, dic_Cname2Hnames,
             # For CH, Hs_coor will contain: [H1_coor].
             # For CHdoublebond, Hs_coor will contain: [H1_coor].
             Hs_coor = buildHs_on_1C(atom.position, typeofH2build, helper1_coor, helper2_coor, helper3_coor)
-            # To retrieve Hname, we need a counter.
-            counter4Hname = 0
+
             # Loop over Hs_coor (H_coor is a 1D-array with the 3 coors of 1 H).
-            for H_coor in Hs_coor:
+            for i, H_coor in enumerate(Hs_coor):
                 # Retrieve name of newly built H.
-                Hname = dic_Cname2Hnames[atom.name][counter4Hname]
+                Hname = dic_Cname2Hnames[atom.name][i]
                 ####
                 #### We calculate here the order param on the fly :-D !
                 ####
-                if dic_OP:
+                if (atom.name, Hname) in dic_OP:
+                    op = geo.calc_OP(atom.position, H_coor)
+                    # We should get here the index of the residue in dic_OP.
+                    # For that we can use dic_corresp_numres_index_dic_OP
+                    # (key: resnum in pdb, value: index residue in dic_OP).
+                    lipid_ix = dic_corresp_numres_index_dic_OP[atom.resid]
+                    # OLD way: dic_OP[(atom.name, Hname)].append(op)
                     if (atom.name, Hname) in dic_OP:
-                        op = geo.calc_OP(atom.position, H_coor)
-                        # We should get here the index of the residue in dic_OP.
-                        # For that we can use dic_corresp_numres_index_dic_OP
-                        # (key: resnum in pdb, value: index residue in dic_OP).
-                        lipid_ix = dic_corresp_numres_index_dic_OP[atom.resid]
-                        # OLD way: dic_OP[(atom.name, Hname)].append(op)
-                        if (atom.name, Hname) in dic_OP:
-                            dic_OP[(atom.name, Hname)][lipid_ix].append(op)
-                        if DEBUG:
-                            print(atom.name, H_coor, "OP:", op)
-                if return_coors:
-                    # Add them to newrows.
-                    newrows.append([new_atom_num, Hname, resname, resnum]
-                                   + list(H_coor))
-                    new_atom_num += 1
-                if universe_wH:
-                    # Update the position of the current H in the universe with H.
-                    universe_wH.coord.positions[row_index_coor_array, :] = H_coor
-                    row_index_coor_array += 1
-                # Increment counter4Hname for retrieving next H.
-                counter4Hname += 1
+                        dic_OP[(atom.name, Hname)][lipid_ix].append(op)
+                    if DEBUG:
+                        print(atom.name, H_coor, "OP:", op)
+
+                # Update the position of the current H in the universe with H.
+                universe_wH.coord.positions[row_index_coor_array, :] = H_coor
+                row_index_coor_array += 1
+
             if dic_OP and DEBUG:
                 print()
                 print()
     if dic_OP and DEBUG:
         print("Final dic_OP:", dic_OP)
         print()
-    if return_coors:
-        # Create a dataframe to store the mlc with added hydrogens.
-        new_df_atoms = pd.DataFrame(newrows, columns=["atnum", "atname",
-                                                      "resname", "resnum",
-                                                      "x", "y", "z"])
-        return new_df_atoms
+
 
 ###
 ### The next 3 functions (get_indexes(), make_dic_lipids_with_indexes()
@@ -530,14 +567,16 @@ def gen_XTC_calcOP(basename, universe_woH, dic_OP, dic_lipid,
     and compute the order parameter.
     """
 
+    dic_lipids_with_indexes = make_dic_lipids_with_indexes(universe_woH, dic_lipid,
+                                                           dic_OP)
+
     # Create filenames.
     pdbout_filename = basename + ".pdb"
     xtcout_filename = basename + ".xtc"
     # Build a new universe with H.
     # Build a pandas df with H.
-    new_df_atoms = build_all_Hs_calc_OP(universe_woH, dic_lipid,
-                                        dic_Cname2Hnames,
-                                        return_coors=True)
+    new_df_atoms = build_system_hydrogens(universe_woH, dic_lipid, dic_Cname2Hnames,
+                                          dic_lipids_with_indexes)
     # Create a new universe with H using that df.
     print("Writing new pdb with hydrogens.")
     # Write pdb with H to disk.
@@ -558,9 +597,9 @@ def gen_XTC_calcOP(basename, universe_woH, dic_OP, dic_lipid,
               .format(ts.frame, universe_woH.trajectory.time))
         # Build H and update their positions in the universe *with* H (in place).
         # Calculate OPs on the fly while building Hs  (dic_OP changed in place).
-        build_all_Hs_calc_OP(universe_woH, dic_lipid, dic_Cname2Hnames,
-                             universe_wH=universe_wH, dic_OP=dic_OP,
-                             dic_corresp_numres_index_dic_OP=dic_corresp_numres_index_dic_OP)
+        build_all_Hs_calc_OP(universe_woH, ts, dic_lipid, dic_Cname2Hnames,
+                             universe_wH, dic_OP, dic_corresp_numres_index_dic_OP,
+                             dic_lipids_with_indexes)
         # Write new frame to xtc.
         newxtc.write(universe_wH)
     # Close xtc.
