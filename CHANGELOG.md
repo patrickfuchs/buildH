@@ -1,5 +1,7 @@
 **Dev**
 
+**1.1.0**
+
 - Create Python package structure
 - Create conda environment
 - Fix tests
