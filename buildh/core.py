@@ -18,7 +18,7 @@ DEBUG=False
 def buildHs_on_1C(atom, H_type, helper1, helper2, helper3=None):
     """Builds 1, 2 or 3 H on a given carbon.
 
-    This function is a wrapper which take the coordinates of the helpers
+    This function is a wrapper which takes the coordinates of the helpers
     and call the function that builds 1, 2 or 3 H.
 
     Parameters
@@ -165,7 +165,7 @@ def build_all_Hs_calc_OP(universe_woH, ts, dic_lipid, dic_Cname2Hnames, universe
     for one frame.
 
     This function loop overs *all* atoms of the universe_woH in order to update
-    the atom coordinates and the new H build in the universe_wH.
+    the atom coordinates and the new H built into the universe_wH.
 
     The function also calculates the order parameter.
     The coordinates of the universe *with* H are updated in place.

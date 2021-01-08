@@ -1,5 +1,5 @@
 """
-Unit tests for buildH_calcOP
+Unit tests for buildH_calcOP.
 
 Test functions from module core
 """
@@ -24,9 +24,7 @@ path_data = pathlib.Path(__file__).parent / dir_data
 # Ignore some MDAnalysis warnings
 @pytest.mark.filterwarnings('ignore::UserWarning')
 class TestPDBPOPC:
-    """
-    Test class for a pdb file (no traj) of POPC lipids.
-    """
+    """Test class for a single pdb file of POPC lipids."""
 
     # Subset of reference data for dic_OP result
     # This used for test_fast_build_all_Hs_calc_OP() and test_reconstruct_Hs()
@@ -47,10 +45,7 @@ class TestPDBPOPC:
 
     # Method called once per class.
     def setup_class(self):
-        """
-        Initialize all data.
-        """
-
+        """Initialize attributes."""
         # Input parameters
         self.pdb = path_data / "10POPC.pdb"
         self.defop = path_data / "OP_def_BergerPOPC.def"
@@ -58,7 +53,7 @@ class TestPDBPOPC:
         self.begin = 0
         self.end = 1
 
-        # attributes
+        # intern attributes
         self.universe_woH = mda.Universe(str(self.pdb))
         self.dic_atname2genericname = init_dics.make_dic_atname2genericname(self.defop)
         self.dic_OP, self.dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(self.universe_woH,
@@ -69,15 +64,17 @@ class TestPDBPOPC:
 
     # Method called before each test method.
     def setup_method(self):
-        """
-        self.dic_op needs to be reinitialized since it is modified by some of the functions tested.
+        """Reset some attributes.
+
+        self.dic_op needs to be reinitialized
+        since it is modified by some of the functions tested.
         """
         self.dic_OP, self.dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(self.universe_woH,
                                                                                   self.dic_atname2genericname,
                                                                                   self.dic_lipid['resname'])
 
 
-    @pytest.mark.parametrize('index, Hs_coords', [
+    @pytest.mark.parametrize('atom_index, Hs_coords', [
             # atom C1 type CH3
             (0,  (np.array([35.06161421, 47.69320272, 26.76728762]),
                   np.array([33.93128850, 47.36328732, 25.43245201]),
@@ -90,12 +87,19 @@ class TestPDBPOPC:
             # atom C24 type CHdoublebond
             (23, (np.array([20.46454439, 38.99866187, 31.19224364]),)),
     ])
-    def test_buildHs_on_1C(self, index, Hs_coords):
+    def test_buildHs_on_1C(self, atom_index, Hs_coords):
+        """Test for buildHs_on_1C().
+
+        Generate 4 atoms to be tested, each with a different type.
+
+        Parameters
+        ----------
+        atom_index : int
+            index of the heavy atom where hydrogens will be reconstructed.
+        Hs_coords : numpy 1D-array
+            reference coordinates of the hydrogens rebuilt.
         """
-        Test for buildHs_on_1C()
-        Generate 4 atoms to be tested, each with a different type
-        """
-        atom = self.universe_woH.atoms[index]
+        atom = self.universe_woH.atoms[atom_index]
 
         sel = atom.residue.atoms.select_atoms
         if len(self.dic_lipid[atom.name]) == 3:
@@ -129,8 +133,14 @@ class TestPDBPOPC:
          (49, (48, 47)),
     ])
     def test_get_indexes(self, atom_index, helpers_indexes):
-        """
-        Test for get_indexes()
+        """Test for get_indexes().
+
+        Parameters
+        ----------
+        atom_index : int
+            index of a heavy atom
+        helpers_indexes : tuple
+            references indexes of the helpers
         """
         # Use the value in parametrize to get the correct atom to test.
         atom = self.universe_woH.atoms[atom_index]
@@ -139,10 +149,7 @@ class TestPDBPOPC:
 
 
     def test_make_dic_lipids_with_indexes(self):
-        """
-        Test for make_dic_lipids_with_indexes
-        """
-
+        """Test for make_dic_lipids_with_indexes()."""
         dic_lipids_with_indexes = core.make_dic_lipids_with_indexes(self.universe_woH,
                                                                      self.dic_lipid,
                                                                      self.dic_OP)
@@ -155,11 +162,10 @@ class TestPDBPOPC:
 
 
     def test_fast_build_all_Hs_calc_OP(self):
-        """
-        Test for fast_build_all_Hs_calc_OP()
+        """Test for fast_build_all_Hs_calc_OP().
+
         The results should be indentical to the test_reconstruct_Hs() test.
         """
-
         core.fast_build_all_Hs_calc_OP(self.universe_woH,self.begin, self.end,
                                        self.dic_OP, self.dic_lipid, self.dic_Cname2Hnames)
 
@@ -181,9 +187,7 @@ class TestPDBPOPC:
 
 
     def test_reconstruct_Hs_first_frame(self):
-        """
-        Test for build_all_Hs_calc_OP() in the first mode
-        """
+        """Test for build_system_hydrogens()."""
         dic_lipids_with_indexes = core.make_dic_lipids_with_indexes(self.universe_woH,
                                                                      self.dic_lipid,
                                                                      self.dic_OP)
@@ -209,8 +213,8 @@ class TestPDBPOPC:
 
 
     def test_reconstruct_Hs(self):
-        """
-        Test for build_all_Hs_calc_OP() in the second mode
+        """Test for build_all_Hs_calc_OP().
+
         The results should be indentical to the test_fast_build_all_Hs_calc_OP() test.
         """
         dic_lipids_with_indexes = core.make_dic_lipids_with_indexes(self.universe_woH,
@@ -239,9 +243,7 @@ class TestPDBPOPC:
 # Ignore some MDAnalysis warnings
 @pytest.mark.filterwarnings('ignore::UserWarning')
 class TestXTCPOPC:
-    """
-    Test class for a trajectory of POPC lipids.
-    """
+    """Test class for a trajectory (in xtc format) of POPC lipids."""
 
     # Subset of reference data for dic_OP result
     # This used for test_fast_calcOP() and test_gen_XTC_calcOP()
@@ -261,10 +263,7 @@ class TestXTCPOPC:
 
     # Method called once per class.
     def setup_class(self):
-        """
-        Initialize all data.
-        """
-
+        """Initialize attributes."""
         # Input parameters
         self.pdb = path_data / "2POPC.pdb"
         self.xtc = path_data / "2POPC.xtc"
@@ -283,19 +282,25 @@ class TestXTCPOPC:
 
     # Method called before each test method.
     def setup_method(self):
-        """
-        self.dic_op needs to be reinitialized since it is modified by some of the functions tested.
+        """Reset some attributes.
+
+        self.dic_op needs to be reinitialized
+        since it is modified by some of the functions tested.
         """
         self.dic_OP, self.dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(self.universe_woH,
                                                                                   self.dic_atname2genericname,
                                                                                   self.dic_lipid['resname'])
 
-    def test_fast_calcOP(self, tmpdir):
-        """
-        Test fast_build_all_Hs_calc_OP() on a trajectory
-        The results should be indentical to the test_gen_XTC_calcOP() test.
-        """
+    def test_fast_calcOP(self, tmp_path):
+        """Test fast_build_all_Hs_calc_OP() on a trajectory.
 
+        The results should be indentical to the test_gen_XTC_calcOP() test.
+
+        Parameters
+        ----------
+        tmp_path : pathlib.Path (Pytest fixture)
+            path to a unique temporary directory.
+        """
         core.fast_build_all_Hs_calc_OP(self.universe_woH,self.begin, self.end,
                                        self.dic_OP, self.dic_lipid, self.dic_Cname2Hnames)
 
@@ -309,10 +314,15 @@ class TestXTCPOPC:
             assert key in self.dic_OP.keys()
             assert_almost_equal(value, self.dic_OP[key])
 
-    def test_gen_XTC_calcOP(self, tmpdir):
-        """
-        Test for gen_XTC_calcOP()
+    def test_gen_XTC_calcOP(self, tmp_path):
+        """Test for gen_XTC_calcOP().
+
         The results should be indentical to the test_fast_calcOP() test.
+
+        Parameters
+        ----------
+        tmp_path : pathlib.Path (Pytest fixture)
+            path to a unique temporary directory.
         """
         core.gen_XTC_calcOP("test", self.universe_woH, self.dic_OP, self.dic_lipid,
                             self.dic_Cname2Hnames, self.dic_corresp_numres_index_dic_OP,
@@ -330,9 +340,7 @@ class TestXTCPOPC:
 
 
     def test_check_def_file(self):
-        """
-        Test for is_allHs_present()
-        """
+        """Test for is_allHs_present()."""
         assert core.is_allHs_present(self.defop, self.dic_lipid, self.dic_Cname2Hnames)
 
         test_dic = self.dic_Cname2Hnames.copy()
