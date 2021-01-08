@@ -7,11 +7,14 @@ import pathlib
 import numpy as np
 import MDAnalysis as mda
 
-from . import dic_lipids
+from . import lipids
 from . import init_dics
 from . import core
 from . import writers
 
+
+JSON_DIR = "lipids"
+PATH_JSON = pathlib.Path(__file__).parent / JSON_DIR
 
 # For debugging.
 DEBUG = False
@@ -117,6 +120,11 @@ def parse_cli():
     Handle the user parameters from the command line.
     """
 
+    # Retrieve list of supported lipids
+    lipids_files = [ f for f in PATH_JSON.iterdir() if f.is_file()]
+    lipids_topH = lipids.read_lipids_topH(lipids_files)
+    lipids_supported_str = ", ".join(lipids_topH.keys())
+
     message = """This program builds hydrogens and calculate the order
     parameters
     (OP) from a united-atom trajectory. If -opx is requested, pdb and xtc
@@ -124,7 +132,9 @@ def parse_cli():
     If no trajectory output is requested (no use of flag -opx), it uses a
     fast procedure to build hydrogens and calculate the OP.
     """
-    parser = argparse.ArgumentParser(description=message)
+    epilog = f"The list of supported lipids (-l option) are: {lipids_supported_str}."
+    parser = argparse.ArgumentParser(description=message,
+                                     epilog=epilog)
     # Avoid tpr for topology cause there's no .coord there!
     parser.add_argument("topfile", type=isfile,
                         help="Topology file (pdb or gro).")
@@ -160,13 +170,11 @@ def parse_cli():
         parser.error("Topology must be given in pdb or gro format")
     # Check residue name validity.
     # Get the dictionnary with helper info using residue name (options.lipid
-    # argument). Beware, this dict is then called `dic_lipid` *without s*,
-    # while `dic_lipids.py` (with an s) is a module with many different dicts
-    # (of different lipids) the user can choose.
+    # argument).
     try:
-        lipids_info = getattr(dic_lipids, options.lipid)
-    except AttributeError:
-        parser.error("Lipid dictionnary {} doesn't exist in dic_lipids.py".format(options.lipid))
+        lipids_info = lipids_topH[options.lipid]
+    except KeyError:
+        parser.error(f"Lipid {options.lipid} is not supported. List of supported lipids are: {lipids_supported_str}")
 
     # Slicing only makes sense with a trajectory
     if not options.xtc and (options.begin or options.end):
@@ -234,7 +242,7 @@ def main():
 
     # Output to a file.
     writers.write_OP(args.out, dic_atname2genericname,
-                            dic_OP, dic_lipid)
+                            dic_OP, dic_lipid['resname'])
     print(f"Results written to {args.out}")
 
     # Pickle results

@@ -79,7 +79,7 @@ class TestWriters():
         #Write results of self.dic_OP
         test_file = tmpdir / "test.out"
         writers.write_OP(test_file, self.dic_atname2genericname,
-                                self.dic_OP, self.dic_lipid)
+                                self.dic_OP, self.dic_lipid['resname'])
 
         ref_file = path_data / "ref_10POPC.out"
         assert filecmp.cmp(test_file, ref_file)
@@ -90,7 +90,7 @@ class TestWriters():
         #Write results of self.dic_OP
         test_file = tmpdir / "test.out"
         writers.write_OP_alternate(test_file, self.universe_woH,
-                                   self.dic_OP, self.dic_lipid)
+                                   self.dic_OP, self.dic_lipid['resname'])
 
         ref_file = path_data / "ref_10POPC.alternate.out"
         assert filecmp.cmp(test_file, ref_file)
