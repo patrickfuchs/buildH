@@ -62,7 +62,7 @@ def test_init_dic_OP(inputs):
     """
     dic_OP, dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(inputs['universe'],
                                                                     inputs['dic_atname2genericname'],
-                                                                    inputs['dic_lipid'])
+                                                                    inputs['dic_lipid']['resname'])
     # Number of Order parmeters
     assert len(dic_OP) == 82
     for key in [('C1', 'H11'), ('C44', 'H442'), ('C17', 'H171'), ('CA1', 'HA11')]:
@@ -81,7 +81,7 @@ def test_make_dic_Cname2Hnames(inputs):
     Test for make_dic_Cname2Hnames()
     """
     dic_OP, _ = init_dics.init_dic_OP(inputs['universe'], inputs['dic_atname2genericname'],
-                                      inputs['dic_lipid'])
+                                      inputs['dic_lipid']['resname'])
 
     dic = init_dics.make_dic_Cname2Hnames(dic_OP)
 

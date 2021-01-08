@@ -1,5 +1,5 @@
 """
-Unit tests for buildH_calcOP
+Unit tests for buildH_calcOP.
 
 Test functions from module core
 """
@@ -24,9 +24,7 @@ path_data = pathlib.Path(__file__).parent / dir_data
 # Ignore some MDAnalysis warnings
 @pytest.mark.filterwarnings('ignore::UserWarning')
 class TestPDBPOPC:
-    """
-    Test class for a pdb file (no traj) of POPC lipids.
-    """
+    """Test class for a single pdb file of POPC lipids."""
 
     # Subset of reference data for dic_OP result
     # This used for test_fast_build_all_Hs_calc_OP() and test_reconstruct_Hs()
@@ -47,10 +45,7 @@ class TestPDBPOPC:
 
     # Method called once per class.
     def setup_class(self):
-        """
-        Initialize all data.
-        """
-
+        """Initialize attributes."""
         # Input parameters
         self.pdb = path_data / "10POPC.pdb"
         self.defop = path_data / "OP_def_BergerPOPC.def"
@@ -58,23 +53,70 @@ class TestPDBPOPC:
         self.begin = 0
         self.end = 1
 
-        # attributes
+        # intern attributes
         self.universe_woH = mda.Universe(str(self.pdb))
         self.dic_atname2genericname = init_dics.make_dic_atname2genericname(self.defop)
         self.dic_OP, self.dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(self.universe_woH,
                                                                                   self.dic_atname2genericname,
-                                                                                  self.dic_lipid)
+                                                                                  self.dic_lipid['resname'])
         self.dic_Cname2Hnames = init_dics.make_dic_Cname2Hnames(self.dic_OP)
 
 
     # Method called before each test method.
     def setup_method(self):
-        """
-        self.dic_op needs to be reinitialized since it is modified by some of the functions tested.
+        """Reset some attributes.
+
+        self.dic_op needs to be reinitialized
+        since it is modified by some of the functions tested.
         """
         self.dic_OP, self.dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(self.universe_woH,
                                                                                   self.dic_atname2genericname,
-                                                                                  self.dic_lipid)
+                                                                                  self.dic_lipid['resname'])
+
+
+    @pytest.mark.parametrize('atom_index, Hs_coords', [
+            # atom C1 type CH3
+            (0,  (np.array([35.06161421, 47.69320272, 26.76728762]),
+                  np.array([33.93128850, 47.36328732, 25.43245201]),
+                  np.array([35.02249090, 46.08195972, 26.01188584]))),
+            # atom C5 type CH2
+            (4,  (np.array([31.62418725, 45.50474260, 27.61469385]),
+                  np.array([32.93474471, 44.52992542, 26.90727792]))),
+            # atom C13 type CH
+            (12, (np.array([26.61868981, 44.14296091, 25.55244500]),)),
+            # atom C24 type CHdoublebond
+            (23, (np.array([20.46454439, 38.99866187, 31.19224364]),)),
+    ])
+    def test_buildHs_on_1C(self, atom_index, Hs_coords):
+        """Test for buildHs_on_1C().
+
+        Generate 4 atoms to be tested, each with a different type.
+
+        Parameters
+        ----------
+        atom_index : int
+            index of the heavy atom where hydrogens will be reconstructed.
+        Hs_coords : numpy 1D-array
+            reference coordinates of the hydrogens rebuilt.
+        """
+        atom = self.universe_woH.atoms[atom_index]
+
+        sel = atom.residue.atoms.select_atoms
+        if len(self.dic_lipid[atom.name]) == 3:
+            typeofH2build, helper1_name, helper2_name = self.dic_lipid[atom.name]
+            helper3_coor = None
+        else:
+            typeofH2build, helper1_name, helper2_name, helper3_name = self.dic_lipid[atom.name]
+            helper3_coor = sel("name {0}".format(helper3_name))[0].position
+
+        helper1_coor = sel("name {0}".format(helper1_name))[0].position
+        helper2_coor = sel("name {0}".format(helper2_name))[0].position
+
+
+        test_Hs_coords = core.buildHs_on_1C(atom.position, typeofH2build, helper1_coor, helper2_coor, helper3_coor)
+
+        assert_almost_equal(test_Hs_coords, Hs_coords)
+
 
     ########################################
     # Tests methods for the fast algorithm #
@@ -91,8 +133,14 @@ class TestPDBPOPC:
          (49, (48, 47)),
     ])
     def test_get_indexes(self, atom_index, helpers_indexes):
-        """
-        Test for get_indexes()
+        """Test for get_indexes().
+
+        Parameters
+        ----------
+        atom_index : int
+            index of a heavy atom
+        helpers_indexes : tuple
+            references indexes of the helpers
         """
         # Use the value in parametrize to get the correct atom to test.
         atom = self.universe_woH.atoms[atom_index]
@@ -101,10 +149,7 @@ class TestPDBPOPC:
 
 
     def test_make_dic_lipids_with_indexes(self):
-        """
-        Test for make_dic_lipids_with_indexes
-        """
-
+        """Test for make_dic_lipids_with_indexes()."""
         dic_lipids_with_indexes = core.make_dic_lipids_with_indexes(self.universe_woH,
                                                                      self.dic_lipid,
                                                                      self.dic_OP)
@@ -116,39 +161,11 @@ class TestPDBPOPC:
         assert dic_lipids_with_indexes['C50'] == ('CH3', 'C49', 'C48', 49, 48, 47)
 
 
-    @pytest.mark.parametrize('Cname, index, Hs_coords', [
-            # type CH3
-            ("C1", 0, (np.array([35.06161421, 47.69320272, 26.76728762]),
-                       np.array([33.93128850, 47.36328732, 25.43245201]),
-                       np.array([35.02249090, 46.08195972, 26.01188584]))),
-            # type CH2
-            ("C5", 0, (np.array([31.62418725, 45.50474260, 27.61469385]),
-                       np.array([32.93474471, 44.52992542, 26.90727792]))),
-            # type CH
-            ("C13", 0, (np.array([26.61868981, 44.14296091, 25.55244500]),)),
-            # type CHdoublebond
-            ("C24", 0, (np.array([20.46454439, 38.99866187, 31.19224364]),)),
-    ])
-    def test_fast_buildHs_on_1C(self, Cname, index, Hs_coords):
-        """
-        Test for fast_buildHs_on_1C()
-        Generate 4 atoms to be tested, each with a different type
-        """
-
-        dic_lipids_with_indexes = core.make_dic_lipids_with_indexes(self.universe_woH,
-                                                                     self.dic_lipid,
-                                                                     self.dic_OP)
-        ts = self.universe_woH.trajectory[0]
-        test_Hs_coords = core.fast_buildHs_on_1C(dic_lipids_with_indexes, ts, Cname, index)
-
-        assert_almost_equal(test_Hs_coords, Hs_coords)
-
     def test_fast_build_all_Hs_calc_OP(self):
-        """
-        Test for fast_build_all_Hs_calc_OP()
+        """Test for fast_build_all_Hs_calc_OP().
+
         The results should be indentical to the test_reconstruct_Hs() test.
         """
-
         core.fast_build_all_Hs_calc_OP(self.universe_woH,self.begin, self.end,
                                        self.dic_OP, self.dic_lipid, self.dic_Cname2Hnames)
 
@@ -168,37 +185,15 @@ class TestPDBPOPC:
     # where hydrogens are saved            #
     ########################################
 
-    # References values are the same as in test_fast_buildHs_on_1C()
-    @pytest.mark.parametrize('index, Hs_coords', [
-            # atom C1 type CH3
-            (0,  (np.array([35.06161421, 47.69320272, 26.76728762]),
-                  np.array([33.93128850, 47.36328732, 25.43245201]),
-                  np.array([35.02249090, 46.08195972, 26.01188584]))),
-            # atom C5 type CH2
-            (4,  (np.array([31.62418725, 45.50474260, 27.61469385]),
-                  np.array([32.93474471, 44.52992542, 26.90727792]))),
-            # atom C13 type CH
-            (12, (np.array([26.61868981, 44.14296091, 25.55244500]),)),
-            # atom C24 type CHdoublebond
-            (23, (np.array([20.46454439, 38.99866187, 31.19224364]),)),
-    ])
-    def test_buildHs_on_1C(self, index, Hs_coords):
-        """
-        Test for buildHs_on_1C()
-        Generate 4 atoms to be tested, each with a different type
-        """
-        atom = self.universe_woH.atoms[index]
-        test_Hs_coords = core.buildHs_on_1C(atom, self.dic_lipid)
-
-        assert_almost_equal(test_Hs_coords, Hs_coords)
-
 
     def test_reconstruct_Hs_first_frame(self):
-        """
-        Test for build_all_Hs_calc_OP() in the first mode
-        """
-        new_df_atoms = core.build_all_Hs_calc_OP(self.universe_woH, self.dic_lipid,
-                                                 self.dic_Cname2Hnames, return_coors=True)
+        """Test for build_system_hydrogens()."""
+        dic_lipids_with_indexes = core.make_dic_lipids_with_indexes(self.universe_woH,
+                                                                     self.dic_lipid,
+                                                                     self.dic_OP)
+
+        new_df_atoms = core.build_system_hydrogens(self.universe_woH, self.dic_lipid,
+                                                   self.dic_Cname2Hnames, dic_lipids_with_indexes)
 
         assert new_df_atoms.shape == (1340, 7)
 
@@ -218,15 +213,20 @@ class TestPDBPOPC:
 
 
     def test_reconstruct_Hs(self):
-        """
-        Test for build_all_Hs_calc_OP() in the second mode
+        """Test for build_all_Hs_calc_OP().
+
         The results should be indentical to the test_fast_build_all_Hs_calc_OP() test.
         """
+        dic_lipids_with_indexes = core.make_dic_lipids_with_indexes(self.universe_woH,
+                                                                    self.dic_lipid,
+                                                                    self.dic_OP)
+
         pdb_wH = path_data / "10POPC_wH.pdb"
         universe_wH = mda.Universe(str(pdb_wH))
-        core.build_all_Hs_calc_OP(self.universe_woH, self.dic_lipid, self.dic_Cname2Hnames,
-                             universe_wH=universe_wH, dic_OP=self.dic_OP,
-                             dic_corresp_numres_index_dic_OP=self.dic_corresp_numres_index_dic_OP)
+        ts = self.universe_woH.trajectory[0]
+        core.build_all_Hs_calc_OP(self.universe_woH, ts, self.dic_lipid, self.dic_Cname2Hnames,
+                                  universe_wH, self.dic_OP, self.dic_corresp_numres_index_dic_OP,
+                                  dic_lipids_with_indexes)
 
         # Check statistics
         assert_almost_equal(np.mean(self.dic_OP[('C21', 'H212')]), -0.22229490)
@@ -243,9 +243,7 @@ class TestPDBPOPC:
 # Ignore some MDAnalysis warnings
 @pytest.mark.filterwarnings('ignore::UserWarning')
 class TestXTCPOPC:
-    """
-    Test class for a trajectory of POPC lipids.
-    """
+    """Test class for a trajectory (in xtc format) of POPC lipids."""
 
     # Subset of reference data for dic_OP result
     # This used for test_fast_calcOP() and test_gen_XTC_calcOP()
@@ -265,10 +263,7 @@ class TestXTCPOPC:
 
     # Method called once per class.
     def setup_class(self):
-        """
-        Initialize all data.
-        """
-
+        """Initialize attributes."""
         # Input parameters
         self.pdb = path_data / "2POPC.pdb"
         self.xtc = path_data / "2POPC.xtc"
@@ -282,24 +277,30 @@ class TestXTCPOPC:
         self.dic_atname2genericname = init_dics.make_dic_atname2genericname(self.defop)
         self.dic_OP, self.dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(self.universe_woH,
                                                                                   self.dic_atname2genericname,
-                                                                                  self.dic_lipid)
+                                                                                  self.dic_lipid['resname'])
         self.dic_Cname2Hnames = init_dics.make_dic_Cname2Hnames(self.dic_OP)
 
     # Method called before each test method.
     def setup_method(self):
-        """
-        self.dic_op needs to be reinitialized since it is modified by some of the functions tested.
+        """Reset some attributes.
+
+        self.dic_op needs to be reinitialized
+        since it is modified by some of the functions tested.
         """
         self.dic_OP, self.dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(self.universe_woH,
                                                                                   self.dic_atname2genericname,
-                                                                                  self.dic_lipid)
+                                                                                  self.dic_lipid['resname'])
 
-    def test_fast_calcOP(self, tmpdir):
-        """
-        Test fast_build_all_Hs_calc_OP() on a trajectory
+    def test_fast_calcOP(self, tmp_path):
+        """Test fast_build_all_Hs_calc_OP() on a trajectory.
+
         The results should be indentical to the test_gen_XTC_calcOP() test.
-        """
 
+        Parameters
+        ----------
+        tmp_path : pathlib.Path (Pytest fixture)
+            path to a unique temporary directory.
+        """
         core.fast_build_all_Hs_calc_OP(self.universe_woH,self.begin, self.end,
                                        self.dic_OP, self.dic_lipid, self.dic_Cname2Hnames)
 
@@ -313,10 +314,15 @@ class TestXTCPOPC:
             assert key in self.dic_OP.keys()
             assert_almost_equal(value, self.dic_OP[key])
 
-    def test_gen_XTC_calcOP(self, tmpdir):
-        """
-        Test for gen_XTC_calcOP()
+    def test_gen_XTC_calcOP(self, tmp_path):
+        """Test for gen_XTC_calcOP().
+
         The results should be indentical to the test_fast_calcOP() test.
+
+        Parameters
+        ----------
+        tmp_path : pathlib.Path (Pytest fixture)
+            path to a unique temporary directory.
         """
         core.gen_XTC_calcOP("test", self.universe_woH, self.dic_OP, self.dic_lipid,
                             self.dic_Cname2Hnames, self.dic_corresp_numres_index_dic_OP,
@@ -334,9 +340,7 @@ class TestXTCPOPC:
 
 
     def test_check_def_file(self):
-        """
-        Test for is_allHs_present()
-        """
+        """Test for is_allHs_present()."""
         assert core.is_allHs_present(self.defop, self.dic_lipid, self.dic_Cname2Hnames)
 
         test_dic = self.dic_Cname2Hnames.copy()
