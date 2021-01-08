@@ -142,6 +142,8 @@ def parse_cli():
                         help="Input trajectory file in xtc format.")
     parser.add_argument("-l", "--lipid", type=str, required=True,
                         help="Residue name of lipid to calculate the OP on (e.g. POPC).")
+    parser.add_argument("-t", "--lipid_topology", type=isfile, nargs='+',
+                        help="User topology lipid json file(s). Mandatory to build hydrogens.")
     parser.add_argument("-d", "--defop", required=True, type=isfile,
                         help="Order parameter definition file. Can be found on "
                         "NMRlipids MATCH repository:"
@@ -168,6 +170,15 @@ def parse_cli():
     # Check topology file extension.
     if not options.topfile.endswith("pdb") and not options.topfile.endswith("gro"):
         parser.error("Topology must be given in pdb or gro format")
+
+    # Append user lipid topologies to the default ones
+    if (options.lipid_topology):
+        lipids_files += [pathlib.Path(f) for f in options.lipid_topology]
+        # Regenerate lipid topologies dictionary
+        lipids_topH = lipids.read_lipids_topH(lipids_files)
+        # Regenerate str list of supported lipids.
+        lipids_supported_str = ", ".join(lipids_topH.keys())
+
     # Check residue name validity.
     # Get the dictionnary with helper info using residue name (options.lipid
     # argument).
