@@ -67,3 +67,19 @@ class TestSlice():
              cli.check_slice_options(self.universe, first_frame=begin, last_frame=end)
         assert "Incorrect slice options" in str(err.value)
 
+    @pytest.mark.parametrize('lipidname, result', [
+        ("POPC", True),
+        ("POP", False),
+        ("DMPC", False),
+    ])
+    def test_check_lipid_present(self, lipidname, result):
+        """Test for check_lipid_present().
+
+        Parameters
+        ----------
+        lipidname : str
+            lipid name
+        result : Bool
+            Reference result.
+        """
+        assert cli.check_lipid_present(self.universe, lipidname) == result

@@ -110,6 +110,27 @@ def check_slice_options(system, first_frame=None, last_frame=None):
 
     return (number_first_frame, number_last_frame)
 
+def check_lipid_present(universe_woH, lipid_name):
+    """Check if the `lipid_name` residue name is present in `universe_woH`.
+
+    Parameters
+    ----------
+    universe_woH : MDAnalysis universe instance
+        This is the universe *without* hydrogen.
+    lipid_name : str
+        lipid residue name.
+
+    Returns
+    -------
+    Boolean
+        whether or not it's present.
+    """
+    lipid_atoms = universe_woH.select_atoms( f"resname {lipid_name}")
+
+    if len(lipid_atoms) == 0:
+        return False
+    return True
+
 
 def parse_cli():
     """
@@ -217,6 +238,11 @@ def main():
         except:
             raise UserWarning("Can't create MDAnalysis universe with file {}"
                               .format(args.topfile))
+
+    # Check if the lipid name supplied (`lipids_info`) is present in the universe.
+    if not check_lipid_present(universe_woH, dic_lipid['resname']):
+        raise UserWarning(f"No lipid Lipid '{dic_lipid['resname']}' found in {args.topfile}.")
+
     print("System has {} atoms".format(len(universe_woH.coord)))
 
     # 2) Initialize dic for storing OP.
