@@ -382,7 +382,7 @@ def make_dic_lipids_with_indexes(universe_woH, dic_lipid, dic_OP):
     dic_lipids_with_indexes = {}
     for Cname in dic_lipid.keys():
         if Cname in carbons2keep:
-            dic_lipids_with_indexes[Cname] = dic_lipid[Cname]
+            dic_lipids_with_indexes[Cname] = dic_lipid[Cname].copy()
     # Now add the helper indexes.
     # The reasonning is over one residue (e.g. POPC). We want to add (to the
     # dict) the index (ix) of each helper of a given carbon with respect to

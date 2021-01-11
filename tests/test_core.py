@@ -12,7 +12,7 @@ from numpy.testing import assert_almost_equal
 import MDAnalysis as mda
 import pandas as pd
 
-from buildh import dic_lipids
+from buildh import lipids
 from buildh import init_dics
 from buildh import core
 from buildh import writers
@@ -46,10 +46,12 @@ class TestPDBPOPC:
     # Method called once per class.
     def setup_class(self):
         """Initialize attributes."""
+        lipids_topH = lipids.read_lipids_topH([lipids.PATH_JSON/"Berger_POPC.json"])
+
         # Input parameters
         self.pdb = path_data / "10POPC.pdb"
         self.defop = path_data / "OP_def_BergerPOPC.def"
-        self.dic_lipid = getattr(dic_lipids, "Berger_POPC")
+        self.dic_lipid = lipids_topH["Berger_POPC"]
         self.begin = 0
         self.end = 1
 
@@ -154,11 +156,11 @@ class TestPDBPOPC:
                                                                      self.dic_lipid,
                                                                      self.dic_OP)
 
-        assert dic_lipids_with_indexes['C1']  == ('CH3', 'N4', 'C5', 0, 3, 4)
-        assert dic_lipids_with_indexes['C5']  == ('CH2', 'N4', 'C6', 4, 3, 5)
-        assert dic_lipids_with_indexes['C13'] == ('CH', 'C12', 'C32', 'O14', 12, 11, 31, 13)
-        assert dic_lipids_with_indexes['C24'] == ('CHdoublebond', 'C23', 'C25', 23, 22, 24)
-        assert dic_lipids_with_indexes['C50'] == ('CH3', 'C49', 'C48', 49, 48, 47)
+        assert dic_lipids_with_indexes['C1']  == ['CH3', 'N4', 'C5', 0, 3, 4]
+        assert dic_lipids_with_indexes['C5']  == ['CH2', 'N4', 'C6', 4, 3, 5]
+        assert dic_lipids_with_indexes['C13'] == ['CH', 'C12', 'C32', 'O14', 12, 11, 31, 13]
+        assert dic_lipids_with_indexes['C24'] == ['CHdoublebond', 'C23', 'C25', 23, 22, 24]
+        assert dic_lipids_with_indexes['C50'] == ['CH3', 'C49', 'C48', 49, 48, 47]
 
 
     def test_fast_build_all_Hs_calc_OP(self):
@@ -264,11 +266,13 @@ class TestXTCPOPC:
     # Method called once per class.
     def setup_class(self):
         """Initialize attributes."""
+        lipids_topH = lipids.read_lipids_topH([lipids.PATH_JSON/"Berger_POPC.json"])
+
         # Input parameters
         self.pdb = path_data / "2POPC.pdb"
         self.xtc = path_data / "2POPC.xtc"
         self.defop = path_data / "OP_def_BergerPOPC.def"
-        self.dic_lipid = getattr(dic_lipids, "Berger_POPC")
+        self.dic_lipid = lipids_topH["Berger_POPC"]
         self.begin = 0
         self.end = 11
 

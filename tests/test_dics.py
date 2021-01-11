@@ -10,7 +10,7 @@ import pytest
 import MDAnalysis as mda
 import numpy as np
 
-from buildh import dic_lipids
+from buildh import lipids
 from buildh import init_dics
 
 
@@ -29,7 +29,8 @@ def inputs():
     # Input parameters
     pdb = path_data / "10POPC.pdb"
     defop = path_data / "OP_def_BergerPOPC.def"
-    dic_lipid = getattr(dic_lipids, "Berger_POPC")
+    lipids_topH = lipids.read_lipids_topH([lipids.PATH_JSON/"Berger_POPC.json"])
+    dic_lipid = lipids_topH["Berger_POPC"]
 
     universe_woH = mda.Universe(str(pdb))
     dic_atname2genericname = init_dics.make_dic_atname2genericname(defop)
