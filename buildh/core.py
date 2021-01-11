@@ -559,20 +559,52 @@ def fast_build_all_Hs_calc_OP(universe_woH, begin, end,
         print()
 
 
-def gen_XTC_calcOP(basename, universe_woH, dic_OP, dic_lipid,
-                   dic_Cname2Hnames, dic_corresp_numres_index_dic_OP,
-                   begin, end):
+def gen_coordinates_calcOP(basename, universe_woH, dic_OP, dic_lipid,
+                           dic_Cname2Hnames, dic_corresp_numres_index_dic_OP,
+                           begin, end, traj_file):
     """
-    Generate a new trajectory with computed hydrogens
+    Generate coordinates files (pdb and/or xtc) with computed hydrogens
     and compute the order parameter.
-    """
 
+    If `traj_file` is set to False, only a pdb file will be written.
+    This depends whether or not the user supplied a trajectory file
+    in the first place.
+
+    Parameters
+    ----------
+    basename : str
+        basename for the output coordinate file(s).
+    universe_woH : MDAnalysis universe instance
+        This is the universe *without* hydrogen.
+    dic_OP : ordered dictionnary
+        Each key of this dict is a couple carbon/H, and at the beginning it
+        contains an empty list, e.g.
+        OrderedDict([ ('C1', 'H11): [], ('C1', 'H12'): [], ... ])
+        See function init_dic_OP() below to see how it is organized.
+    dic_lipid : dictionnary
+        Comes from dic_lipids.py. Contains carbon names and helper names needed
+        for reconstructing hydrogens.
+    dic_Cname2Hnames : dictionnary
+        This dict gives the correspondance Cname -> Hname. It is a dict of
+        tuples. If there is more than 1 H for a given C, they need to be
+        *ordered* like in the PDB. e.g. for CHARMM POPC :
+        {'C13': ('H13A', 'H13B', 'H13C'), ..., 'C33': ('H3X', 'H3Y'),
+          ..., 'C216': ('H16R', 'H16S'), ...}
+    dic_corresp_numres_index_dic_OP : dictionnary
+        This dict should contain the correspondance between the numres and
+        the corresponding index in dic_OP.
+    begin: int
+        index of the first frame of trajectory
+    end: int
+        index of the last frame of trajectory
+    traj_file : bool
+        a trajectory output file has to be generated?
+    """
     dic_lipids_with_indexes = make_dic_lipids_with_indexes(universe_woH, dic_lipid,
                                                            dic_OP)
 
     # Create filenames.
     pdbout_filename = basename + ".pdb"
-    xtcout_filename = basename + ".xtc"
     # Build a new universe with H.
     # Build a pandas df with H.
     new_df_atoms = build_system_hydrogens(universe_woH, dic_lipid, dic_Cname2Hnames,
@@ -584,26 +616,33 @@ def gen_XTC_calcOP(basename, universe_woH, dic_OP, dic_lipid,
         f.write(writers.pandasdf2pdb(new_df_atoms))
     # Then create the universe with H from that pdb.
     universe_wH = mda.Universe(pdbout_filename)
-    # Create an xtc writer.
-    print("Writing trajectory with hydrogens in xtc file.")
-    newxtc = XTC.XTCWriter(xtcout_filename, len(universe_wH.atoms))
-    # Write 1st frame.
-    newxtc.write(universe_wH)
 
-    # 4) Loop over all frames of the traj *without* H, build Hs and
-    # calc OP (ts is a Timestep instance).
-    for ts in universe_woH.trajectory[begin:end]:
-        print("Dealing with frame {} at {} ps."
-              .format(ts.frame, universe_woH.trajectory.time))
-        # Build H and update their positions in the universe *with* H (in place).
-        # Calculate OPs on the fly while building Hs  (dic_OP changed in place).
-        build_all_Hs_calc_OP(universe_woH, ts, dic_lipid, dic_Cname2Hnames,
-                             universe_wH, dic_OP, dic_corresp_numres_index_dic_OP,
-                             dic_lipids_with_indexes)
-        # Write new frame to xtc.
+    #Do we need to generate a trajectory file ?
+    if traj_file:
+        xtcout_filename = basename + ".xtc"
+        # Create an xtc writer.
+        print("Writing trajectory with hydrogens in xtc file.")
+        newxtc = XTC.XTCWriter(xtcout_filename, len(universe_wH.atoms))
+        # Write 1st frame.
         newxtc.write(universe_wH)
-    # Close xtc.
-    newxtc.close()
+
+        # 4) Loop over all frames of the traj *without* H, build Hs and
+        # calc OP (ts is a Timestep instance).
+        for ts in universe_woH.trajectory[begin:end]:
+            print("Dealing with frame {} at {} ps."
+                .format(ts.frame, universe_woH.trajectory.time))
+            # Build H and update their positions in the universe *with* H (in place).
+            # Calculate OPs on the fly while building Hs  (dic_OP changed in place).
+            build_all_Hs_calc_OP(universe_woH, ts, dic_lipid, dic_Cname2Hnames,
+                                universe_wH, dic_OP, dic_corresp_numres_index_dic_OP,
+                                dic_lipids_with_indexes)
+            # Write new frame to xtc.
+            newxtc.write(universe_wH)
+        # Close xtc.
+        newxtc.close()
+    # if not, just compute OP in the fast way.
+    else:
+        fast_build_all_Hs_calc_OP(universe_woH, begin, end, dic_OP, dic_lipid, dic_Cname2Hnames)
 
 
 def is_allHs_present(def_file, lipids_name, dic_ref_CHnames):

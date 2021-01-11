@@ -187,6 +187,7 @@ def main():
         try:
             universe_woH = mda.Universe(args.topfile, args.xtc)
             begin, end = check_slice_options(universe_woH, args.begin, args.end)
+            traj_file = True
         except IndexError:
             raise UserWarning("Slicing options are not correct.") from None
         except:
@@ -197,6 +198,7 @@ def main():
             universe_woH = mda.Universe(args.topfile)
             begin = 0
             end = 1
+            traj_file = False
         except:
             raise UserWarning("Can't create MDAnalysis universe with file {}"
                               .format(args.topfile))
@@ -219,9 +221,9 @@ def main():
     if args.opdbxtc:
 
         if core.is_allHs_present(args.defop, dic_lipid, dic_Cname2Hnames):
-            core.gen_XTC_calcOP(args.opdbxtc, universe_woH, dic_OP, dic_lipid,
-                                dic_Cname2Hnames, dic_corresp_numres_index_dic_OP,
-                                begin, end)
+            core.gen_coordinates_calcOP(args.opdbxtc, universe_woH, dic_OP, dic_lipid,
+                                        dic_Cname2Hnames, dic_corresp_numres_index_dic_OP,
+                                        begin, end, traj_file)
         else:
             raise UserWarning("Error on the number of H's to rebuild.")
 
