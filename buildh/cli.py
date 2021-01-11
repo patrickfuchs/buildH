@@ -12,10 +12,6 @@ from . import init_dics
 from . import core
 from . import writers
 
-
-JSON_DIR = "lipids"
-PATH_JSON = pathlib.Path(__file__).parent / JSON_DIR
-
 # For debugging.
 DEBUG = False
 # For pickling results (useful for future analyses, e.g. drawing distributions).
@@ -121,7 +117,7 @@ def parse_cli():
     """
 
     # Retrieve list of supported lipids
-    lipids_files = [ f for f in PATH_JSON.iterdir() if f.is_file()]
+    lipids_files = [f for f in lipids.PATH_JSON.iterdir() if f.is_file()]
     lipids_topH = lipids.read_lipids_topH(lipids_files)
     lipids_supported_str = ", ".join(lipids_topH.keys())
 
@@ -142,7 +138,7 @@ def parse_cli():
                         help="Input trajectory file in xtc format.")
     parser.add_argument("-l", "--lipid", type=str, required=True,
                         help="Residue name of lipid to calculate the OP on (e.g. POPC).")
-    parser.add_argument("-t", "--lipid_topology", type=isfile, nargs='+',
+    parser.add_argument("-tl", "--lipid_topology", type=isfile, nargs='+',
                         help="User topology lipid json file(s). Mandatory to build hydrogens.")
     parser.add_argument("-d", "--defop", required=True, type=isfile,
                         help="Order parameter definition file. Can be found on "

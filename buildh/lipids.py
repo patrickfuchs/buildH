@@ -1,8 +1,16 @@
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
+"""
+Module for the lipid topology json files.
+
+This module contains functions for parsing the json files.
+"""
 
 import pathlib
 import json
+
+# Directory name of the json files
+JSON_DIR = "lipids"
+# Absolute path of the json files
+PATH_JSON = pathlib.Path(__file__).parent / JSON_DIR
 
 def read_lipids_topH(filenames):
     """Generate a list of lipid hydrogen topologies.
@@ -29,7 +37,6 @@ def read_lipids_topH(filenames):
     UserWarning
         When a file doesn't have a correct format.
     """
-
     lipids_topH = {}
     for filename in filenames:
         filenam_path = pathlib.Path(filename)
