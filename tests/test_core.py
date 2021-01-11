@@ -246,7 +246,7 @@ class TestXTCPOPC:
     """Test class for a trajectory (in xtc format) of POPC lipids."""
 
     # Subset of reference data for dic_OP result
-    # This used for test_fast_calcOP() and test_gen_XTC_calcOP()
+    # This used for test_fast_calcOP() and test_gen_coordinates_calcOP()
     ref_OP = {
         # values = 2 lipids x 11 frames
         ('C2', 'H23'):   [ [-0.47293904, -0.48531776, -0.33300023, -0.08279667, -0.49939686,
@@ -294,7 +294,7 @@ class TestXTCPOPC:
     def test_fast_calcOP(self, tmp_path):
         """Test fast_build_all_Hs_calc_OP() on a trajectory.
 
-        The results should be indentical to the test_gen_XTC_calcOP() test.
+        The results should be indentical to the test_gen_coordinates_calcOP() test.
 
         Parameters
         ----------
@@ -314,8 +314,8 @@ class TestXTCPOPC:
             assert key in self.dic_OP.keys()
             assert_almost_equal(value, self.dic_OP[key])
 
-    def test_gen_XTC_calcOP(self, tmp_path):
-        """Test for gen_XTC_calcOP().
+    def test_gen_coordinates_calcOP(self, tmp_path):
+        """Test for gen_coordinates_calcOP().
 
         The results should be indentical to the test_fast_calcOP() test.
 
@@ -324,9 +324,9 @@ class TestXTCPOPC:
         tmp_path : pathlib.Path (Pytest fixture)
             path to a unique temporary directory.
         """
-        core.gen_XTC_calcOP("test", self.universe_woH, self.dic_OP, self.dic_lipid,
-                            self.dic_Cname2Hnames, self.dic_corresp_numres_index_dic_OP,
-                            self.begin, self.end)
+        core.gen_coordinates_calcOP("test", self.universe_woH, self.dic_OP, self.dic_lipid,
+                                    self.dic_Cname2Hnames, self.dic_corresp_numres_index_dic_OP,
+                                    self.begin, self.end, True)
 
         # Check  statistics
         assert_almost_equal(np.mean(self.dic_OP[('C32', 'H321')]),  0.15300163)
