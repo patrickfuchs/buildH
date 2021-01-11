@@ -20,7 +20,9 @@ def read_lipids_topH(filenames):
     the missing hydrogens.
 
     The list topologies is stored as dictionary were the key is
-    "ForceField_lipidname" (e.g Berger_POPC, CHARMM_DMPC)
+    "ForceField_lipidname" (e.g Berger_POPC, CHARMM_DMPC).
+    If there is multiple lipid residue name in the key 'resname' of the json,
+    it will create one dictionary for one element of this key.
 
     Parameters
     ----------
@@ -37,7 +39,7 @@ def read_lipids_topH(filenames):
     UserWarning
         When a file doesn't have a correct format.
     """
-    lipids_topH = {}
+    lipids_tops = {}
     for filename in filenames:
         filenam_path = pathlib.Path(filename)
         with open(filenam_path) as json_file:
@@ -59,6 +61,6 @@ def read_lipids_topH(filenames):
                 data = topol.copy()
                 data['resname'] = resname
                 key = f"{ff}_{resname}"
-                lipids_topH[key] = data
+                lipids_tops[key] = data
 
-    return lipids_topH
+    return lipids_tops

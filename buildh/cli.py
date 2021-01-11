@@ -118,8 +118,8 @@ def parse_cli():
 
     # Retrieve list of supported lipids
     lipids_files = [f for f in lipids.PATH_JSON.iterdir() if f.is_file()]
-    lipids_topH = lipids.read_lipids_topH(lipids_files)
-    lipids_supported_str = ", ".join(lipids_topH.keys())
+    lipids_tops = lipids.read_lipids_topH(lipids_files)
+    lipids_supported_str = ", ".join(lipids_tops.keys())
 
     message = """This program builds hydrogens and calculate the order
     parameters
@@ -171,15 +171,15 @@ def parse_cli():
     if (options.lipid_topology):
         lipids_files += [pathlib.Path(f) for f in options.lipid_topology]
         # Regenerate lipid topologies dictionary
-        lipids_topH = lipids.read_lipids_topH(lipids_files)
+        lipids_tops = lipids.read_lipids_topH(lipids_files)
         # Regenerate str list of supported lipids.
-        lipids_supported_str = ", ".join(lipids_topH.keys())
+        lipids_supported_str = ", ".join(lipids_tops.keys())
 
     # Check residue name validity.
     # Get the dictionnary with helper info using residue name (options.lipid
     # argument).
     try:
-        lipids_info = lipids_topH[options.lipid]
+        lipids_info = lipids_tops[options.lipid]
     except KeyError:
         parser.error(f"Lipid {options.lipid} is not supported. List of supported lipids are: {lipids_supported_str}")
 

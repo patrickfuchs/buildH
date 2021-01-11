@@ -72,7 +72,7 @@ def write_OP(fileout, dic_atname2genericname, dic_OP, resname):
     dic_OP : ordered dictionnary
         Each key of this dict is a couple carbon/H with the OP values as a list.
     resname : str
-        lipid name
+        lipid residue name taken from the json file.
     """
     with open(fileout, "w") as f:
 
@@ -127,7 +127,7 @@ def write_OP_alternate(fileout, universe_woH, dic_OP, resname):
     dic_OP : ordered dictionnary
         Each key of this dict is a couple carbon/H with the OP values as a list.
     resname : str
-        lipid name
+        lipid residue name taken from the json file.
     """
     with open(fileout, "w") as f:
         f.write("Atom_name  Hydrogen\tOP\t      STD\t   STDmean\n")

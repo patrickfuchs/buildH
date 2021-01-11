@@ -53,12 +53,12 @@ class TestWriters():
     # Method called once per class.
     def setup_class(self):
         """ Initialize all data. """
-        lipids_topH = lipids.read_lipids_topH([lipids.PATH_JSON/"Berger_POPC.json"])
+        lipids_tops = lipids.read_lipids_topH([lipids.PATH_JSON/"Berger_POPC.json"])
 
         # Input parameters
         self.pdb = path_data / "10POPC.pdb"
         self.defop = path_data / "OP_def_BergerPOPC.def"
-        self.dic_lipid = self.dic_lipid = lipids_topH["Berger_POPC"]
+        self.dic_lipid = lipids_tops["Berger_POPC"]
 
         self.begin = 0
         self.end = 1

@@ -29,8 +29,8 @@ def inputs():
     # Input parameters
     pdb = path_data / "10POPC.pdb"
     defop = path_data / "OP_def_BergerPOPC.def"
-    lipids_topH = lipids.read_lipids_topH([lipids.PATH_JSON/"Berger_POPC.json"])
-    dic_lipid = lipids_topH["Berger_POPC"]
+    lipids_tops = lipids.read_lipids_topH([lipids.PATH_JSON/"Berger_POPC.json"])
+    dic_lipid = lipids_tops["Berger_POPC"]
 
     universe_woH = mda.Universe(str(pdb))
     dic_atname2genericname = init_dics.make_dic_atname2genericname(defop)
