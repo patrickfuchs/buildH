@@ -56,7 +56,7 @@ def pandasdf2pdb(df):
 
 
 
-def write_OP(fileout, dic_atname2genericname, dic_OP, dic_lipid):
+def write_OP(fileout, dic_atname2genericname, dic_OP, resname):
     """ Write the order parameters into a file.
 
     The output style comes from J. Melcr's script from NMRLipids project
@@ -71,9 +71,8 @@ def write_OP(fileout, dic_atname2genericname, dic_OP, dic_lipid):
         dict of correspondance between generic H names and PDB names.
     dic_OP : ordered dictionnary
         Each key of this dict is a couple carbon/H with the OP values as a list.
-    dic_lipid : dictionnary
-        Comes from dic_lipids.py. Contains carbon names and helper names needed
-        for reconstructing hydrogens.
+    resname : str
+        lipid residue name taken from the json file.
     """
     with open(fileout, "w") as f:
 
@@ -108,11 +107,11 @@ def write_OP(fileout, dic_atname2genericname, dic_OP, dic_lipid):
             std_dev = np.std(means)
             stem = np.std(means) / np.sqrt(len(means))
             f.write("{:20s} {:7s} {:5s} {:5s} {: 2.5f} {: 2.5f} {: 2.5f}\n"
-                    .format(name, dic_lipid["resname"], Cname, Hname, mean,
+                    .format(name, resname, Cname, Hname, mean,
                             std_dev, stem))
 
 
-def write_OP_alternate(fileout, universe_woH, dic_OP, dic_lipid):
+def write_OP_alternate(fileout, universe_woH, dic_OP, resname):
     """ Write the order parameters into a file with an alternate style.
 
     This style comes from A. Pineiro's script from NMRLipids project
@@ -127,9 +126,8 @@ def write_OP_alternate(fileout, universe_woH, dic_OP, dic_lipid):
         This is the universe *without* hydrogen.
     dic_OP : ordered dictionnary
         Each key of this dict is a couple carbon/H with the OP values as a list.
-    dic_lipid : dictionnary
-        Comes from dic_lipids.py. Contains carbon names and helper names needed
-        for reconstructing hydrogens.
+    resname : str
+        lipid residue name taken from the json file.
     """
     with open(fileout, "w") as f:
         f.write("Atom_name  Hydrogen\tOP\t      STD\t   STDmean\n")
@@ -139,7 +137,7 @@ def write_OP_alternate(fileout, universe_woH, dic_OP, dic_lipid):
                 list_unique_Cnames.append(Cname)
         # Order of carbons is similar to that in the PDB.
         list_unique_Cnames_ordered = []
-        selection = "resname {}".format(dic_lipid["resname"])
+        selection = f"resname {resname}"
         for atom in universe_woH.select_atoms(selection).residues[0].atoms:
             if atom.name in list_unique_Cnames:
                 list_unique_Cnames_ordered.append(atom.name)

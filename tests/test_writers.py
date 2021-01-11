@@ -11,7 +11,7 @@ import filecmp
 import pandas as pd
 import MDAnalysis as mda
 
-from buildh import dic_lipids
+from buildh import lipids
 from buildh import init_dics
 from buildh import core
 from buildh import writers
@@ -53,11 +53,13 @@ class TestWriters():
     # Method called once per class.
     def setup_class(self):
         """ Initialize all data. """
+        lipids_tops = lipids.read_lipids_topH([lipids.PATH_JSON/"Berger_POPC.json"])
 
         # Input parameters
         self.pdb = path_data / "10POPC.pdb"
         self.defop = path_data / "OP_def_BergerPOPC.def"
-        self.dic_lipid = getattr(dic_lipids, "Berger_POPC")
+        self.dic_lipid = lipids_tops["Berger_POPC"]
+
         self.begin = 0
         self.end = 1
 
@@ -79,7 +81,7 @@ class TestWriters():
         #Write results of self.dic_OP
         test_file = tmpdir / "test.out"
         writers.write_OP(test_file, self.dic_atname2genericname,
-                                self.dic_OP, self.dic_lipid)
+                                self.dic_OP, self.dic_lipid['resname'])
 
         ref_file = path_data / "ref_10POPC.out"
         assert filecmp.cmp(test_file, ref_file)
@@ -90,7 +92,7 @@ class TestWriters():
         #Write results of self.dic_OP
         test_file = tmpdir / "test.out"
         writers.write_OP_alternate(test_file, self.universe_woH,
-                                   self.dic_OP, self.dic_lipid)
+                                   self.dic_OP, self.dic_lipid['resname'])
 
         ref_file = path_data / "ref_10POPC.alternate.out"
         assert filecmp.cmp(test_file, ref_file)
