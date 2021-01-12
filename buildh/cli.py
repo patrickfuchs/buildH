@@ -111,26 +111,6 @@ def check_slice_options(system, first_frame=None, last_frame=None):
 
     return (number_first_frame, number_last_frame)
 
-def check_lipid_present(universe_woH, lipid_name):
-    """Check if the `lipid_name` residue name is present in `universe_woH`.
-
-    Parameters
-    ----------
-    universe_woH : MDAnalysis universe instance
-        This is the universe *without* hydrogen.
-    lipid_name : str
-        lipid residue name.
-
-    Returns
-    -------
-    Boolean
-        whether or not it's present.
-    """
-    lipid_atoms = universe_woH.select_atoms( f"resname {lipid_name}")
-
-    if len(lipid_atoms) == 0:
-        return False
-    return True
 
 def parse_cli():
     """
@@ -211,19 +191,51 @@ def parse_cli():
     return options, lipids_info
 
 
-def check_atoms_def(universe_woH, res_name, atoms_name):
-    print(atoms_name)
+def check_def_file(universe, res_name, atoms_name):
+    """Check if atoms from the definition file are present in the structure in `universe`.
+
+    This function return false if there is one missing in the structure.
+    Print also an error message.
+
+    Parameters
+    ----------
+    universe : MDAnalysis universe instance
+    res_name : str
+        lipid residue name
+    atoms_name : list of str
+        list of atom names
+
+    Returns
+    -------
+    Bool
+        True if all atoms are found in the structure. False otherwise.
+    """
     for atom_name in atoms_name:
-        if not check_atom_def(universe_woH, res_name, atom_name):
-            print(f"Atom {atom_name} from definition file is not found in your system.")
+        if not check_atom(universe, res_name, atom_name):
+            print(f"Atom {atom_name} of residue {res_name} from definition "
+                  "file is not found in your system.")
             return False
 
     return True
 
 
-def check_atom_def(universe_woH, res_name, atom_name):
+def check_atom(universe, res_name, atom_name):
+    """Check if 'atom_name' from residue 'res_name' is present in 'universe'.
 
-    if len(universe_woH.select_atoms(f"resname {res_name} and name {atom_name}")) == 0:
+    Parameters
+    ----------
+    universe : MDAnalysis universe instance
+    res_name : str
+        residue name
+    atom_name : str
+        atom name
+
+    Returns
+    -------
+    Bool
+        True if the atom is present. False otherwise.
+    """
+    if len(universe.select_atoms(f"resname {res_name} and name {atom_name}")) == 0:
         return False
     return True
 
@@ -272,17 +284,14 @@ def main():
     # Now, a few checks have to be performed to ensure the lipid topology chosen (-l option),
     # the structure provided and the def file provider are coherent with each others.
 
-    # Check if the lipid name from topology (`lipids_info`) is present in the structure.
-    if not check_lipid_present(universe_woH, dic_lipid['resname']):
-        sys.exit(f"No lipid '{dic_lipid['resname']}' found in {args.topfile}.")
+    # Check if the lipid topology match the the structure.
+    if not lipids.check_topology(universe_woH, dic_lipid):
+        sys.exit(f"The topology chosen does not match the structure provided {args.topfile}")
 
-    # Check if the topology chosen is coherent with the structure.
-
-    # Check if atoms names in the def file are present in the structure.
-    atoms_def = [heavy_atom for (heavy_atom, _) in dic_atname2genericname.keys()]
-    if not check_atoms_def(universe_woH, dic_lipid['resname'],atoms_def):
+    # Check if atoms name in the def file are present in the structure.
+    atoms_name = [heavy_atom for (heavy_atom, _) in dic_atname2genericname.keys()]
+    if not check_def_file(universe_woH, dic_lipid['resname'], atoms_name):
         sys.exit(f"Atoms defined in {args.defop} are missing in the structure {args.topfile}.")
-
 
 
     print("System has {} atoms".format(len(universe_woH.coord)))
