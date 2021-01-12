@@ -18,13 +18,16 @@ from buildh import core
 from buildh import writers
 
 dir_data = "test_data"
-path_data = pathlib.Path(__file__).parent / dir_data
+path_root_data = pathlib.Path(__file__).parent / dir_data
 
 
 # Ignore some MDAnalysis warnings
 @pytest.mark.filterwarnings('ignore::UserWarning')
 class TestPDBPOPC:
     """Test class for a single pdb file of POPC lipids."""
+
+    # path for the Berger POPC files
+    PATH_DATA = path_root_data / "Berger_POPC"
 
     # Subset of reference data for dic_OP result
     # This used for test_fast_build_all_Hs_calc_OP() and test_reconstruct_Hs()
@@ -49,8 +52,8 @@ class TestPDBPOPC:
         lipids_tops = lipids.read_lipids_topH([lipids.PATH_JSON/"Berger_POPC.json"])
 
         # Input parameters
-        self.pdb = path_data / "10POPC.pdb"
-        self.defop = path_data / "OP_def_BergerPOPC.def"
+        self.pdb = self.PATH_DATA / "10POPC.pdb"
+        self.defop = self.PATH_DATA / "OP_def_BergerPOPC.def"
         self.dic_lipid = lipids_tops["Berger_POPC"]
         self.begin = 0
         self.end = 1
@@ -223,7 +226,7 @@ class TestPDBPOPC:
                                                                     self.dic_lipid,
                                                                     self.dic_OP)
 
-        pdb_wH = path_data / "10POPC_wH.pdb"
+        pdb_wH = self.PATH_DATA / "10POPC_wH.pdb"
         universe_wH = mda.Universe(str(pdb_wH))
         ts = self.universe_woH.trajectory[0]
         core.build_all_Hs_calc_OP(self.universe_woH, ts, self.dic_lipid, self.dic_Cname2Hnames,
@@ -247,6 +250,9 @@ class TestPDBPOPC:
 class TestXTCPOPC:
     """Test class for a trajectory (in xtc format) of POPC lipids."""
 
+    # path for the Berger POPC files
+    PATH_DATA = path_root_data / "Berger_POPC"
+
     # Subset of reference data for dic_OP result
     # This used for test_fast_calcOP() and test_gen_coordinates_calcOP()
     ref_OP = {
@@ -269,9 +275,9 @@ class TestXTCPOPC:
         lipids_tops = lipids.read_lipids_topH([lipids.PATH_JSON/"Berger_POPC.json"])
 
         # Input parameters
-        self.pdb = path_data / "2POPC.pdb"
-        self.xtc = path_data / "2POPC.xtc"
-        self.defop = path_data / "OP_def_BergerPOPC.def"
+        self.pdb = self.PATH_DATA / "2POPC.pdb"
+        self.xtc = self.PATH_DATA / "2POPC.xtc"
+        self.defop = self.PATH_DATA / "OP_def_BergerPOPC.def"
         self.dic_lipid = lipids_tops["Berger_POPC"]
         self.begin = 0
         self.end = 11
