@@ -3,6 +3,7 @@
 import argparse
 import pickle
 import pathlib
+import sys
 
 import numpy as np
 import MDAnalysis as mda
@@ -190,6 +191,55 @@ def parse_cli():
     return options, lipids_info
 
 
+def check_def_file(universe, res_name, atoms_name):
+    """Check if atoms from the definition file are present in the structure in `universe`.
+
+    This function return false if there is one missing in the structure.
+    Print also an error message.
+
+    Parameters
+    ----------
+    universe : MDAnalysis universe instance
+    res_name : str
+        lipid residue name
+    atoms_name : list of str
+        list of atom names
+
+    Returns
+    -------
+    Bool
+        True if all atoms are found in the structure. False otherwise.
+    """
+    for atom_name in atoms_name:
+        if not check_atom(universe, res_name, atom_name):
+            print(f"Atom {atom_name} of residue {res_name} from definition "
+                  "file is not found in your system.")
+            return False
+
+    return True
+
+
+def check_atom(universe, res_name, atom_name):
+    """Check if 'atom_name' from residue 'res_name' is present in 'universe'.
+
+    Parameters
+    ----------
+    universe : MDAnalysis universe instance
+    res_name : str
+        residue name
+    atom_name : str
+        atom name
+
+    Returns
+    -------
+    Bool
+        True if the atom is present. False otherwise.
+    """
+    if len(universe.select_atoms(f"resname {res_name} and name {atom_name}")) == 0:
+        return False
+    return True
+
+
 def main():
     """buildH main function."""
 
@@ -217,7 +267,7 @@ def main():
         except:
             raise UserWarning("Can't create MDAnalysis universe with file {}"
                               .format(args.topfile))
-    print("System has {} atoms".format(len(universe_woH.coord)))
+
 
     # 2) Initialize dic for storing OP.
     # Init dic of correspondance : {('C1', 'H11'): 'gamma1_1',
@@ -229,6 +279,22 @@ def main():
                                                                     dic_lipid['resname'])
     # Initialize dic_Cname2Hnames.
     dic_Cname2Hnames = init_dics.make_dic_Cname2Hnames(dic_OP)
+
+
+    # Now, a few checks have to be performed to ensure the lipid topology chosen (-l option),
+    # the structure provided and the def file provider are coherent with each others.
+
+    # Check if the lipid topology match the the structure.
+    if not lipids.check_topology(universe_woH, dic_lipid):
+        sys.exit(f"The topology chosen does not match the structure provided {args.topfile}")
+
+    # Check if atoms name in the def file are present in the structure.
+    atoms_name = [heavy_atom for (heavy_atom, _) in dic_atname2genericname.keys()]
+    if not check_def_file(universe_woH, dic_lipid['resname'], atoms_name):
+        sys.exit(f"Atoms defined in {args.defop} are missing in the structure {args.topfile}.")
+
+
+    print("System has {} atoms".format(len(universe_woH.coord)))
 
     # If traj output files are requested.
     # NOTE Here, we need to reconstruct all Hs. Thus the op definition file (passed

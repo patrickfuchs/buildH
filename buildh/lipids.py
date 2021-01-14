@@ -64,3 +64,38 @@ def read_lipids_topH(filenames):
                 lipids_tops[key] = data
 
     return lipids_tops
+
+
+def check_topology(universe, lipid_top):
+    """Check if the topology `lipid_top` is coherent with the structure in `universe`.
+
+    This function check first the lipid residue name then the atoms in the topology.
+    This function return false if there is one missing in the structure.
+    Print also an error message.
+
+    Parameters
+    ----------
+    universe : MDAnalysis universe instance
+    lipid_top : dict
+        lipid topology for hydrogen.
+
+    Returns
+    -------
+    Boolean
+        whether the structure and the topology match
+    """
+    # Check first the lipid residue name
+    resname = lipid_top['resname']
+    lipid_atoms = universe.select_atoms( f"resname {resname}")
+    if len(lipid_atoms) == 0:
+        print(f"No lipid '{resname}' found in the topology.")
+        return False
+
+    # Remove first key 'resname'
+    carbon_atoms = list(lipid_top.keys())[1::]
+    for atom_name in carbon_atoms:
+        if len(universe.select_atoms(f"resname {resname} and name {atom_name}")) == 0:
+            print(f"Atom {atom_name} from topology is not found in your system.")
+            return False
+
+    return True
