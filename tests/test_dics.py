@@ -15,7 +15,7 @@ from buildh import init_dics
 
 
 dir_data = "test_data"
-path_data = pathlib.Path(__file__).parent / dir_data
+path_root_data = pathlib.Path(__file__).parent / dir_data
 
 # Ignore some MDAnalysis warnings for this test file
 pytestmark = pytest.mark.filterwarnings('ignore::UserWarning')
@@ -27,6 +27,8 @@ def inputs():
     Define some input parameters for the tests.
     """
     # Input parameters
+    path_data = path_root_data / "Berger_POPC"
+
     pdb = path_data / "10POPC.pdb"
     defop = path_data / "OP_def_BergerPOPC.def"
     lipids_tops = lipids.read_lipids_topH([lipids.PATH_JSON/"Berger_POPC.json"])

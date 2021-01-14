@@ -12,7 +12,7 @@ import MDAnalysis as mda
 from buildh import cli
 
 dir_data = "test_data"
-path_data = pathlib.Path(__file__).parent / dir_data
+path_root_data = pathlib.Path(__file__).parent / dir_data
 
 # Ignore some MDAnalysis warnings for this test file
 pytestmark = pytest.mark.filterwarnings('ignore::UserWarning')
@@ -25,10 +25,12 @@ class TestSlice():
        - 10 frames
        - from 0 to 10000 ps
     """
+    # path for the Berger POPC files
+    PATH_DATA = path_root_data / "Berger_POPC"
 
     def setup_class(self):
-        pdb = path_data / "2POPC.pdb"
-        xtc = path_data / "2POPC.xtc"
+        pdb = self.PATH_DATA / "2POPC.pdb"
+        xtc = self.PATH_DATA / "2POPC.xtc"
 
         self.universe = mda.Universe(str(pdb), str(xtc))
 

@@ -18,7 +18,7 @@ from buildh import writers
 
 
 dir_data = "test_data"
-path_data = pathlib.Path(__file__).parent / dir_data
+path_root_data = pathlib.Path(__file__).parent / dir_data
 
 # Ignore some MDAnalysis warnings for this test file
 pytestmark = pytest.mark.filterwarnings('ignore::UserWarning')
@@ -50,14 +50,17 @@ def test_pandas2pdb():
 
 class TestWriters():
 
+    # path for the Berger POPC files
+    PATH_DATA = path_root_data / "Berger_POPC"
+
     # Method called once per class.
     def setup_class(self):
         """ Initialize all data. """
         lipids_tops = lipids.read_lipids_topH([lipids.PATH_JSON/"Berger_POPC.json"])
 
         # Input parameters
-        self.pdb = path_data / "10POPC.pdb"
-        self.defop = path_data / "OP_def_BergerPOPC.def"
+        self.pdb = self.PATH_DATA / "10POPC.pdb"
+        self.defop = self.PATH_DATA / "OP_def_BergerPOPC.def"
         self.dic_lipid = lipids_tops["Berger_POPC"]
 
         self.begin = 0
@@ -83,7 +86,7 @@ class TestWriters():
         writers.write_OP(test_file, self.dic_atname2genericname,
                                 self.dic_OP, self.dic_lipid['resname'])
 
-        ref_file = path_data / "ref_10POPC.out"
+        ref_file = self.PATH_DATA / "ref_10POPC.out"
         assert filecmp.cmp(test_file, ref_file)
 
     def test_write_OP_alternate(self, tmpdir):
@@ -94,5 +97,5 @@ class TestWriters():
         writers.write_OP_alternate(test_file, self.universe_woH,
                                    self.dic_OP, self.dic_lipid['resname'])
 
-        ref_file = path_data / "ref_10POPC.alternate.out"
+        ref_file = self.PATH_DATA / "ref_10POPC.alternate.out"
         assert filecmp.cmp(test_file, ref_file)
