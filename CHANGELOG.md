@@ -1,5 +1,10 @@
 **Dev**
 
+- Fix bug when a trajectory was written when only a pdb was provided.
+- Add sanity checks for the various input files
+- Use json files instead of python module to read lipid topologies.
+- Optimize package for better performance
+
 **1.1.0**
 
 - Create Python package structure
