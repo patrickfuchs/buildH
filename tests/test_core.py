@@ -15,10 +15,9 @@ import pandas as pd
 from buildh import lipids
 from buildh import init_dics
 from buildh import core
-from buildh import writers
 
-dir_data = "test_data"
-path_root_data = pathlib.Path(__file__).parent / dir_data
+DIR_DATA = "test_data"
+PATH_ROOT_DATA = pathlib.Path(__file__).parent / DIR_DATA
 
 
 # Ignore some MDAnalysis warnings
@@ -27,23 +26,23 @@ class TestPDBPOPC:
     """Test class for a single pdb file of POPC lipids."""
 
     # path for the Berger POPC files
-    PATH_DATA = path_root_data / "Berger_POPC"
+    PATH_DATA = PATH_ROOT_DATA / "Berger_POPC"
 
     # Subset of reference data for dic_OP result
     # This used for test_fast_build_all_Hs_calc_OP() and test_reconstruct_Hs()
     ref_OP = {
-            # values = 10 lipids x 1 frame
-            ('C1', 'H11'):   [[-0.23599134], [ 0.57873978], [ 0.02244849], [ 0.32463168], [-0.39586207],
-                              [ 0.87975500], [ 0.41808654], [-0.28873204], [-0.47090717], [-0.11264325]],
+        # values = 10 lipids x 1 frame
+        ('C1', 'H11'):   [[-0.23599134], [ 0.57873978], [ 0.02244849], [ 0.32463168], [-0.39586207],
+                          [ 0.87975500], [ 0.41808654], [-0.28873204], [-0.47090717], [-0.11264325]],
 
-            ('C32', 'H321'): [[-0.41362438], [-0.49548668], [ 0.14942125], [ 0.94630508], [ 0.31010313],
-                              [ 0.89795921], [-0.49998903], [-0.49960781], [ 0.79312234], [-0.05705310]],
+        ('C32', 'H321'): [[-0.41362438], [-0.49548668], [ 0.14942125], [ 0.94630508], [ 0.31010313],
+                          [ 0.89795921], [-0.49998903], [-0.49960781], [ 0.79312234], [-0.05705310]],
 
-            ('C19', 'H192'): [[-0.00139740], [-0.26007547], [-0.42209310], [-0.27136435], [-0.35669634],
-                              [-0.46162108], [-0.25302670], [ 0.65296859], [ 0.14922439], [-0.41107602]],
+        ('C19', 'H192'): [[-0.00139740], [-0.26007547], [-0.42209310], [-0.27136435], [-0.35669634],
+                          [-0.46162108], [-0.25302670], [ 0.65296859], [ 0.14922439], [-0.41107602]],
 
-            ('CA1', 'HA11'): [[-0.48614830], [-0.43749174], [-0.40528699], [-0.35136869], [-0.45664981],
-                              [-0.21534578], [ 0.08544719], [ 0.44870156], [-0.10571712], [-0.46312028]]
+        ('CA1', 'HA11'): [[-0.48614830], [-0.43749174], [-0.40528699], [-0.35136869], [-0.45664981],
+                          [-0.21534578], [ 0.08544719], [ 0.44870156], [-0.10571712], [-0.46312028]]
     }
 
     # Method called once per class.
@@ -118,7 +117,8 @@ class TestPDBPOPC:
         helper2_coor = sel("name {0}".format(helper2_name))[0].position
 
 
-        test_Hs_coords = core.buildHs_on_1C(atom.position, typeofH2build, helper1_coor, helper2_coor, helper3_coor)
+        test_Hs_coords = core.buildHs_on_1C(atom.position, typeofH2build,
+                                            helper1_coor, helper2_coor, helper3_coor)
 
         assert_almost_equal(test_Hs_coords, Hs_coords)
 
@@ -179,7 +179,8 @@ class TestPDBPOPC:
         assert_almost_equal(np.mean(self.dic_OP[('C17', 'H171')]), -0.18843357)
 
         # Check few particular cases
-        # Use of a loop to check key and value separately. The values need to be assert with float desired precision.
+        # Use of a loop to check key and value separately.
+        # The values need to be assert with float desired precision.
         for (key), value in self.ref_OP.items():
             assert key in self.dic_OP.keys()
             assert_almost_equal(value, self.dic_OP[key])
@@ -204,16 +205,20 @@ class TestPDBPOPC:
 
         # Test random atoms
         col_series=["atnum", "atname","resname", "resnum","x", "y", "z"]
-        ref_atom = pd.Series([1, "C1", "POPC", 2, 34.41999816, 46.93999862, 26.30999946], index=col_series)
+        ref_atom = pd.Series([1, "C1", "POPC", 2, 34.41999816, 46.93999862, 26.30999946],
+                             index=col_series)
         pd.testing.assert_series_equal(new_df_atoms.loc[0], ref_atom, check_names=False)
 
-        ref_atom = pd.Series([2, "H11", "POPC", 2, 35.06161421, 47.69320272, 26.76728762], index=col_series)
+        ref_atom = pd.Series([2, "H11", "POPC", 2, 35.06161421, 47.69320272, 26.76728762],
+                             index=col_series)
         pd.testing.assert_series_equal(new_df_atoms.loc[1], ref_atom, check_names=False)
 
-        ref_atom = pd.Series([259, "H501", "POPC", 3, 74.16520229, 36.21701104, 35.03256486], index=col_series)
+        ref_atom = pd.Series([259, "H501", "POPC", 3, 74.16520229, 36.21701104, 35.03256486],
+                             index=col_series)
         pd.testing.assert_series_equal(new_df_atoms.loc[258], ref_atom, check_names=False)
 
-        ref_atom = pd.Series([1339, "HA22", "POPC", 11, 27.72946942, 16.74704078, 40.53260384], index=col_series)
+        ref_atom = pd.Series([1339, "HA22", "POPC", 11, 27.72946942, 16.74704078, 40.53260384],
+                             index=col_series)
         pd.testing.assert_series_equal(new_df_atoms.loc[1338], ref_atom, check_names=False)
 
 
@@ -238,7 +243,8 @@ class TestPDBPOPC:
         assert_almost_equal(np.mean(self.dic_OP[('CA2', 'HA23')]),  0.22305860)
 
         # Check few particular cases
-        # Use of a loop to check key and value separately. The values need to be assert with float desired precision.
+        # Use of a loop to check key and value separately.
+        # The values need to be assert with float desired precision.
         for (key), value in self.ref_OP.items():
             assert key in self.dic_OP.keys()
             assert_almost_equal(value, self.dic_OP[key])
@@ -251,21 +257,25 @@ class TestXTCPOPC:
     """Test class for a trajectory (in xtc format) of POPC lipids."""
 
     # path for the Berger POPC files
-    PATH_DATA = path_root_data / "Berger_POPC"
+    PATH_DATA = PATH_ROOT_DATA / "Berger_POPC"
 
     # Subset of reference data for dic_OP result
     # This used for test_fast_calcOP() and test_gen_coordinates_calcOP()
     ref_OP = {
         # values = 2 lipids x 11 frames
         ('C2', 'H23'):   [ [-0.47293904, -0.48531776, -0.33300023, -0.08279667, -0.49939686,
-                            -0.49903488, -0.35986740,  0.76890823,  0.08157466,  0.19420324, 0.27986448],
+                            -0.49903488, -0.35986740,  0.76890823,  0.08157466,  0.19420324,
+                             0.27986448],
                            [ 0.16147857, -0.34630697,  0.43297339,  0.28733088, -0.29597471,
-                            -0.39957748, -0.48918187, -0.08307259,  0.56356016,  0.75693095,  0.20062960]
+                            -0.39957748, -0.48918187, -0.08307259,  0.56356016,  0.75693095,
+                             0.20062960]
                          ],
         ('C27', 'H272'): [ [ 0.21477296, -0.49887799, -0.41609987, -0.19329433,  0.30621276,
-                             0.50099123, -0.21682994,  0.50280378,  0.06031779, -0.00397443, -0.49713104],
+                             0.50099123, -0.21682994,  0.50280378,  0.06031779, -0.00397443,
+                            -0.49713104],
                            [ 0.01288211, -0.46547434, -0.37864825, -0.29720486, -0.41992799,
-                            -0.00013077, -0.342879725, -0.464275827, -0.264702934, 0.87274949,-0.20216758]
+                            -0.00013077, -0.342879725, -0.464275827, -0.264702934, 0.87274949,
+                            -0.20216758]
                          ]
     }
 
@@ -301,38 +311,31 @@ class TestXTCPOPC:
                                                                                   self.dic_atname2genericname,
                                                                                   self.dic_lipid['resname'])
 
-    def test_fast_calcOP(self, tmp_path):
+    def test_fast_calcOP(self):
         """Test fast_build_all_Hs_calc_OP() on a trajectory.
 
         The results should be indentical to the test_gen_coordinates_calcOP() test.
-
-        Parameters
-        ----------
-        tmp_path : pathlib.Path (Pytest fixture)
-            path to a unique temporary directory.
         """
         core.fast_build_all_Hs_calc_OP(self.universe_woH,self.begin, self.end,
                                        self.dic_OP, self.dic_lipid, self.dic_Cname2Hnames)
 
         # Check statistics
+        assert_almost_equal(np.mean(self.dic_OP[('C32', 'H321')]),  0.15300163)
+        assert_almost_equal(np.mean(self.dic_OP[('C50', 'H503')]), -0.08801085)
         assert_almost_equal(np.mean(self.dic_OP[('C1', 'H11')]),  0.26908040)
         assert_almost_equal(np.mean(self.dic_OP[('C5', 'H52')]), -0.20147210)
 
         # Check few particular cases
-        # Use of a loop to check key and value separately. The values need to be assert with float desired precision.
+        # Use of a loop to check key and value separately.
+        # The values need to be assert with float desired precision.
         for (key), value in self.ref_OP.items():
             assert key in self.dic_OP.keys()
             assert_almost_equal(value, self.dic_OP[key])
 
-    def test_gen_coordinates_calcOP(self, tmp_path):
+    def test_gen_coordinates_calcOP(self):
         """Test for gen_coordinates_calcOP().
 
         The results should be indentical to the test_fast_calcOP() test.
-
-        Parameters
-        ----------
-        tmp_path : pathlib.Path (Pytest fixture)
-            path to a unique temporary directory.
         """
         core.gen_coordinates_calcOP("test", self.universe_woH, self.dic_OP, self.dic_lipid,
                                     self.dic_Cname2Hnames, self.dic_corresp_numres_index_dic_OP,
@@ -341,9 +344,12 @@ class TestXTCPOPC:
         # Check  statistics
         assert_almost_equal(np.mean(self.dic_OP[('C32', 'H321')]),  0.15300163)
         assert_almost_equal(np.mean(self.dic_OP[('C50', 'H503')]), -0.08801085)
+        assert_almost_equal(np.mean(self.dic_OP[('C1', 'H11')]),  0.26908040)
+        assert_almost_equal(np.mean(self.dic_OP[('C5', 'H52')]), -0.20147210)
 
         # Check few particular cases
-        # Use of a loop to check key and value separately. The values need to be assert with float desired precision.
+        # Use of a loop to check key and value separately.
+        # The values need to be assert with float desired precision.
         for (key), value in self.ref_OP.items():
             assert key in self.dic_OP.keys()
             assert_almost_equal(value, self.dic_OP[key])

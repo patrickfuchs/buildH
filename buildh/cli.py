@@ -21,8 +21,8 @@ PICKLE = False
 def isfile(path):
     """Callback for checking file existence.
 
-    This function checks if path is an existing file.
-    If not, raise an error. Else, return the path.
+    This function checks if `path` is an existing file.
+    If not, raise an error. Else, return the `path`.
 
     Parameters
     ----------
@@ -45,16 +45,14 @@ def isfile(path):
 
 
 def check_slice_options(system, first_frame=None, last_frame=None):
-    """Verify the slicing options given by the user and translate
-    to it to a range of frame in MDAnalysis.
+    """Verify the slicing options and return a range of frames in MDAnalysis.
 
     This function check whether the first frame and the last frame are consistent
-    within themselves (``first_frame`` cant be superior to ``last_frame``) and
-    with the trajectory supplied (if the trajectory starts at 1000ps, ``first_frame``
+    within themselves (`first_frame` cant be superior to `last_frame`) and
+    with the trajectory supplied (if the trajectory starts at 1000ps, `first_frame`
     cant be equal to 0 for example).
     Then, the function translate the range from picosecond-time to the number of frame
     in MDanalysis.
-
 
     Parameters
     ----------
@@ -72,10 +70,13 @@ def check_slice_options(system, first_frame=None, last_frame=None):
 
     Raises
     ------
+    IndexError
+        When the slicing options are out of range.
     """
     # From the trajectory, get the time of the first and last frame
     traj_first_frame = int(system.trajectory.time)
-    traj_last_frame = int(system.trajectory.time + system.trajectory.dt * (system.trajectory.n_frames - 1))
+    traj_last_frame = int(system.trajectory.time +
+                          system.trajectory.dt * (system.trajectory.n_frames - 1))
 
     # If no bound is given, take the full trajectory
     if not first_frame and not last_frame:
@@ -113,10 +114,7 @@ def check_slice_options(system, first_frame=None, last_frame=None):
 
 
 def parse_cli():
-    """
-    Handle the user parameters from the command line.
-    """
-
+    """Handle the user parameters from the command line."""
     # Retrieve list of supported lipids
     lipids_files = [f for f in lipids.PATH_JSON.iterdir() if f.is_file()]
     lipids_tops = lipids.read_lipids_topH(lipids_files)
@@ -159,7 +157,8 @@ def parse_cli():
                         help="The last frame (ps) to read from the trajectory.")
     parser.add_argument("-pi", "--pickle", type=str,
                         help="Output pickle filename. The structure pickled is a dictonnary "
-                        "containing for each Order parameter, the value of each lipid and each frame as a matric")
+                        "containing for each Order parameter, "
+                        "the value of each lipid and each frame as a matric")
     options = parser.parse_args()
 
     # Top file is "options.topfile", xtc file is "options.xtc", pdb output file is
@@ -169,7 +168,7 @@ def parse_cli():
         parser.error("Topology must be given in pdb or gro format")
 
     # Append user lipid topologies to the default ones
-    if (options.lipid_topology):
+    if options.lipid_topology:
         lipids_files += [pathlib.Path(f) for f in options.lipid_topology]
         # Regenerate lipid topologies dictionary
         lipids_tops = lipids.read_lipids_topH(lipids_files)
@@ -177,12 +176,13 @@ def parse_cli():
         lipids_supported_str = ", ".join(lipids_tops.keys())
 
     # Check residue name validity.
-    # Get the dictionnary with helper info using residue name (options.lipid
+    # Get the dictionary with helper info using residue name (options.lipid
     # argument).
     try:
         lipids_info = lipids_tops[options.lipid]
     except KeyError:
-        parser.error(f"Lipid {options.lipid} is not supported. List of supported lipids are: {lipids_supported_str}")
+        parser.error(f"Lipid {options.lipid} is not supported."
+                     "List of supported lipids are: {lipids_supported_str}")
 
     # Slicing only makes sense with a trajectory
     if not options.xtc and (options.begin or options.end):
@@ -220,7 +220,7 @@ def check_def_file(universe, res_name, atoms_name):
 
 
 def check_atom(universe, res_name, atom_name):
-    """Check if 'atom_name' from residue 'res_name' is present in 'universe'.
+    """Check if `atom_name` from residue `res_name` is present in `universe`.
 
     Parameters
     ----------
@@ -241,8 +241,11 @@ def check_atom(universe, res_name, atom_name):
 
 
 def main():
-    """buildH main function."""
+    """
+    Main function of buildH.
 
+    Correspond to the entry point `buildH`.
+    """
     # 1) Parse arguments.
     args, dic_lipid = parse_cli()
 
@@ -266,7 +269,7 @@ def main():
             traj_file = False
         except:
             raise UserWarning("Can't create MDAnalysis universe with file {}"
-                              .format(args.topfile))
+                              .format(args.topfile)) from None
 
 
     # 2) Initialize dic for storing OP.
@@ -312,7 +315,8 @@ def main():
     # calculation. The function fast_build_all_Hs() returns nothing, dic_OP
     # is modified in place.
     if not args.opdbxtc:
-        core.fast_build_all_Hs_calc_OP(universe_woH, begin, end, dic_OP, dic_lipid, dic_Cname2Hnames)
+        core.fast_build_all_Hs_calc_OP(universe_woH, begin, end, dic_OP,
+                                       dic_lipid, dic_Cname2Hnames)
 
 
     # Output to a file.
@@ -325,7 +329,7 @@ def main():
         with open(args.pickle, "wb") as f:
             # Pickle the dic using the highest protocol available.
             pickle.dump(dic_OP, f, pickle.HIGHEST_PROTOCOL)
-            print("Dictionnary pickled and written to {}".format(args.pickle))
+            print("dictionary pickled and written to {}".format(args.pickle))
         #  To unpickle
         #with open("OP.pickle", "rb") as f:
         #    dic_OP = pickle.load(f)

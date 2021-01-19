@@ -67,9 +67,9 @@ def write_OP(fileout, dic_atname2genericname, dic_OP, resname):
     ----------
     fileout: str
         name of the output file
-    dic_atname2genericname: ordered dictionnary
+    dic_atname2genericname: ordered dictionary
         dict of correspondance between generic H names and PDB names.
-    dic_OP : ordered dictionnary
+    dic_OP : ordered dictionary
         Each key of this dict is a couple carbon/H with the OP values as a list.
     resname : str
         lipid residue name taken from the json file.
@@ -124,7 +124,7 @@ def write_OP_alternate(fileout, universe_woH, dic_OP, resname):
         name of the output file
     universe_woH : MDAnalysis universe instance
         This is the universe *without* hydrogen.
-    dic_OP : ordered dictionnary
+    dic_OP : ordered dictionary
         Each key of this dict is a couple carbon/H with the OP values as a list.
     resname : str
         lipid residue name taken from the json file.

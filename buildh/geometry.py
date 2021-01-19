@@ -1,14 +1,11 @@
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """Module for geometric operations."""
-
 
 import numpy as np
 
 
 def normalize(vec):
-    """Normalizes a vector.
+    """
+    Normalize a vector.
 
     Parameters
     ----------
@@ -23,7 +20,8 @@ def normalize(vec):
 
 
 def norm(vec):
-    """Returns the norm of a vector.
+    """
+    Return the norm of a vector.
 
     Parameters
     ----------
@@ -38,9 +36,12 @@ def norm(vec):
 
 
 def calc_angle(atom1, atom2, atom3):
-    """Calculates the valence angle between atom1, atom2 and atom3.
+    """
+    Calculate the valence angle between atom1, atom2 and atom3.
 
-    Note: atom2 is the central atom.
+    Notes
+    -----
+    `atom2` is the central atom.
 
     Parameters
     ----------
@@ -62,7 +63,8 @@ def calc_angle(atom1, atom2, atom3):
 
 
 def vec2quaternion(vec, theta):
-    """Translates a vector of 3 elements and angle theta to a quaternion.
+    """
+    Translate a vector of 3 elements and angle theta to a quaternion.
 
     Parameters
     ----------
@@ -82,7 +84,8 @@ def vec2quaternion(vec, theta):
 
 
 def calc_rotation_matrix(quaternion):
-    """Translates a quaternion to a rotation matrix.
+    """
+    Translate a quaternion to a rotation matrix.
 
     Parameters
     ----------
@@ -111,9 +114,12 @@ def calc_rotation_matrix(quaternion):
 
 
 def apply_rotation(vec_to_rotate, rotation_axis, rad_angle):
-    """Rotates a vector around an axis by a given angle.
+    """
+    Rotate a vector around an axis by a given angle.
 
-    Note: the rotation axis is a vector of 3 elements.
+    Notes
+    -----
+    The rotation axis is a vector of 3 elements.
 
     Parameters
     ----------
@@ -136,11 +142,15 @@ def apply_rotation(vec_to_rotate, rotation_axis, rad_angle):
 
 
 def cross_product(A, B):
-    """Returns the cross product between vectors A & B.
+    """
+    Return the cross product between vectors A & B.
 
     Source: http://hyperphysics.phy-astr.gsu.edu/hbase/vvec.html.
-    Note: on small vectors (i.e. of 3 elements), computing cross products
-          with this functions is faster than np.cross().
+
+    Notes
+    -----
+    On small vectors (i.e. of 3 elements), computing cross products
+    with this functions is faster than `np.cross()`.
 
     Parameters
     ----------
@@ -161,7 +171,8 @@ def cross_product(A, B):
 
 
 def calc_OP(C, H):
-    """Returns the Order Parameter of a CH bond (OP).
+    """
+    Return the Order Parameter of a CH bond (OP).
 
     OP is calculated according to equation:
 

@@ -11,8 +11,8 @@ import MDAnalysis as mda
 
 from buildh import lipids
 
-dir_data = "test_data"
-path_root_data = pathlib.Path(__file__).parent / dir_data
+DIR_DATA = "test_data"
+PATH_ROOT_DATA = pathlib.Path(__file__).parent / DIR_DATA
 
 # Ignore some MDAnalysis warnings for this test file
 pytestmark = pytest.mark.filterwarnings('ignore::UserWarning')
@@ -22,12 +22,12 @@ class TestLipids():
     """Test class for functions in the module lipids.py."""
 
     # path for the Berger POPC files
-    PATH_DATA = path_root_data / "Berger_POPC"
+    PATH_DATA = PATH_ROOT_DATA / "Berger_POPC"
 
     def setup_class(self):
         """Initialize attributes."""
         filenames = ["Berger_POPC.json", "CHARMM_POPC.json"]
-        self.path_files = [path_root_data / f for f in filenames]
+        self.path_files = [PATH_ROOT_DATA / f for f in filenames]
 
         pdb = self.PATH_DATA / "2POPC.pdb"
         self.universe = mda.Universe(str(pdb))
@@ -53,5 +53,5 @@ class TestLipids():
         """Test check_read_lipids_topH() with a file in a wrong format."""
         bad_file = "Berger_wrongformat.json"
         with pytest.raises(UserWarning) as err:
-            lipids.read_lipids_topH([path_root_data / bad_file])
+            lipids.read_lipids_topH([PATH_ROOT_DATA / bad_file])
         assert f"{bad_file} is in a bad format." in str(err.value)

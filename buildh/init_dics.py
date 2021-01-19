@@ -1,6 +1,4 @@
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
-
+"""Module to initialize dictionaries used in the program."""
 import collections
 
 # For debugging.
@@ -9,7 +7,8 @@ DEBUG=False
 
 
 def make_dic_atname2genericname(filename):
-    """Make a dict of correspondance between generic H names and PDB names.
+    """
+    Make a dict of correspondance between generic H names and PDB names.
 
     This dict will look like the following: {('C1', 'H11'): 'gamma1_1', ...}.
     Useful for outputing OP with generic names (such as beta1, beta 2, etc.).
@@ -24,9 +23,9 @@ def make_dic_atname2genericname(filename):
 
     Returns
     -------
-    Ordered dictionnary
+    Ordered dictionary
         Keys are tuples of (C, H) name, values generic name (as described
-        above in this docstring). The use of an ordered dictionnary ensures
+        above in this docstring). The use of an ordered dictionary ensures
         we get always the same order in the output OP.
     """
     dic = collections.OrderedDict()
@@ -45,9 +44,10 @@ def make_dic_atname2genericname(filename):
 
 def init_dic_OP(universe_woH, dic_atname2genericname, resname):
     """
-    Initialize the dictionary of result (dic_op) and
-    the dictionary of correspondance between residue number (resid) and
-    its index in dic_OP (dic_corresp_numres_index_dic_OP)
+    Initialize the dictionary of result (`dic_op`).
+
+    Initialize also the dictionary of correspondance
+    between residue number (resid) and its index in dic_OP (`dic_corresp_numres_index_dic_OP`).
 
     To calculate the error, we need to first average over the
     trajectory, then over residues.
@@ -65,21 +65,20 @@ def init_dic_OP(universe_woH, dic_atname2genericname, resname):
     ----------
     universe_woH : MDAnalysis universe instance
         This is the universe *without* hydrogen.
-    dic_atname2genericname: ordered dictionnary
+    dic_atname2genericname: ordered dictionary
         dict of correspondance between generic H names and PDB names.
     resname: str
         The name of the lipid.
 
     Returns
     -------
-    ordered dictionnary
+    ordered dictionary
         Each key of this dict is a couple carbon/H, and at the beginning it
         contains an empty list.
-    dictionnary
+    dictionary
         contains the correspondance between the residue number and
         its index in dic_op
     """
-
     dic_OP = collections.OrderedDict()
 
 
@@ -105,7 +104,20 @@ def init_dic_OP(universe_woH, dic_atname2genericname, resname):
 
 
 def make_dic_Cname2Hnames(dic_OP):
-    """TODO Complete Docstring.
+    """
+    Initialize a dictionary of hydrogens bound to a carbon.
+
+    Each key is a carbon and the value is a list of hydrogens bound to it.
+
+    Parameters
+    ----------
+    dic_OP : ordered dictionary
+        structure holding the calculated order parameter.
+
+    Returns
+    -------
+    dictionary
+        the constructed dictionary.
     """
     dic = {}
     for Cname, Hname in dic_OP.keys():

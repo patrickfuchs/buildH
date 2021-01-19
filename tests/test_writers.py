@@ -1,12 +1,12 @@
 """
-Unit tests for buildH_calcOP
+Unit tests for buildH_calcOP.
 
-Test functions from module writers
+Test functions from module writers.
 """
 
 import pathlib
-import pytest
 import filecmp
+import pytest
 
 import pandas as pd
 import MDAnalysis as mda
@@ -17,24 +17,15 @@ from buildh import core
 from buildh import writers
 
 
-dir_data = "test_data"
-path_root_data = pathlib.Path(__file__).parent / dir_data
+DIR_DATA = "test_data"
+PATH_ROOT_DATA = pathlib.Path(__file__).parent / DIR_DATA
 
 # Ignore some MDAnalysis warnings for this test file
 pytestmark = pytest.mark.filterwarnings('ignore::UserWarning')
 
 
-@pytest.fixture(scope='class')
-def tmp_dir(tmp_path_factory):
-    """
-    Create a temp directory for the result files
-    """
-    return tmp_path_factory.mktemp("data")
-
-
 def test_pandas2pdb():
-    """ Test for pandasdf2pdb() """
-
+    """Test for pandasdf2pdb()."""
     # Create a dummy dataframe
     rows = [[1, "C1",   "POPC", 1, 34.42, 46.94, 26.31],
             [2, "H211", "POPC", 1,  1.00,  2.00,  3.00]
@@ -49,13 +40,14 @@ def test_pandas2pdb():
 
 
 class TestWriters():
+    """Test class for the writing functions."""
 
     # path for the Berger POPC files
-    PATH_DATA = path_root_data / "Berger_POPC"
+    PATH_DATA = PATH_ROOT_DATA / "Berger_POPC"
 
     # Method called once per class.
     def setup_class(self):
-        """ Initialize all data. """
+        """Initialize all data."""
         lipids_tops = lipids.read_lipids_topH([lipids.PATH_JSON/"Berger_POPC.json"])
 
         # Input parameters
@@ -79,8 +71,14 @@ class TestWriters():
                                        self.dic_OP, self.dic_lipid, self.dic_Cname2Hnames)
 
     def test_write_OP(self, tmpdir):
-        """ Test for write_OP() """
+        """
+        Test for write_OP().
 
+        Parameters
+        ----------
+        tmpdir: function
+            pytest callback which return a unique directory.
+        """
         #Write results of self.dic_OP
         test_file = tmpdir / "test.out"
         writers.write_OP(test_file, self.dic_atname2genericname,
@@ -90,8 +88,14 @@ class TestWriters():
         assert filecmp.cmp(test_file, ref_file)
 
     def test_write_OP_alternate(self, tmpdir):
-        """ Test for write_OP_alternate() """
+        """
+        Test for write_OP_alternate().
 
+        Parameters
+        ----------
+        tmpdir: function
+            pytest callback which return a unique directory.
+        """
         #Write results of self.dic_OP
         test_file = tmpdir / "test.out"
         writers.write_OP_alternate(test_file, self.universe_woH,

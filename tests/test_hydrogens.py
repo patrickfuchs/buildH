@@ -1,23 +1,19 @@
 """
-Unit tests for buildH_calcOP
+Unit tests for buildH_calcOP.
 
 Test functions from module hydrogens
 """
 
 import collections
 import numpy as np
-from numpy.testing import (
-    assert_almost_equal,
-)
+from numpy.testing import assert_almost_equal
 import pytest
 
 from buildh import hydrogens
 
 
 class TestComputeHydrogen:
-    """
-    Test class for the functions which reconstruct hydrogens from atom and helpers
-    """
+    """Test class for the functions which reconstruct hydrogens from atom and helpers."""
 
     # Data tuple for get_CH() test
     Data = collections.namedtuple('Data', ['atom', 'helper1', 'helper2', 'helper3', 'H_coord'])
@@ -46,8 +42,14 @@ class TestComputeHydrogen:
     ])
     def test_get_CH(self, data):
         """
-        Test for get_CH()
-        3 helpers are needed and 1 hydrogen is returned
+        Test for get_CH().
+
+        3 helpers are needed and 1 hydrogen is returned.
+
+        Parameters
+        ----------
+        data: namedtuple
+                structure holding input and reference data.
         """
         assert_almost_equal(hydrogens.get_CH(data.atom, data.helper1, data.helper2, data.helper3),
                             data.H_coord)
@@ -80,15 +82,22 @@ class TestComputeHydrogen:
     ])
     def test_get_CH2(self, data):
         """
-        Test for get_CH2()
-        2 helpers are needed and 2 hydrogens are returned
+        Test for get_CH2().
+
+        2 helpers are needed and 2 hydrogens are returned.
+
+        Parameters
+        ----------
+        data: namedtuple
+                structure holding input and reference data.
         """
         assert_almost_equal(hydrogens.get_CH2(data.atom, data.helper1, data.helper2),
                             (data.H1_coord, data.H2_coord))
 
 
     # Data tuple for get_CH3() test
-    Data = collections.namedtuple('Data', ['atom', 'helper1', 'helper2', 'H1_coord', 'H2_coord', 'H3_coord'])
+    Data = collections.namedtuple('Data', ['atom', 'helper1', 'helper2', 'H1_coord',
+                                           'H2_coord', 'H3_coord'])
 
     @pytest.mark.parametrize('data',[
         (Data(np.array([34.42, 46.94, 26.31], dtype=np.float32),
@@ -118,8 +127,14 @@ class TestComputeHydrogen:
     ])
     def test_get_CH3(self, data):
         """
-        Test for get_CH3()
-        2 helpers are needed and 3 hydrogens are returned
+        Test for get_CH3().
+
+        2 helpers are needed and 3 hydrogens are returned.
+
+        Parameters
+        ----------
+        data: namedtuple
+                structure holding input and reference data.
         """
         assert_almost_equal(hydrogens.get_CH3(data.atom, data.helper1, data.helper2),
                             (data.H1_coord, data.H2_coord, data.H3_coord))
@@ -145,8 +160,14 @@ class TestComputeHydrogen:
     ])
     def test_get_CH_double_bond(self, data):
         """
-        Test for get_CH_double_bond()
-        2 helpers are needed and 1 hydrogen is returned
+        Test for get_CH_double_bond().
+
+        2 helpers are needed and 1 hydrogen is returned.
+
+        Parameters
+        ----------
+        data: namedtuple
+                structure holding input and reference data.
         """
         assert_almost_equal(hydrogens.get_CH_double_bond(data.atom, data.helper1, data.helper2),
                             data.H1_coord)
