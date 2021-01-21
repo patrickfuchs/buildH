@@ -36,20 +36,27 @@ def read_lipids_topH(filenames):
 
     Raises
     ------
-    UserWarning
+    ValueError
         When a file doesn't have a correct format.
     """
     lipids_tops = {}
     for filename in filenames:
         filenam_path = pathlib.Path(filename)
         with open(filenam_path) as json_file:
-            topol = json.load(json_file)
+            try:
+                topol = json.load(json_file)
+            except Exception as e:
+                raise ValueError(f"{filenam_path} is in a bad format.") from e
             # make sure at least 'resname' key exists
             if "resname" not in topol:
-                raise UserWarning(f"{filenam_path} is in a bad format.")
+                raise ValueError(f"{filenam_path} is in a bad format.")
 
             # Retrieve forcefield and lipid name from the filename
-            ff, lipid_name = filenam_path.stem.split("_")
+            try:
+                ff, lipid_name = filenam_path.stem.split("_")
+            except ValueError as e:
+                raise ValueError(f"{filenam_path} has an incorrect name. "
+                                 "It should be Forcefield_LipidName.json") from e
 
             # Generate keys by combining forcefield, the lipid name from the filename
             # and the possibles others lipids names from the json 'resname' attribut.

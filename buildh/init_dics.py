@@ -37,7 +37,7 @@ def make_dic_atname2genericname(filename):
                 name, _, C, H = line.split()
                 dic[(C, H)] = name
     except:
-        raise UserWarning("Can't read order parameter definition in "
+        raise ValueError("Can't read order parameter definition in "
                           "file {}".format(filename))
     return dic
 

@@ -171,7 +171,10 @@ def parse_cli():
     if options.lipid_topology:
         lipids_files = [pathlib.Path(f) for f in options.lipid_topology]
         # Regenerate lipid topologies dictionary
-        lipids_tops = lipids.read_lipids_topH(lipids_files)
+        try:
+            lipids_tops = lipids.read_lipids_topH(lipids_files)
+        except ValueError as e:
+            parser.error(e)
         # Regenerate str list of supported lipids.
         lipids_supported_str = ", ".join(lipids_tops.keys())
 
@@ -272,7 +275,10 @@ def main():
     # 2) Initialize dic for storing OP.
     # Init dic of correspondance : {('C1', 'H11'): 'gamma1_1',
     # {('C1', 'H11'): 'gamma1_1', ...}.
-    dic_atname2genericname = init_dics.make_dic_atname2genericname(args.defop)
+    try:
+        dic_atname2genericname = init_dics.make_dic_atname2genericname(args.defop)
+    except ValueError as e:
+        sys.exit(e)
     # Initialize dic_OP (see function init_dic_OP() for the format).
     dic_OP, dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(universe_woH,
                                                                     dic_atname2genericname,
