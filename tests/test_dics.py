@@ -38,8 +38,7 @@ def inputs():
 
 
 def test_make_dic_atname2genericname(inputs):
-    """
-    Test for make_dic_atname2genericname().
+    """Test for make_dic_atname2genericname().
 
     Parameters
     ----------
@@ -61,8 +60,7 @@ def test_make_dic_atname2genericname(inputs):
 
 
 def test_init_dic_OP(inputs):
-    """
-    Test for init_dic_OP().
+    """Test for init_dic_OP().
 
     Parameters
     ----------
@@ -86,8 +84,7 @@ def test_init_dic_OP(inputs):
 
 
 def test_make_dic_Cname2Hnames(inputs):
-    """
-    Test for make_dic_Cname2Hnames().
+    """Test for make_dic_Cname2Hnames().
 
     Parameters
     ----------

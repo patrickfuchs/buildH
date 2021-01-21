@@ -1,5 +1,7 @@
 **Dev**
 
+- Improve PEP8 & PEP257 compliance
+- Improve test coverage
 - Fix bug when a trajectory was written when only a pdb was provided.
 - Add sanity checks for the various input files
 - Use json files instead of python module to read lipid topologies.

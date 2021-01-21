@@ -4,8 +4,7 @@ import numpy as np
 
 
 def normalize(vec):
-    """
-    Normalize a vector.
+    """Normalize a vector.
 
     Parameters
     ----------
@@ -20,8 +19,7 @@ def normalize(vec):
 
 
 def norm(vec):
-    """
-    Return the norm of a vector.
+    """Return the norm of a vector.
 
     Parameters
     ----------
@@ -36,8 +34,7 @@ def norm(vec):
 
 
 def calc_angle(atom1, atom2, atom3):
-    """
-    Calculate the valence angle between atom1, atom2 and atom3.
+    """Calculate the valence angle between atom1, atom2 and atom3.
 
     Notes
     -----
@@ -63,8 +60,7 @@ def calc_angle(atom1, atom2, atom3):
 
 
 def vec2quaternion(vec, theta):
-    """
-    Translate a vector of 3 elements and angle theta to a quaternion.
+    """Translate a vector of 3 elements and angle theta to a quaternion.
 
     Parameters
     ----------
@@ -84,8 +80,7 @@ def vec2quaternion(vec, theta):
 
 
 def calc_rotation_matrix(quaternion):
-    """
-    Translate a quaternion to a rotation matrix.
+    """Translate a quaternion to a rotation matrix.
 
     Parameters
     ----------
@@ -114,8 +109,7 @@ def calc_rotation_matrix(quaternion):
 
 
 def apply_rotation(vec_to_rotate, rotation_axis, rad_angle):
-    """
-    Rotate a vector around an axis by a given angle.
+    """Rotate a vector around an axis by a given angle.
 
     Notes
     -----
@@ -142,8 +136,7 @@ def apply_rotation(vec_to_rotate, rotation_axis, rad_angle):
 
 
 def cross_product(A, B):
-    """
-    Return the cross product between vectors A & B.
+    """Return the cross product between vectors A & B.
 
     Source: http://hyperphysics.phy-astr.gsu.edu/hbase/vvec.html.
 
@@ -171,8 +164,7 @@ def cross_product(A, B):
 
 
 def calc_OP(C, H):
-    """
-    Return the Order Parameter of a CH bond (OP).
+    """Return the Order Parameter of a CH bond (OP).
 
     OP is calculated according to equation:
 

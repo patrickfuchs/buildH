@@ -71,8 +71,7 @@ class TestWriters():
                                        self.dic_OP, self.dic_lipid, self.dic_Cname2Hnames)
 
     def test_write_OP(self, tmpdir):
-        """
-        Test for write_OP().
+        """Test for write_OP().
 
         Parameters
         ----------
@@ -88,8 +87,7 @@ class TestWriters():
         assert filecmp.cmp(test_file, ref_file)
 
     def test_write_OP_alternate(self, tmpdir):
-        """
-        Test for write_OP_alternate().
+        """Test for write_OP_alternate().
 
         Parameters
         ----------

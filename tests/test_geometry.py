@@ -21,8 +21,7 @@ from buildh import geometry as geom
     (np.array([-1.165698, 1.3688029, -0.6189914]), 1.9014794),
 ])
 def test_norm(vec, result):
-    """
-    Test norm().
+    """Test norm().
 
     Parameters
     ----------
@@ -40,8 +39,7 @@ def test_norm(vec, result):
      ),
 ])
 def test_normalize(vec, result):
-    """
-    Test normalize().
+    """Test normalize().
 
     Parameters
     ----------
@@ -58,8 +56,7 @@ def test_normalize(vec, result):
      np.array([20.4, 39.52, 33.25]), 2.18789998),
 ])
 def test_calc_angle(atom1, atom2, atom3, result):
-    """
-    Test calc_angle().
+    """Test calc_angle().
 
     Parameters
     ----------
@@ -81,8 +78,7 @@ def test_calc_angle(atom1, atom2, atom3, result):
      ),
 ])
 def test_vec2quaternion(vec, theta, result):
-    """
-    Test vec2quaternion().
+    """Test vec2quaternion().
 
     Parameters
     ----------
@@ -104,8 +100,7 @@ def test_vec2quaternion(vec, theta, result):
      ),
 ])
 def test_calc_rotation_matrix(quaternion, result):
-    """
-    Test calc_rotation_matrix().
+    """Test calc_rotation_matrix().
 
     Parameters
     ----------
@@ -125,8 +120,7 @@ def test_calc_rotation_matrix(quaternion, result):
      ),
 ])
 def test_apply_rotation(vec_to_rotate, rotation_axis, rad_angle, result):
-    """
-    Test apply_rotation().
+    """Test apply_rotation().
 
     Parameters
     ----------
@@ -149,8 +143,7 @@ def test_apply_rotation(vec_to_rotate, rotation_axis, rad_angle, result):
      ),
 ])
 def test_cross_product(A, B, result):
-    """
-    Test cross_product().
+    """Test cross_product().
 
     Parameters
     ----------
@@ -171,8 +164,7 @@ def test_cross_product(A, B, result):
      ),
 ])
 def test_calc_OP(C, H, result):
-    """
-    Test calc_OP().
+    """Test calc_OP().
 
     Parameters
     ----------

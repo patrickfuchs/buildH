@@ -66,8 +66,7 @@ def buildHs_on_1C(atom, H_type, helper1, helper2, helper3=None):
 
 
 def build_system_hydrogens(universe_woH, dic_lipid, dic_Cname2Hnames, dic_lipid_indexes):
-    """
-    Build a new system *with* hydrogens.
+    """Build a new system *with* hydrogens.
 
     The function take the MDAnalysis universe *without* hydrogens, reconstruct all hydrogens
     and return a pandas dataframe. This latter will be used later to build a new
@@ -288,8 +287,7 @@ def build_all_Hs_calc_OP(universe_woH, ts, dic_lipid, dic_Cname2Hnames, universe
 ### are much faster.
 ###
 def get_indexes(atom, dic_lipid):
-    """
-    Return the index of helpers for a given carbon.
+    """Return the index of helpers for a given carbon.
 
     Parameters
     ----------
@@ -567,8 +565,7 @@ def fast_build_all_Hs_calc_OP(universe_woH, begin, end,
 def gen_coordinates_calcOP(basename, universe_woH, dic_OP, dic_lipid,
                            dic_Cname2Hnames, dic_corresp_numres_index_dic_OP,
                            begin, end, traj_file):
-    """
-    Generate coordinates files (pdb and/or xtc) with computed hydrogens
+    """Generate coordinates files (pdb and/or xtc) with computed hydrogens
     and compute the order parameter.
 
     If `traj_file` is set to False, only a pdb file will be written.
@@ -651,8 +648,7 @@ def gen_coordinates_calcOP(basename, universe_woH, dic_OP, dic_lipid,
 
 
 def is_allHs_present(def_file, lipids_name, dic_ref_CHnames):
-    """
-    Check if all H's to be rebuild are present in the def file.
+    """Check if all H's to be rebuild are present in the def file.
 
     Parameters
     ----------

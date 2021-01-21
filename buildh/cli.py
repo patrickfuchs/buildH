@@ -241,8 +241,7 @@ def check_atom(universe, res_name, atom_name):
 
 
 def main():
-    """
-    Main function of buildH.
+    """Main function of buildH.
 
     Correspond to the entry point `buildH`.
     """

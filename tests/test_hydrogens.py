@@ -41,8 +41,7 @@ class TestComputeHydrogen:
               np.array([40.62567756, 33.54206805, 25.89195599]))),
     ])
     def test_get_CH(self, data):
-        """
-        Test for get_CH().
+        """Test for get_CH().
 
         3 helpers are needed and 1 hydrogen is returned.
 
@@ -81,8 +80,7 @@ class TestComputeHydrogen:
               np.array([15.29632013, 13.32883868, 40.61928919]))),
     ])
     def test_get_CH2(self, data):
-        """
-        Test for get_CH2().
+        """Test for get_CH2().
 
         2 helpers are needed and 2 hydrogens are returned.
 
@@ -126,8 +124,7 @@ class TestComputeHydrogen:
               np.array([04.38703115, 22.27223366, 21.20737478]))),
     ])
     def test_get_CH3(self, data):
-        """
-        Test for get_CH3().
+        """Test for get_CH3().
 
         2 helpers are needed and 3 hydrogens are returned.
 
@@ -159,8 +156,7 @@ class TestComputeHydrogen:
 
     ])
     def test_get_CH_double_bond(self, data):
-        """
-        Test for get_CH_double_bond().
+        """Test for get_CH_double_bond().
 
         2 helpers are needed and 1 hydrogen is returned.
 

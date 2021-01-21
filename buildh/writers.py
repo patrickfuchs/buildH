@@ -1,9 +1,4 @@
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
-
-"""
-Provide functions to write the Order Parameters into files.
-"""
+"""Provide functions to write the Order Parameters into files."""
 
 import numpy as np
 
@@ -12,7 +7,7 @@ import numpy as np
 DEBUG=False
 
 def pandasdf2pdb(df):
-    """Returns a string in PDB format from a pandas dataframe.
+    """Return a string in PDB format from a pandas dataframe.
 
     Parameters
     ----------
@@ -57,7 +52,7 @@ def pandasdf2pdb(df):
 
 
 def write_OP(fileout, dic_atname2genericname, dic_OP, resname):
-    """ Write the order parameters into a file.
+    """Write the order parameters into a file.
 
     The output style comes from J. Melcr's script from NMRLipids project
     (https://github.com/NMRLipids/MATCH/blob/master/scripts/calcOrderParameters.py)
@@ -112,7 +107,7 @@ def write_OP(fileout, dic_atname2genericname, dic_OP, resname):
 
 
 def write_OP_alternate(fileout, universe_woH, dic_OP, resname):
-    """ Write the order parameters into a file with an alternate style.
+    """Write the order parameters into a file with an alternate style.
 
     This style comes from A. Pineiro's script from NMRLipids project
     (https://github.com/NMRLipids/MATCH/blob/master/scratch/opAAUA_prod.py)

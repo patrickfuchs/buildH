@@ -19,8 +19,7 @@ pytestmark = pytest.mark.filterwarnings('ignore::UserWarning')
 
 
 class TestSlice():
-    """
-    Class for testing the slicing options from check_slice_options().
+    """Class for testing the slicing options from check_slice_options().
 
     This test trajectory contains:
        - 10 frames
@@ -72,8 +71,7 @@ class TestSlice():
         (11000, 12000),
     ])
     def test_wrong_slice(self, begin, end):
-        """
-        Test if the correct exception is raised with wrong values.
+        """Test if the correct exception is raised with wrong values.
 
         Parameters
         ----------

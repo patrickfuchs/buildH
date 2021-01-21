@@ -13,8 +13,7 @@ TETRAHEDRAL_ANGLE = np.arccos(-1/3)
 
 
 def get_CH(atom, helper1, helper2, helper3):
-    """
-    Reconstruct the unique hydrogen of a sp3 carbon.
+    """Reconstruct the unique hydrogen of a sp3 carbon.
 
     Parameters
     ----------
@@ -41,9 +40,9 @@ def get_CH(atom, helper1, helper2, helper3):
     coor_H = LENGTH_CH_BOND * unit_vect_H + atom
     return coor_H
 
+
 def get_CH2(atom, helper1, helper2):
-    """
-    Reconstruct the 2 hydrogens of a sp3 carbon (methylene group).
+    """Reconstruct the 2 hydrogens of a sp3 carbon (methylene group).
 
     Parameters
     ----------
@@ -83,8 +82,7 @@ def get_CH2(atom, helper1, helper2):
 
 
 def get_CH3(atom, helper1, helper2):
-    """
-    Reconstruct the 3 hydrogens of a sp3 carbon (methyl group).
+    """Reconstruct the 3 hydrogens of a sp3 carbon (methyl group).
 
     Parameters
     ----------
@@ -132,8 +130,7 @@ def get_CH3(atom, helper1, helper2):
 
 
 def get_CH_double_bond(atom, helper1, helper2):
-    """
-    Reconstruct the hydrogen of a sp2 carbon.
+    """Reconstruct the hydrogen of a sp2 carbon.
 
     Parameters
     ----------

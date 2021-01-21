@@ -43,8 +43,7 @@ def make_dic_atname2genericname(filename):
 
 
 def init_dic_OP(universe_woH, dic_atname2genericname, resname):
-    """
-    Initialize the dictionary of result (`dic_op`).
+    """Initialize the dictionary of result (`dic_op`).
 
     Initialize also the dictionary of correspondance
     between residue number (resid) and its index in dic_OP (`dic_corresp_numres_index_dic_OP`).
@@ -104,8 +103,7 @@ def init_dic_OP(universe_woH, dic_atname2genericname, resname):
 
 
 def make_dic_Cname2Hnames(dic_OP):
-    """
-    Initialize a dictionary of hydrogens bound to a carbon.
+    """Initialize a dictionary of hydrogens bound to a carbon.
 
     Each key is a carbon and the value is a list of hydrogens bound to it.
 
