@@ -137,7 +137,7 @@ def parse_cli():
                         help="Input trajectory file in xtc format.")
     parser.add_argument("-l", "--lipid", type=str, required=True,
                         help="Residue name of lipid to calculate the OP on (e.g. POPC).")
-    parser.add_argument("-tl", "--lipid_topology", type=isfile, nargs='+',
+    parser.add_argument("-lt", "--lipid_topology", type=isfile, nargs='+',
                         help="User topology lipid json file(s). Mandatory to build hydrogens.")
     parser.add_argument("-d", "--defop", required=True, type=isfile,
                         help="Order parameter definition file. Can be found on "
@@ -167,9 +167,9 @@ def parse_cli():
     if not options.topfile.endswith("pdb") and not options.topfile.endswith("gro"):
         parser.error("Topology must be given in pdb or gro format")
 
-    # Append user lipid topologies to the default ones
+    # Use only the user lipid topologies
     if options.lipid_topology:
-        lipids_files += [pathlib.Path(f) for f in options.lipid_topology]
+        lipids_files = [pathlib.Path(f) for f in options.lipid_topology]
         # Regenerate lipid topologies dictionary
         lipids_tops = lipids.read_lipids_topH(lipids_files)
         # Regenerate str list of supported lipids.
@@ -181,8 +181,8 @@ def parse_cli():
     try:
         lipids_info = lipids_tops[options.lipid]
     except KeyError:
-        parser.error(f"Lipid {options.lipid} is not supported."
-                     "List of supported lipids are: {lipids_supported_str}")
+        parser.error(f"Lipid {options.lipid} is not supported. "
+                     f"List of supported lipids are: {lipids_supported_str}")
 
     # Slicing only makes sense with a trajectory
     if not options.xtc and (options.begin or options.end):
@@ -288,7 +288,7 @@ def main():
 
     # Check if the lipid topology match the the structure.
     if not lipids.check_topology(universe_woH, dic_lipid):
-        sys.exit(f"The topology chosen does not match the structure provided {args.topfile}")
+        sys.exit(f"The topology chosen does not match the structure provided in {args.topfile}")
 
     # Check if atoms name in the def file are present in the structure.
     atoms_name = [heavy_atom for (heavy_atom, _) in dic_atname2genericname.keys()]
