@@ -256,10 +256,9 @@ def main():
             begin, end = check_slice_options(universe_woH, args.begin, args.end)
             traj_file = True
         except IndexError:
-            raise UserWarning("Slicing options are not correct.") from None
+            sys.exit("Slicing options are not correct.")
         except:
-            raise UserWarning("Can't create MDAnalysis universe with files {} "
-                              "and {}".format(args.topfile, args.xtc)) from None
+            sys.exit(f"Can't create MDAnalysis universe with files {args.topfile} and {args.xtc}.")
     else:
         try:
             universe_woH = mda.Universe(args.topfile)
@@ -267,8 +266,7 @@ def main():
             end = 1
             traj_file = False
         except:
-            raise UserWarning("Can't create MDAnalysis universe with file {}"
-                              .format(args.topfile)) from None
+            sys.exit(f"Can't create MDAnalysis universe with file {args.topfile}.")
 
 
     # 2) Initialize dic for storing OP.
@@ -308,7 +306,8 @@ def main():
                                         dic_Cname2Hnames, dic_corresp_numres_index_dic_OP,
                                         begin, end, traj_file)
         else:
-            raise UserWarning("Error on the number of H's to rebuild.")
+            sys.exit(f"Error on the number of H's to rebuild. An output trajectory has been "
+                     f"requestest but {args.defop} doesn't contain all hydrogens to rebuild.")
 
     # 6) If no traj output file requested, use fast indexing to speed up OP
     # calculation. The function fast_build_all_Hs() returns nothing, dic_OP
