@@ -11,8 +11,8 @@ import MDAnalysis as mda
 
 from buildh import cli
 
-dir_data = "test_data"
-path_root_data = pathlib.Path(__file__).parent / dir_data
+DIR_DATA = "test_data"
+PATH_ROOT_DATA = pathlib.Path(__file__).parent / DIR_DATA
 
 # Ignore some MDAnalysis warnings for this test file
 pytestmark = pytest.mark.filterwarnings('ignore::UserWarning')
@@ -25,10 +25,12 @@ class TestSlice():
        - 10 frames
        - from 0 to 10000 ps
     """
+
     # path for the Berger POPC files
-    PATH_DATA = path_root_data / "Berger_POPC"
+    PATH_DATA = PATH_ROOT_DATA / "Berger_POPC"
 
     def setup_class(self):
+        """Initialize attributes."""
         pdb = self.PATH_DATA / "2POPC.pdb"
         xtc = self.PATH_DATA / "2POPC.xtc"
 
@@ -69,8 +71,7 @@ class TestSlice():
         (11000, 12000),
     ])
     def test_wrong_slice(self, begin, end):
-        """
-        Test if the correct exception is raised with wrong values.
+        """Test if the correct exception is raised with wrong values.
 
         Parameters
         ----------
@@ -80,7 +81,7 @@ class TestSlice():
             the last frame to read (in ps).
         """
         with pytest.raises(IndexError) as err:
-             cli.check_slice_options(self.universe, first_frame=begin, last_frame=end)
+            cli.check_slice_options(self.universe, first_frame=begin, last_frame=end)
         assert "Incorrect slice options" in str(err.value)
 
 
@@ -88,7 +89,7 @@ class TestChecksAtoms():
     """Class for testing the 2 functions `check_def_file()` and `check_atom()`."""
 
     # path for the Berger POPC files
-    PATH_DATA = path_root_data / "Berger_POPC"
+    PATH_DATA = PATH_ROOT_DATA / "Berger_POPC"
 
     def setup_class(self):
         """Initialize attributes."""

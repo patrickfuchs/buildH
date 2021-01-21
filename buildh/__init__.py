@@ -24,7 +24,7 @@ Note2: sometimes numpy is slow on small arrays, thus we wrote a few "in-house"
 functions for vectorial operations (e.g. cross product).
 """
 
-__authors__ = ("Patrick Fuchs", "Amélie Bâcle", 
+__authors__ = ("Patrick Fuchs", "Amélie Bâcle",
                "Hubert Santuz", "Pierre Poulain")
 __email__ = "patrick.fuchs@u-paris.fr"
 __version__ = "1.1.0"
