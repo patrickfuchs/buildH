@@ -111,11 +111,13 @@ def check_def_file(universe, res_name, atoms_name):
     Bool
         True if all atoms are found in the structure. False otherwise.
     """
-    for atom_name in atoms_name:
-        if not check_atom(universe, res_name, atom_name):
-            print(f"Atom {atom_name} of residue {res_name} from definition "
-                  "file is not found in your system.")
-            return False
+    # get all atom names of the res_name in the system
+    all_names = set(universe.select_atoms(f"resname {res_name}").names)
+    if not set(atoms_name).issubset(all_names):
+        miss_atoms = ",".join(set(atoms_name) - all_names)
+        print(f"Some atoms ({miss_atoms}) of residue {res_name} from definition "
+                "file are not found in your system.")
+        return False
 
     return True
 
@@ -143,7 +145,8 @@ def check_def_topol_consistency(dic_Cname2Hnames, lipid_top):
     # Check if carbons in dic_Cname2Hnames keys are all present in the lipid
     # topology.
     if not set(dic_Cname2Hnames.keys()).issubset(lipid_top.keys()):
-        print(f"Some carbons from the definition file are not"
+        miss_atoms = ",".join(set(dic_Cname2Hnames.keys()) - set(lipid_top.keys()))
+        print(f"Some carbons ({miss_atoms}) from the definition file are not"
               "present in the topology chosen.")
         return False
 

@@ -100,9 +100,11 @@ def check_topology(universe, lipid_top):
 
     # Remove first key 'resname'
     carbon_atoms = list(lipid_top.keys())[1::]
-    for atom_name in carbon_atoms:
-        if len(universe.select_atoms(f"resname {resname} and name {atom_name}")) == 0:
-            print(f"Atom {atom_name} from topology is not found in your system.")
-            return False
+    #retrieve all atom names in the system
+    all_names = set(universe.select_atoms(f"resname {resname}").names)
+    if not set(carbon_atoms).issubset(all_names):
+        miss_atoms = ",".join(set(carbon_atoms) - all_names)
+        print(f"Some atoms ({miss_atoms}) from topology are not found in your system.")
+        return False
 
     return True

@@ -123,8 +123,8 @@ class TestChecksAtoms():
 
     @pytest.mark.parametrize('resname, names, result, out', [
         ("POPC",["C1", "C38", "C5"], True, ""),
-        ("POPC",["C1", "C38", "C310"], False, "Atom C310 of residue POPC"),
-        ("POPC",["C211", "C38", "C5"], False, "Atom C211 of residue POPC"),
+        ("POPC",["C1", "C38", "C310"], False, "Some atoms (C310) of residue POPC"),
+        ("POPC",["C211", "C38", "C5"], False, "Some atoms (C211) of residue POPC"),
     ])
     def test_def_file(self, capfd, resname, names, result, out):
         """Test check_def_file().
@@ -219,7 +219,7 @@ class TestDef:
 
 
     @pytest.mark.parametrize('def_file, result, out', [
-        ("op_wrong1.def", False, "Some carbons from the"),
+        ("op_wrong1.def", False, "Some carbons (C523) from the"),
         ("op_wrong2.def", False, "Carbon C2 from the definition file"),
     ])
     def test_check_def_top_bad(self, capfd, def_file, result, out):
