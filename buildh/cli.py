@@ -12,6 +12,7 @@ from . import lipids
 from . import init_dics
 from . import core
 from . import writers
+from . import utils
 
 # For debugging.
 DEBUG = False
@@ -42,75 +43,6 @@ def isfile(path):
             msg = f"{source} does not exist."
         raise argparse.ArgumentTypeError(msg)
     return path
-
-
-def check_slice_options(system, first_frame=None, last_frame=None):
-    """Verify the slicing options and return a range of frames in MDAnalysis.
-
-    This function check whether the first frame and the last frame are consistent
-    within themselves (`first_frame` cant be superior to `last_frame`) and
-    with the trajectory supplied (if the trajectory starts at 1000ps, `first_frame`
-    cant be equal to 0 for example).
-    Then, the function translate the range from picosecond-time to the number of frame
-    in MDanalysis.
-
-    Parameters
-    ----------
-    system : MDAnalysis universe instance
-        This is the universe *without* hydrogen.
-    first_frame : int
-        the first frame to read (in ps)
-    last_frame : int
-        the last frame to read (in ps)
-
-    Return
-    ------
-    tuple of int
-        The number of first and last frame
-
-    Raises
-    ------
-    IndexError
-        When the slicing options are out of range.
-    """
-    # From the trajectory, get the time of the first and last frame
-    traj_first_frame = int(system.trajectory.time)
-    traj_last_frame = int(system.trajectory.time +
-                          system.trajectory.dt * (system.trajectory.n_frames - 1))
-
-    # If no bound is given, take the full trajectory
-    if not first_frame and not last_frame:
-        return (0, system.trajectory.n_frames)
-
-    # If only one bound is given
-    if not first_frame:
-        first_frame = traj_first_frame
-    if not last_frame:
-        last_frame = traj_last_frame
-
-
-    # Check abnormal range
-    if first_frame < 0 or last_frame < 0:
-        raise IndexError("Incorrect slice options.")
-    if first_frame > last_frame:
-        raise  IndexError("Incorrect slice options")
-
-    # Check if the range fits into the range of the trajectory
-    if first_frame < traj_first_frame or last_frame < traj_first_frame:
-        raise  IndexError("Incorrect slice options")
-    if first_frame > traj_last_frame or last_frame > traj_last_frame:
-        raise  IndexError("Incorrect slice options")
-
-    # Translate the time range into a number range.
-    # Find the index of element in the list of frames (in ps) which has the minimum distance
-    # from the first or last frame (in ps) given.
-    frames = np.arange(traj_first_frame, traj_last_frame + 1, int(system.trajectory.dt))
-    number_first_frame = (np.abs(frames - first_frame)).argmin()
-    number_last_frame  = (np.abs(frames -  last_frame)).argmin()
-    # Include last frame into account for slicing by adding 1
-    number_last_frame = number_last_frame + 1
-
-    return (number_first_frame, number_last_frame)
 
 
 def parse_cli():
@@ -194,97 +126,6 @@ def parse_cli():
     return options, lipids_info
 
 
-def check_def_file(universe, res_name, atoms_name):
-    """Check if atoms from the definition file are present in the structure in `universe`.
-
-    This function return false if there is one missing in the structure.
-    Print also an error message.
-
-    Parameters
-    ----------
-    universe : MDAnalysis universe instance
-    res_name : str
-        lipid residue name
-    atoms_name : list of str
-        list of atom names
-
-    Returns
-    -------
-    Bool
-        True if all atoms are found in the structure. False otherwise.
-    """
-    for atom_name in atoms_name:
-        if not check_atom(universe, res_name, atom_name):
-            print(f"Atom {atom_name} of residue {res_name} from definition "
-                  "file is not found in your system.")
-            return False
-
-    return True
-
-
-def check_atom(universe, res_name, atom_name):
-    """Check if `atom_name` from residue `res_name` is present in `universe`.
-
-    Parameters
-    ----------
-    universe : MDAnalysis universe instance
-    res_name : str
-        residue name
-    atom_name : str
-        atom name
-
-    Returns
-    -------
-    Bool
-        True if the atom is present. False otherwise.
-    """
-    if len(universe.select_atoms(f"resname {res_name} and name {atom_name}")) == 0:
-        return False
-    return True
-
-
-def check_def_topol_consistency(dic_Cname2Hnames, lipid_top):
-    """Check the consistency between the lipid topology and the def file.
-
-    Ensure that the carbons in the def file are present in the topology.
-    Ensure that all hydrogens of a given carbon as described in the
-    topology are present in the def file.
-
-    Parameters
-    ----------
-    dic_Cname2Hnames : dict
-        This dict gives the correspondance Cname -> Hname. It is a dict of
-        tuples extracted from the def file.
-    lipid_top : dict
-        lipid topology for hydrogen.
-
-    Returns
-    -------
-    Bool
-        True is it's coherent. False otherwise.
-    """
-    # Check if carbons in dic_Cname2Hnames keys are all present in the lipid
-    # topology.
-    if not set(dic_Cname2Hnames.keys()).issubset(lipid_top.keys()):
-        print(f"Some carbons from the definition file are not"
-              "present in the topology chosen.")
-        return False
-
-    # For each carbon in topology, make sure all hydrogens attached
-    # are in the def file
-    nb_Hs_expected = {'CH3': 3, 'CH2': 2, 'CH': 1, 'CHdoublebond': 1}
-    for carbon, values in lipid_top.items():
-        if carbon != "resname":
-            H_type = values[0]
-            nb_Hs_topol = nb_Hs_expected[H_type]
-            nb_Hs_def = len(dic_Cname2Hnames[carbon])
-            if nb_Hs_def != nb_Hs_topol:
-                print(f"Carbon {carbon} from the definition file should contains "
-                      f"{nb_Hs_topol} hydrogen(s), found {nb_Hs_def}.")
-                return False
-    return True
-
-
 def main():
     """Main function of buildH.
 
@@ -298,7 +139,7 @@ def main():
     if args.xtc:
         try:
             universe_woH = mda.Universe(args.topfile, args.xtc)
-            begin, end = check_slice_options(universe_woH, args.begin, args.end)
+            begin, end = utils.check_slice_options(universe_woH, args.begin, args.end)
             traj_file = True
         except IndexError:
             sys.exit("Slicing options are not correct.")
@@ -338,11 +179,11 @@ def main():
 
     # Check if atoms name in the def file are present in the structure.
     atoms_name = [heavy_atom for (heavy_atom, _) in dic_atname2genericname.keys()]
-    if not check_def_file(universe_woH, dic_lipid['resname'], atoms_name):
+    if not utils.check_def_file(universe_woH, dic_lipid['resname'], atoms_name):
         sys.exit(f"Atoms defined in {args.defop} are missing in the structure {args.topfile}.")
 
     # Check the def file and the topology are coherent.
-    if not check_def_topol_consistency(dic_Cname2Hnames, dic_lipid):
+    if not utils.check_def_topol_consistency(dic_Cname2Hnames, dic_lipid):
         sys.exit(f"Atoms defined in {args.defop} are not consistent with topology chosen.")
 
 
@@ -353,7 +194,7 @@ def main():
     #  with arg -d) needs to contain all possible C-H pairs !!!
     if args.opdbxtc:
 
-        if core.is_allHs_present(args.defop, dic_lipid, dic_Cname2Hnames):
+        if utils.is_allHs_present(args.defop, dic_lipid, dic_Cname2Hnames):
             core.gen_coordinates_calcOP(args.opdbxtc, universe_woH, dic_OP, dic_lipid,
                                         dic_Cname2Hnames, dic_corresp_numres_index_dic_OP,
                                         begin, end, traj_file)
