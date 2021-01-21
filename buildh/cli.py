@@ -243,6 +243,48 @@ def check_atom(universe, res_name, atom_name):
     return True
 
 
+def check_def_topol_consistency(dic_Cname2Hnames, lipid_top):
+    """Check the consistency between the lipid topology and the def file.
+
+    Ensure that the carbons in the def file are present in the topology.
+    Ensure that all hydrogens of a given carbon as described in the
+    topology are present in the def file.
+
+    Parameters
+    ----------
+    dic_Cname2Hnames : dict
+        This dict gives the correspondance Cname -> Hname. It is a dict of
+        tuples extracted from the def file.
+    lipid_top : dict
+        lipid topology for hydrogen.
+
+    Returns
+    -------
+    Bool
+        True is it's coherent. False otherwise.
+    """
+    # Check if carbons in dic_Cname2Hnames keys are all present in the lipid
+    # topology.
+    if not set(dic_Cname2Hnames.keys()).issubset(lipid_top.keys()):
+        print(f"Some carbons from the definition file are not"
+              "present in the topology chosen.")
+        return False
+
+    # For each carbon in topology, make sure all hydrogens attached
+    # are in the def file
+    nb_Hs_expected = {'CH3': 3, 'CH2': 2, 'CH': 1, 'CHdoublebond': 1}
+    for carbon, values in lipid_top.items():
+        if carbon != "resname":
+            H_type = values[0]
+            nb_Hs_topol = nb_Hs_expected[H_type]
+            nb_Hs_def = len(dic_Cname2Hnames[carbon])
+            if nb_Hs_def != nb_Hs_topol:
+                print(f"Carbon {carbon} from the definition file should contains "
+                      f"{nb_Hs_topol} hydrogen(s), found {nb_Hs_def}.")
+                return False
+    return True
+
+
 def main():
     """Main function of buildH.
 
@@ -298,6 +340,10 @@ def main():
     atoms_name = [heavy_atom for (heavy_atom, _) in dic_atname2genericname.keys()]
     if not check_def_file(universe_woH, dic_lipid['resname'], atoms_name):
         sys.exit(f"Atoms defined in {args.defop} are missing in the structure {args.topfile}.")
+
+    # Check the def file and the topology are coherent.
+    if not check_def_topol_consistency(dic_Cname2Hnames, dic_lipid):
+        sys.exit(f"Atoms defined in {args.defop} are not consistent with topology chosen.")
 
 
     print("System has {} atoms".format(len(universe_woH.coord)))
