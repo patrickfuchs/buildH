@@ -63,10 +63,10 @@ def parse_cli():
     parser = argparse.ArgumentParser(description=message,
                                      epilog=epilog)
     # Avoid tpr for topology cause there's no .coord there!
-    parser.add_argument("topfile", type=isfile,
-                        help="Topology file (pdb or gro).")
-    parser.add_argument("-x", "--xtc", type=isfile,
-                        help="Input trajectory file in xtc format.")
+    parser.add_argument("-c", "--coord", type=isfile, required=True,
+                        help="Coordinate file (pdb or gro).")
+    parser.add_argument("-t", "--traj", type=isfile,
+                        help="Input trajectory file. Could be in XTC, TRR or DCD format.")
     parser.add_argument("-l", "--lipid", type=str, required=True,
                         help="Residue name of lipid to calculate the OP on (e.g. POPC).")
     parser.add_argument("-lt", "--lipid_topology", type=isfile, nargs='+',
@@ -93,11 +93,10 @@ def parse_cli():
                         "the value of each lipid and each frame as a matric")
     options = parser.parse_args()
 
-    # Top file is "options.topfile", xtc file is "options.xtc", pdb output file is
-    # "options.pdbout", xtc output file is "options.xtcout".
+
     # Check topology file extension.
-    if not options.topfile.endswith("pdb") and not options.topfile.endswith("gro"):
-        parser.error("Topology must be given in pdb or gro format")
+    if not options.coord.endswith("pdb") and not options.coord.endswith("gro"):
+        parser.error("Coordinates file must be given in .pdb or .gro format.")
 
     # Use only the user lipid topologies
     if options.lipid_topology:
@@ -120,7 +119,7 @@ def parse_cli():
                      f"List of supported lipids are: {lipids_supported_str}")
 
     # Slicing only makes sense with a trajectory
-    if not options.xtc and (options.begin or options.end):
+    if not options.traj and (options.begin or options.end):
         parser.error("Slicing is only possible with a trajectory file.")
 
     return options, lipids_info
@@ -136,23 +135,23 @@ def main():
 
     # 2) Create universe without H.
     print("Constructing the system...")
-    if args.xtc:
+    if args.traj:
         try:
-            universe_woH = mda.Universe(args.topfile, args.xtc)
+            universe_woH = mda.Universe(args.coord, args.traj)
             begin, end = utils.check_slice_options(universe_woH, args.begin, args.end)
             traj_file = True
         except IndexError:
             sys.exit("Slicing options are not correct.")
         except:
-            sys.exit(f"Can't create MDAnalysis universe with files {args.topfile} and {args.xtc}.")
+            sys.exit(f"Can't create MDAnalysis universe with files {args.coord} and {args.traj}.")
     else:
         try:
-            universe_woH = mda.Universe(args.topfile)
+            universe_woH = mda.Universe(args.coord)
             begin = 0
             end = 1
             traj_file = False
         except:
-            sys.exit(f"Can't create MDAnalysis universe with file {args.topfile}.")
+            sys.exit(f"Can't create MDAnalysis universe with file {args.coord}.")
 
 
     # 2) Initialize dic for storing OP.
@@ -175,12 +174,12 @@ def main():
 
     # Check if the lipid topology match the the structure.
     if not lipids.check_topology(universe_woH, dic_lipid):
-        sys.exit(f"The topology chosen does not match the structure provided in {args.topfile}")
+        sys.exit(f"The topology chosen does not match the structure provided in {args.coord}")
 
     # Check if atoms name in the def file are present in the structure.
     atoms_name = [heavy_atom for (heavy_atom, _) in dic_atname2genericname.keys()]
     if not utils.check_def_file(universe_woH, dic_lipid['resname'], atoms_name):
-        sys.exit(f"Atoms defined in {args.defop} are missing in the structure {args.topfile}.")
+        sys.exit(f"Atoms defined in {args.defop} are missing in the structure {args.coord}.")
 
     # Check the def file and the topology are coherent.
     if not utils.check_def_topol_consistency(dic_Cname2Hnames, dic_lipid):

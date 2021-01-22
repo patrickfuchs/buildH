@@ -1,4 +1,4 @@
-"""Module for various che"""
+"""Module for various control functions."""
 
 import numpy as np
 

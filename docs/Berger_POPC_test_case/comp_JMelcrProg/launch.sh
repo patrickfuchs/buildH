@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Launch buildH to reconstruct traj w Hs.
-buildH ../start_128popc.pdb -l Berger_POPC \
+buildH -c ../start_128popc.pdb -l Berger_POPC \
        -d ../order_parameter_definitions_MODEL_Berger_POPC.def \
-       -x ../popc0-25ns_dt1000.xtc -opx popc0-25ns_dt1000_H
+       -t ../popc0-25ns_dt1000.xtc -opx popc0-25ns_dt1000_H
 
 # Rename file.
 mv popc0-25ns_dt1000_H.pdb start_128popc_H.pdb

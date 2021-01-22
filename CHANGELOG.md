@@ -1,5 +1,7 @@
 **Dev**
 
+- Rename '-x/--xtc' flag to -t/--traj' one to be more generic
+- Replace mandatory topology argument to '-c/--coord' flag
 - Improve performance of control functions.
 - Move misc functions to a module utils.py
 - Improve Exception handling & add proper exits

@@ -1,9 +1,9 @@
 # buildH
 
-[![License: BSD](https://img.shields.io/badge/License-BSD-blue.svg)](https://opensource.org/licenses/BSD-3-Clause) 
+[![License: BSD](https://img.shields.io/badge/License-BSD-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/patrickfuchs/buildH/master?urlpath=lab)
 
-> Build hydrogens from a united-atom MD of lipids and calculate the order parameter. 
+> Build hydrogens from a united-atom MD of lipids and calculate the order parameter.
 
 ## Motivation
 
@@ -65,9 +65,8 @@ $ pip install -e .
 
 ```
 $ buildH
-usage: buildH [-h] [-x XTC] -l LIPID -d DEFOP [-opx OPDBXTC] [-o OUT] [-b BEGIN]
-              [-e END] [-pi PICKLE]
-              topfile
+usage: buildH [-h] -c COORD [-t TRAJ] -l LIPID [-lt LIPID_TOPOLOGY [LIPID_TOPOLOGY ...]]
+               -d DEFOP [-opx OPDBXTC] [-o OUT] [-b BEGIN] [-e END] [-pi PICKLE]
 
 This program builds hydrogens and calculate the order parameters (OP) from a
 united-atom trajectory. If -opx is requested, pdb and xtc output files with
@@ -75,15 +74,16 @@ hydrogens are created but OP calculation will be slow. If no trajectory output
 is requested (no use of flag -opx), it uses a fast procedure to build
 hydrogens and calculate the OP.
 
-positional arguments:
-  topfile               Topology file (pdb or gro).
-
 optional arguments:
   -h, --help            show this help message and exit
-  -x XTC, --xtc XTC     Input trajectory file in xtc format.
+  -c COORD, --coord COORD
+                        Coordinate file (pdb or gro).
+  -t TRAJ, --traj TRAJ  Input trajectory file. Could be in XTC, TRR or DCD format.
   -l LIPID, --lipid LIPID
                         Residue name of lipid to calculate the OP on (e.g.
                         POPC).
+  -lt LIPID_TOPOLOGY [LIPID_TOPOLOGY ...], --lipid_topology LIPID_TOPOLOGY [LIPID_TOPOLOGY ...]
+                        User topology lipid json file(s). Mandatory to build hydrogens.
   -d DEFOP, --defop DEFOP
                         Order parameter definition file. Can be found on
                         NMRlipids MATCH repository:https://github.com/NMRLipid
@@ -96,11 +96,18 @@ optional arguments:
   -o OUT, --out OUT     Output base name for storing order parameters.
                         Extention ".out" will be automatically added. Default
                         name is OP_buildH.out.
+  -b BEGIN, --begin BEGIN
+                        The first frame (ps) to read from the trajectory.
+  -e END, --end END     The last frame (ps) to read from the trajectory.
+  -pi PICKLE, --pickle PICKLE
+                        Output pickle filename. The structure pickled is a dictonnary containing for each Order parameter,
+                        the value of each lipid and each frame as a matric
+
+The list of supported lipids (-l option) are: CHARMM_POPC, Berger_POPC, Berger_PLA, Berger_POP.
 ```
 
-The program needs two mandatory files (present in this repo):
-- `dic_lipids.py` (option `-l`, present in this repo) ;
-- `order_parameter_definitions_MODEL_Berger_POPC.def` (option `-d`, present in this repo).
+The program needs one mandatory file (present in this repo):
+- `order_parameter_definitions_MODEL_Berger_POPC.def` (option `-d`).
 
 ## Further documentation
 
