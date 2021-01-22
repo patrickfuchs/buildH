@@ -52,6 +52,6 @@ class TestLipids():
     def test_check_read_lipids_topH_failure(self):
         """Test check_read_lipids_topH() with a file in a wrong format."""
         bad_file = "Berger_wrongformat.json"
-        with pytest.raises(UserWarning) as err:
+        with pytest.raises(ValueError) as err:
             lipids.read_lipids_topH([PATH_ROOT_DATA / bad_file])
         assert f"{bad_file} is in a bad format." in str(err.value)

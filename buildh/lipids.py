@@ -36,20 +36,27 @@ def read_lipids_topH(filenames):
 
     Raises
     ------
-    UserWarning
+    ValueError
         When a file doesn't have a correct format.
     """
     lipids_tops = {}
     for filename in filenames:
         filenam_path = pathlib.Path(filename)
         with open(filenam_path) as json_file:
-            topol = json.load(json_file)
+            try:
+                topol = json.load(json_file)
+            except Exception as e:
+                raise ValueError(f"{filenam_path} is in a bad format.") from e
             # make sure at least 'resname' key exists
             if "resname" not in topol:
-                raise UserWarning(f"{filenam_path} is in a bad format.")
+                raise ValueError(f"{filenam_path} is in a bad format.")
 
             # Retrieve forcefield and lipid name from the filename
-            ff, lipid_name = filenam_path.stem.split("_")
+            try:
+                ff, lipid_name = filenam_path.stem.split("_")
+            except ValueError as e:
+                raise ValueError(f"{filenam_path} has an incorrect name. "
+                                 "It should be Forcefield_LipidName.json") from e
 
             # Generate keys by combining forcefield, the lipid name from the filename
             # and the possibles others lipids names from the json 'resname' attribut.
@@ -93,9 +100,11 @@ def check_topology(universe, lipid_top):
 
     # Remove first key 'resname'
     carbon_atoms = list(lipid_top.keys())[1::]
-    for atom_name in carbon_atoms:
-        if len(universe.select_atoms(f"resname {resname} and name {atom_name}")) == 0:
-            print(f"Atom {atom_name} from topology is not found in your system.")
-            return False
+    #retrieve all atom names in the system
+    all_names = set(universe.select_atoms(f"resname {resname}").names)
+    if not set(carbon_atoms).issubset(all_names):
+        miss_atoms = ",".join(set(carbon_atoms) - all_names)
+        print(f"Some atoms ({miss_atoms}) from topology are not found in your system.")
+        return False
 
     return True

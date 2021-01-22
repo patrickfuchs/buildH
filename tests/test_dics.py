@@ -54,7 +54,7 @@ def test_make_dic_atname2genericname(inputs):
     assert dic[('CA2', 'HA23')] == 'oleoyl_C18c'
 
     # Test non existent file
-    with pytest.raises(UserWarning) as err:
+    with pytest.raises(ValueError) as err:
         init_dics.make_dic_atname2genericname("none")
     assert "Can't read order parameter" in str(err.value)
 

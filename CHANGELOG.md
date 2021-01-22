@@ -1,5 +1,10 @@
 **Dev**
 
+- Rename '-x/--xtc' flag to -t/--traj' one to be more generic
+- Replace mandatory topology argument to '-c/--coord' flag
+- Improve performance of control functions.
+- Move misc functions to a module utils.py
+- Improve Exception handling & add proper exits
 - Improve PEP8 & PEP257 compliance
 - Improve test coverage
 - Fix bug when a trajectory was written when only a pdb was provided.
