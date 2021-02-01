@@ -18,4 +18,11 @@ dependencies:
   - bump2version
   - pip:
     - -r file:../requirements.txt
+  - sphinx
+  - nbsphinx
+  - sphinx_rtd_theme
+  - pip:
+    - nbsphinx-link
+    - recommonmark
+    - sphinx-git
  
