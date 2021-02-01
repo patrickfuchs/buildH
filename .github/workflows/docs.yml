@@ -25,6 +25,10 @@ jobs:
       run: |
           conda info
           printenv | sort
+    - name: Install buildh
+      shell: bash -l {0}
+      run: |
+        python -m pip install -e .
     - name: Build documentation
       shell: bash -l {0}
       run: |
