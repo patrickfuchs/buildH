@@ -21,7 +21,7 @@ jobs:
         auto-activate-base: false
     - run: |
           conda info
-          conda list
     - name: Build documentation
       run: |
+        conda activate buildh
         make docs
