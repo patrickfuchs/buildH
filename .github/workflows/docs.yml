@@ -11,6 +11,7 @@ jobs:
         python-version: [3.7, 3.8]
   
     steps:
+    # https://github.com/marketplace/actions/setup-miniconda
     - uses: actions/checkout@v2
     - name: Install Miniconda and env
       uses: conda-incubator/setup-miniconda@v2
@@ -19,9 +20,12 @@ jobs:
         environment-file: binder/environment.yml
         python-version: ${{ matrix.python-version }}
         auto-activate-base: true
-    - run: |
+    - shell: bash -l {0}
+       run: |
           conda info
+          printenv | sort
     - name: Build documentation
+      shell: bash -l {0}
       run: |
         conda activate buildh
         make docs
