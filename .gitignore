@@ -9,6 +9,9 @@ buildh.egg-info/
 .vscode
 *.code-workspace
 
+# documentation
+docs/_build/
+
 #Project
 *.npz
 /*.out
