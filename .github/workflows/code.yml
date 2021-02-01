@@ -1,4 +1,4 @@
-name: BuildH
+name: GitHub CI code
 
 on: [push, pull_request]
 
