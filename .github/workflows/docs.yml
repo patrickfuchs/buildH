@@ -13,15 +13,16 @@ jobs:
     steps:
     # https://github.com/marketplace/actions/setup-miniconda
     - uses: actions/checkout@v2
-    - name: Install Miniconda and env
+    - name: Install Miniconda and environment
       uses: conda-incubator/setup-miniconda@v2
       with:
         activate-environment: buildh
         environment-file: binder/environment.yml
         python-version: ${{ matrix.python-version }}
         auto-activate-base: true
-    - shell: bash -l {0}
-       run: |
+    - name: Print conda info
+      shell: bash -l {0}
+      run: |
           conda info
           printenv | sort
     - name: Build documentation
