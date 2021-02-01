@@ -7,17 +7,23 @@ channels:
   - bioconda
   - conda-forge
 dependencies:
-  - python=3.8
+  # BuildH dependencies
   - pip
+  - pip:
+    - -r file:../requirements.txt
+  # Jupyter lab and visualisation
   - matplotlib
   - jupyterlab
+  # Tests
   - pytest
+  # Lint
   - pylint
   - pycodestyle
   - pydocstyle
+  # Packaging
+  - twine
   - bump2version
-  - pip:
-    - -r file:../requirements.txt
+  # Documentation
   - sphinx
   - nbsphinx
   - sphinx_rtd_theme
