@@ -160,8 +160,7 @@ def build_system_hydrogens(universe_woH, dic_lipid, dic_Cname2Hnames, dic_lipid_
 ###
 def build_all_Hs_calc_OP(universe_woH, ts, dic_lipid, dic_Cname2Hnames, universe_wH, dic_OP,
                          dic_corresp_numres_index_dic_OP, dic_lipid_indexes):
-    """Main function that builds all hydrogens and calculates order parameters
-    for one frame.
+    """Build all hydrogens and calculates order parameters for one frame.
 
     This function loop overs *all* atoms of the universe_woH in order to update
     the atom coordinates and the new H built into the universe_wH.
