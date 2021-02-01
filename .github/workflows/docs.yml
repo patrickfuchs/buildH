@@ -18,7 +18,7 @@ jobs:
         activate-environment: buildh
         environment-file: binder/environment.yml
         python-version: ${{ matrix.python-version }}
-        auto-activate-base: false
+        auto-activate-base: true
     - run: |
           conda info
     - name: Build documentation
