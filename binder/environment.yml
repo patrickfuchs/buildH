@@ -27,8 +27,5 @@ dependencies:
   - sphinx
   - nbsphinx
   - sphinx_rtd_theme
-  - pip:
-    - nbsphinx-link
-    - recommonmark
-    - sphinx-git
- 
+  - nbsphinx-link
+  - recommonmark

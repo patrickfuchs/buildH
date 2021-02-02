@@ -49,7 +49,7 @@ Index
 * :ref:`genindex`
 
 
-Recent Changes
-==============
+Changelog
+=========
 
-.. git_changelog::
+.. include:: ../CHANGELOG.md
