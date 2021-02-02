@@ -18,7 +18,7 @@
 # -- Project information -----------------------------------------------------
 
 project = "buildH"
-copyright = "2019, Patrick Fuchs"
+copyright = "2021, Patrick Fuchs"
 author = "Patrick Fuchs, Amélie Bâcle, Hubert Santuz, Pierre Poulain"
 
 # The full version, including alpha/beta/rc tags
