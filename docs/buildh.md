@@ -67,14 +67,6 @@ The list of supported lipids (-l option) are: CHARMM_POPC, Berger_POPC, Berger_P
 The program needs one mandatory file (present in this repo):
 - `order_parameter_definitions_MODEL_Berger_POPC.def` (option `-d`).
 
-
-#### dic_lipids.py
-
-This file is used as a module and contains a list of dictionaries based on the type of lipids (POPC,DOPC,...) and the force field (Berger, GROMOS, etc). The chosen lipid/FF is passed to `buildH` with `-l` option (e.g. `-l Berger_POPC`).
-The dictionary is a list of carbon atoms from which the hydrogens are built.
-For each carbon atom, there is the type of bonds (CH3, CH2, etc) and the 2 (or 3) others atoms needed for the reconstruction (see Algorithm).
-So far, the file contains Berger POPC and CHARMM36 POPC (this latter is used for validation only, since it is an all-atom force field). It will be updated in the future with some other united-atom force fields and other lipid types models.
-
 #### order_parameters_definitions_MODEL_X_Y.def
 
 This file is a mapping file created for the [NMRlipids](https://nmrlipids.blogspot.com/) project.
