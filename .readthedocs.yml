@@ -24,5 +24,5 @@ python:
 conda:
   environment: binder/environment.yml
 
-# CONDA_USES_MAMBA feature flag uses mamba instead of conda ton install dependencies
+# CONDA_USES_MAMBA feature flag uses mamba instead of conda to install dependencies
 # https://docs.readthedocs.io/en/stable/guides/feature-flags.html
