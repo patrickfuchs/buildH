@@ -1,0 +1,38 @@
+name: GitHub CI doc
+
+on: [push, pull_request]
+
+jobs:
+  build:
+  
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8]
+  
+    steps:
+    # https://github.com/marketplace/actions/setup-miniconda
+    - uses: actions/checkout@v2
+    - name: Install Miniconda and environment
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        activate-environment: buildh
+        environment-file: binder/environment.yml
+        python-version: ${{ matrix.python-version }}
+        channels: conda-forge,defaults
+        auto-activate-base: false
+        mamba-version: "*"
+    - name: Print conda info
+      shell: bash -l {0}
+      run: |
+          conda info
+          printenv | sort
+    - name: Install buildh
+      shell: bash -l {0}
+      run: |
+        python -m pip install -e .
+    - name: Build documentation
+      shell: bash -l {0}
+      run: |
+        conda activate buildh
+        make docs

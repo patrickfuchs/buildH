@@ -1,5 +1,6 @@
 **Dev**
 
+- Build docs
 - Rename '-x/--xtc' flag to -t/--traj' one to be more generic
 - Replace mandatory topology argument to '-c/--coord' flag
 - Improve performance of control functions.

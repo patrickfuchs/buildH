@@ -171,6 +171,7 @@ def calc_OP(C, H):
     S = 1/2 * (3*cos(theta)^2 -1)
 
     theta is the angle between CH bond and the z(vertical) axis:
+
     z
     ^  H
     | /
