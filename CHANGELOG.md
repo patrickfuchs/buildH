@@ -1,5 +1,7 @@
 **Dev**
 
+**1.2.0**
+
 - Build docs
 - Rename '-x/--xtc' flag to -t/--traj' one to be more generic
 - Replace mandatory topology argument to '-c/--coord' flag
