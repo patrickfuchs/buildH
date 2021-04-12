@@ -4,6 +4,8 @@ __pycache__/
 
 # Python package builds
 buildh.egg-info/
+dist/
+build/
 
 #IDE
 .vscode

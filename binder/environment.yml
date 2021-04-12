@@ -21,6 +21,7 @@ dependencies:
   - pycodestyle
   - pydocstyle
   # Packaging
+  - python-build
   - twine
   - bump2version
   # Documentation
