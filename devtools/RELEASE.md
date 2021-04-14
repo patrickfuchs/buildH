@@ -15,6 +15,7 @@ $ conda env update -f binder/environment.yml
 
 For Zenodo integration, see [Making Your Code Citable](https://guides.github.com/activities/citable-code/).
 
+To publish a package in [PyPI](https://pypi.org/), create an [account](https://pypi.org/account/register/) first.
 
 ## Tests
 
@@ -69,3 +70,18 @@ On [GitHub release page](https://github.com/patrickfuchs/buildH/releases) :
 ## Zenodo integration
 
 After the creation of the new release on GitHub, check the archive has been created on Zenodo.
+
+
+## Publish in PyPI
+
+Build the package:
+```bash
+$ make build
+```
+
+Upload the package to PyPI:
+```bash
+$ make upload-to-pypi
+```
+
+Enter your username and password upon request.

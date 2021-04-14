@@ -1,3 +1,3 @@
-from setuptools import setup
+import setuptools
 
-setup(version="1.2.0")
+setuptools.setup(version="1.2.0")
