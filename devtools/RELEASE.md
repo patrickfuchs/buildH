@@ -5,10 +5,10 @@
 
 Install required packages:
 ```
-$ conda create env -f binder/environment.yml
+$ conda env create -f binder/environment.yml
 ```
 
-If needed, update your conda environment:
+Or if needed, update your conda environment:
 ```
 $ conda env update -f binder/environment.yml
 ```
