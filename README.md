@@ -36,23 +36,31 @@ buildH is written in Python 3 and needs the modules numpy, pandas and MDAnalysis
 
 A simple installation with pip will do the trick:
 
-```pip install buildh```
+```
+pip install buildh
+```
 
 All dependencies (modules) will be installed automatically by pip.
 
 ### Installation within a conda environment
 
-In case you want to install buildH within a conda environment, first create a new conda env:
+In case you want to install buildH within a [conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html), first create a new conda env:
 
-```conda create -n env_buildH python pip```
+```
+conda create -n env_buildH python pip
+```
 
 Then activate your environment:
 
-```conda activate env_buildH```
+```
+conda activate env_buildH
+```
 
 Last, install buildH within that environment using `pip`:
 
-```pip install buildh```
+```
+pip install buildh
+```
 
 *Note*: we recall that once the conda env is activated, when you use `pip` it is the version of `pip` within the conda env, not the one of your Unix system. It allows to embed buildH and all its dependencies within the env without interacting with the Python of the Unix system.
 
@@ -73,7 +81,7 @@ Some more documentation on the meaning of the different flags can be found on th
 
 ## Documentation
 
-The main documentation can be found on [readthedocs](https://buildh.readthedocs.io/en/latest/index.html) or on the directory `docs` of this repository.
+The main documentation can be found on [readthedocs](https://buildh.readthedocs.io/en/latest/index.html) or in the directory [docs](https://github.com/patrickfuchs/buildH/tree/master/docs) of this repository.
 
 ## Contributors
 
