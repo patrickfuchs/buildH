@@ -8,6 +8,6 @@ All the files used for making this validation have been deposited on [Zenodo](ht
 
 The file [report_buildH.pdf](report_buildH.pdf) (taken from the Zenodo archive) describes the validation.
 
-The file [CHARMM_vs_buildH.gif](CHARMM_vs_buildH.gif) is an animated gif showing the difference between the hydrogens in a CHARMM structure vs those reconstructed by buildH.
+The file [CHARMM_vs_buildH.gif](CHARMM_vs_buildH.gif) is an animated gif showing the difference between the hydrogens in a CHARMM structure vs those reconstructed by **buildH** on a snapshot.
 
-Note that this validation was made in August 2019. You can retrieve the corresponding old version of buildH [here](https://github.com/patrickfuchs/buildH/tree/7cf8a331b1758abffd03ebb9737704dee3f12a88).
+Note that this validation was made in August 2019. You can retrieve the corresponding old version of **buildH** [here](https://github.com/patrickfuchs/buildH/tree/7cf8a331b1758abffd03ebb9737704dee3f12a88).
