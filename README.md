@@ -81,7 +81,7 @@ Some more documentation on the meaning of the different flags can be found on th
 
 ## Documentation
 
-The main documentation can be found on [readthedocs](https://buildh.readthedocs.io/en/latest/index.html) or in the directory [docs](https://github.com/patrickfuchs/buildH/tree/master/docs) of this repository.
+The main documentation can be found on [readthedocs](https://buildh.readthedocs.io/en/latest/index.html).
 
 ## Contributors
 
