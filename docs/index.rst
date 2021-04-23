@@ -19,7 +19,7 @@ User manual
     :maxdepth: 1
 
     buildh
-
+    json_format
 
 Tutorial
 ========
