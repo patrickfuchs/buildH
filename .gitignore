@@ -13,24 +13,15 @@ build/
 
 # documentation
 docs/_build/
+docs/Berger_POPC_test_case/*_H*
+docs/Berger_POPC_test_case/popc_3frames.xtc
+docs/Berger_POPC_test_case/OP_buildH.out
+docs/notebooks/.ipynb_checkpoints/
 
 #Project
 *.npz
 /*.out
 op_TMP*
-old/
 tests/OP_buildH.out
 tests/test.pdb
 tests/test.xtc
-tmp/
-docs/Berger_POPC_test_case/*_H*
-docs/Berger_POPC_test_case/popc_3frames.xtc
-docs/Berger_POPC_test_case/OP_buildH.out
-docs/CHARMM36_POPC_validation/full_traj/*
-docs/CHARMM36_POPC_validation/movie/*
-docs/CHARMM36_POPC_validation/tex/*
-docs/CHARMM36_POPC_validation/1POPC/*
-docs/CHARMM36_POPC_validation/diff*
-docs/CHARMM36_POPC_validation/op_CHARMM36_mistake.def
-docs/CHARMM36_POPC_validation/launch.sh
-docs/CHARMM36_POPC_validation/.ipynb_checkpoints/
