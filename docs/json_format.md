@@ -21,22 +21,22 @@ The format ressembles a Python dictionnary. For example, if we look at the `Berg
 [...]
 ```
 
-Each lines ressembles a `key: value` (as in a Python dictionnary). The value ressembles a Python list `[value1, value2, ...]`. Each couple `key: value` is separated by a comma.
+Each lines has a `key: value` pattern (as in a Python dictionnary). The value ressembles a Python list `[value1, value2, ...]`. Each couple `key: value` is separated by a comma. At the beginning and end of the file we have curly braces `{}`.
 
-The first line with a key `resname` indicates some possible residue names for the lipid described in the file. Here for example, it can be called `POPC`, `PLA` or `POP` in the pdb or gro file.
+The first line with a key `"resname"` indicates some possible residue names for the lipid described in the file. Here for example, it can be called `"POPC"`, `"PLA"` or `"POP"` in the pdb or gro file. Don't forget the quotes for each elements.
 
-In the the next lines, each key is basically an atom name between quotes (found in the pdb or gro file), followed by a list containing 3 or 4 strings:
+In the the next lines, each key is basically an atom name between quotes (same name as found in the pdb or gro file), followed by a list containing 3 or 4 strings:
 
-- The first string can be either `"CH"`, `"CH2"`, `"CH3"` or `"CHdoublebond"`. It indicates to buildH if we want to reconstruct one H, two Hs, 3 Hs or one H on a double bond respectively. In fact, it represents the type of carbon on which we want to build hydrogens.
-- The next strings are called helpers (see below) and are atom names between quotes. We have two helpers for `"CH2"`, `"CH3"` or `"CHdoublebond"`, and one helpeer for `"CH"`.
+- The first string can be either `"CH"`, `"CH2"`, `"CH3"` or `"CHdoublebond"`. It indicates to buildH if we want to reconstruct one H, two Hs, 3 Hs (sp3 carbon) or one H of a double bond (sp2 carbon) respectively. In fact, it represents the type of carbon on which we want to build hydrogens.
+- The next strings are called helpers (see below) and are atom names between quotes. We have 2 helpers for `"CH2"`, `"CH3"` or `"CHdoublebond"`, and 3 helpeer for `"CH"`.
 
-The helpers order depends on the type of carbon and are described below.
+So the general syntax is `[type of C on wich we want to build Hs, name of helper1, name of helper2, ...]`. The helpers order depends on the type of carbon and are described below.
 
 ## CH3
 
-In the figure below is shown the resconstruction of 3 hydrogens on atom `C1`. The first helper needs to be the one connected to `C1` (thus `N4`), and the second helper is connected to `N4` and 2 atoms away to `C1` (thus `C5`).
+In the figure below is shown the resconstruction of 3 hydrogens on atom `C1` (methyl group). In the json file, it corresponds to the line `"C1": ["CH3", "N4", "C5"],`. The first helper (helper1) needs to be the one connected to `C1` (thus `N4`), and the second helper (helper2) is connected to `N4` and 2 atoms away from `C1` (thus `C5`).
 
-![Reconstruction d'un CH3](img/build_CH3.png)
+![Reconstruction of a CH3](img/build_CH3.png)
 
 
-**Beware!** The atom order for the helpers definition matters!
+**Beware!** Again, we recall that the atom order in the helpers definition matters!
