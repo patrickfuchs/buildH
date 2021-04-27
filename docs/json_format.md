@@ -62,13 +62,13 @@ On the right, we show the other case where we swapped the order of helper1 and h
 
 ## Building CH
 
-For a CH, we want to reconstruct a single hydrogen on a carbon connected to 3 other heavy atoms. In this case, the carbon can be asymetric. This is the case, for example, in phospholipids for the second carbon of the glycerol as shown in the figure below. There is shown the resconstruction of a unique hydrogen on atom `C13`. In this case, we have 3 helpers which are merely the 3 heavy atoms (`C12` `C32` `O14`) connected to that carbon. Note that the order of helpers in the json file `"C13": ["CH", "C12", "C32", "O14"],` does not matter in this case. `"C12"`, `"C32"` and `"O14"` can be put in any order in this list, the H reconstruction will be strictly identical. The H name `H131` follows the same convention as before, `13` is the carbon number and `1` is the first reconstructed H.
+For a CH, we want to reconstruct a single hydrogen on a carbon connected to 3 other heavy atoms. In this case, the carbon can be asymetric. This is the case, for example, in phospholipids for the second carbon of the glycerol as shown in the figure below. There is shown the resconstruction of a unique hydrogen on atom `C13`. In this case, we have 3 helpers which are merely the 3 heavy atoms (`C12`, `C32`, and `O14`) connected to that carbon. Note that the order of helpers in the json file `"C13": ["CH", "C12", "C32", "O14"],` does not matter in this case. `"C12"`, `"C32"` and `"O14"` can be put in any order in this list, the H reconstruction will be strictly identical. The H name `H131` follows the same convention as before, `13` is the carbon number and `1` is the first reconstructed H.
 
 ![Reconstruction of a CH](img/build_CH.png)
 
 ## CH of a double bond
 
-When a carbon is involved in a double bond, we want to reconstruct in general a single H which respects the sp2 geometry. Below is shown an example on which the double bond stands between `C24` and `C25` and we want to build the single H on `C25`. The line in the json file for such a case is `"C25": ["CHdoublebond", "C24", "C26"],`, where the first string in the list is now `"doublebond"`. The two helpers are `C24` and `C26` which are the atoms directly bonded to `C25`. Note that the order of helpers in the list does not matter in this case, `"C24", "C26"` or `"C26", "C24"` will work the same. The H name `H251` follows again the same convention as before, `25` is the carbon number and `1` is the first reconstructed H.
+When a carbon is involved in a double bond, we want to reconstruct a single H which respects the sp2 geometry. Below is shown an example on which the double bond stands between `C24` and `C25` and we want to build the single H on `C25`. The line in the json file for such a case is `"C25": ["CHdoublebond", "C24", "C26"],`, where the first string in the list is now `"CHdoublebond"`. The two helpers are `C24` and `C26` which are the atoms directly bonded to `C25`. Note that the order of helpers in the list does not matter in this case, `"C24", "C26"` or `"C26", "C24"` will work the same. The H name `H251` follows again the same convention as before, `25` is the carbon number and `1` is the first reconstructed H.
 
 ![Reconstruction of a CH in a double bond](img/build_CHdoublebond.png)
 
@@ -77,4 +77,6 @@ When a carbon is involved in a double bond, we want to reconstruct in general a 
 We have explained here the format of the json file which tells buildH the central carbon on which we want reconstruct hydrogens and the corresponding helpers. Finally, We want to stress the following:
 
 - the order of helpers in each list within the json file does not matter in the case of a CH or CHdoublebond;
-- the order of helpers in each list within the json file does matter  helpers in the case of a CH3 or CH2 reconstruction.
+- the order of helpers in each list within the json file **does matter** in the case of a CH3 or CH2 reconstruction:
+    - for CH3, helper1 is bonded to the carbon on which we reconstruct hydrogens and helper2 is two atoms away; 
+	- for CH2, the order of helper1 and helper2 will determine which H is pro-R or pro-S.
