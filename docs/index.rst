@@ -5,6 +5,8 @@ Welcome to buildH's documentation!
 
     Build hydrogens from a united-atom MD of lipids and calculate the order parameter.
 
+Installation
+============
 
 Install buildH with `pip`:
 
@@ -12,22 +14,31 @@ Install buildH with `pip`:
 
     $ python3 -m pip install buildh
 
+Installation within a conda environment:
 
+.. code-block:: bash
+
+   $ conda create -n env_buildH python pip
+   $ conda activate env_buildH
+   $ pip install buildh
+   
 User manual
 ===========
 .. toctree::
     :maxdepth: 1
 
     buildh
-    json_format
-
+    algorithms_Hbuilding.md
+    command_line_options.md
+    def_format.md
+    json_format.md
+    
 Tutorial
 ========
 .. toctree::
     :maxdepth: 1
 
-    CHARMM36_POPC_validation/report_buildH.ipynb
-
+    notebooks/Notebook_01_buildH_calc_OP.ipynb
 
 Reference manual
 ================
