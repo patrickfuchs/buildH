@@ -1,28 +1,28 @@
 # Lipid def files
 
-## Role of the def files
+## Role of def files
 
 The def file has two main functions:
 
 - Tell **buildH** which C-H are considered (for H reconstruction and order parameter calculation).
-- Give a generic name to each C-H for the output of the order parameter.
+- Give a generic name to each C-H for the output of the order parameter (the default name for that file is `OP_buildH.out`).
 
-Initially, this type of file has been created in the [NMRlipids](https://nmrlipids.blogspot.com/) project. Starting from all-atom trajectories, the script [calcOrderParameters.py](https://github.com/NMRLipids/MATCH/blob/master/scripts/calcOrderParameters.py) takes such def files as input to infer what C-H are considered for the calculation. But it is also useful to give a unique generic name for each C-H along the lipid regardless of the force field considered. For example, the two C-H of of the beta carbon of the choline are called `beta1` and `beta2` in all PC lipids whatever the force field.
+Initially, this type of file has been created in the [NMRlipids](https://nmrlipids.blogspot.com/) project. Starting from all-atom trajectories, the script [calcOrderParameters.py](https://github.com/NMRLipids/MATCH/blob/master/scripts/calcOrderParameters.py) takes such def files as input to infer what C-H are considered for the calculation. But it is also useful for assigning a unique generic name for each C-H along the lipid regardless of the force field considered. For example, the two C-H of of the beta carbon of the choline are called `beta1` and `beta2` in all PC lipids whatever the force field.
 
 Many of these `.def` files can be found on the [MATCH repository](https://github.com/NMRLipids/MATCH/tree/master/scripts/orderParm_defs) for all-atom force fields. As in **buildH** we work with united-atom trajectories, there is a directory [def_files](https://github.com/patrickfuchs/buildH/tree/master/def_files) where you will find all the def files for the lipids supported.
 
-## Format of the def files
+## Format of def files
 
 The general naming convention of def files on NMRLipids is `order_parameters_definitions_MODEL_X_Y.def`, where `X` is the force field and `Y` the lipid considered. You can name it whatever you like, but we recommend to indicate at least the force field and the lipid.
 
-Each line represents a given C-H made of 4 columns:
+Each line represents a given C-H with 4 columns:
 
 - Column 1 is the generic name of the order parameter considered. We recommend to use the same convention as those already present in the [def_files](https://github.com/patrickfuchs/buildH/tree/master/def_files) provided in **buildH**.
 - Column 2 is the residue name in the pdb or gro file.
 - Column 3 is the carbon name in the pdb or gro file for that C-H.
 - Column 4 is the H name in the pdb or gro file for that C-H.
 
-Here is an example for the polar head of [Berger POPC](https://github.com/patrickfuchs/buildH/blob/master/def_files/order_parameter_definitions_MODEL_Berger_POPC.def)):
+Here is an example for the polar head of [Berger POPC](https://github.com/patrickfuchs/buildH/blob/master/def_files/order_parameter_definitions_MODEL_Berger_POPC.def):
 
 ```
 beta1 POPC C5  H51
@@ -36,7 +36,7 @@ g1_1 POPC C32 H321
 g1_2 POPC C32 H322
 ```
 
-Each column has to be separated by any combination (at least one) of white space(s).
+Each column has to be separated by any combination of white space(s) (at least one).
 
 **Important**
 
@@ -44,7 +44,7 @@ In **buildH** the hydrogens basically do not exist before running the program, a
 
 **We highly recommend to use this convention!**
 
-## Trajectory output and def file
+## Trajectory output and def files
 
 If an output trajecotry (option `-opx`) is requested, the `.def` file provided **must** contain all possible C-H in that lipid (since the whole trajectory with Hs will be reconstructed). This option is slow, we do not recommend it if an output xtc file is not wanted.
 
@@ -112,7 +112,7 @@ With those 3 files, we can launch buildH:
 buildH -c butane.pdb -l Berger_BUTA -lt Berger_BUTA.json -d Berger_BUTA.def -opx butane_wH
 ```
 
-So we used here the option `-lt` to supply our own `Berger_BUTA.json` file. We also requested an ouput with option `-opx` which will generate the pdb with hydrogens `butane_wH.pdb`. Below is shown the generated pdb and structure.
+We gave our newly created def file to **buildH** with the option `-d`. We also used our own `Berger_BUTA.json` file with the option `-lt`. We also requested an ouput with the option `-opx` which will generate the pdb with hydrogens `butane_wH.pdb`. Below is shown the generated pdb and structure.
 
 ```
 ATOM      1  C1  BUTA    1      -1.890   0.170   0.100  1.00  0.00             C
