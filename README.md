@@ -28,9 +28,9 @@ BuildH works in two modes :
 
 Python >= 3.6 is mandatory for running buildH.
 
-buildH is written in Python 3 and needs the modules numpy, pandas and MDAnalysis.
+buildH is written in Python 3 and needs the modules numpy, pandas, MDAnalysis and Numba.
 
-## Installation 
+## Installation
 
 ### Simple installation
 
