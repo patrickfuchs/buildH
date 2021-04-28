@@ -4,7 +4,7 @@ To build new hydrogens on a united-atom lipid, we need different informations th
 
 **TODO**: Explain the convention for file naming `FF_lipid.json`.
 
-## Generality of the lipid json format
+## Generality on the lipid json format
 
 The format ressembles a Python dictionnary. For example, if we look at the `Berger_POPC.json` file, we have the following:
 

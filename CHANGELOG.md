@@ -1,5 +1,6 @@
 **Dev**
 - Add first notebook (basic buildH analysis on a Berger traj)
+- Complete documentation
 
 **1.2.0**
 

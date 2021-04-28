@@ -2,20 +2,20 @@
 
 **buildH** is a software that reads a united-atom (UA) trajectory of lipids, build the hydrogens on it and calculate the order parameter on each C-H bond. **buildH** also allows to output the trajectory with the new reconstructed hydrogens.
 
-In this page you will find general 
+In this page you will find general information on how **buildH** works.
 
 ## Motivation
 
-The initial motivation comes from the [NMRlipids](https://nmrlipids.blogspot.com/) project. As stated in this [post](https://nmrlipids.blogspot.com/2019/04/nmrlipids-ivb-assembling-pe-pg-results.html), there was a lack of suitable program for reconstructing hydrogens. In the past, we used to use `g_protonate` in GROMACS 3.*. But this program has been removed in recent versions. Our idea was to build our own implementation in Python upon libraries such MDAnalysis, Numpy and Pandas.
+The initial motivation comes from the [NMRlipids](https://nmrlipids.blogspot.com/) project. As stated in this [post](https://nmrlipids.blogspot.com/2019/04/nmrlipids-ivb-assembling-pe-pg-results.html), there was a lack of suitable program for reconstructing hydrogens. In the past, we used to use `g_protonate` in GROMACS 3.*. But this program has been removed in recent versions. Our idea was to build our own implementation in Python using libraries such MDAnalysis, Numpy and Pandas.
 **buildH** is used actively in the recent projects of NMRlipids such as [NMRlipidsIVPEandPG](https://github.com/NMRLipids/NMRlipidsIVPEandPG) or [Databank](https://github.com/NMRLipids/Databank). **buildH** can also be used by anyone willing to analyze the order parameter from a UA trajectory, or if one needs to have explicit hydrogens for some further analyzes.
 
 ## Features
 
 **buildH** can:
 
-  - reconstruct hydrogens from a **united-atom** structure file (PDB, GRO) or a trajectory.
-  - calculate the order parameter based on the reconstructed hydrogens
-  - write a new structure/trajectory file with the reconstructed hydrogens
+  - Reconstruct hydrogens from a **united-atom** structure file (PDB, GRO) or a trajectory.
+  - Calculate the order parameter based on the reconstructed hydrogens.
+  - Write a new structure/trajectory file with the reconstructed hydrogens.
 
 **buildH** works in two modes:
 
@@ -24,7 +24,7 @@ The initial motivation comes from the [NMRlipids](https://nmrlipids.blogspot.com
 
 In both modes, the order parameter is calculated.
 
-It is possible to select only a part of the lipid on which **buildH** will do his job (e.g. the polar head, the sn-1 aliphatic chain, etc.).
+It is possible to select only a part of the lipid on which **buildH** will do his job (e.g. the polar head, the sn-1 aliphatic chain, etc.) thanks to the [def file](def_format.md).
 
 ## Validation of buildH
 

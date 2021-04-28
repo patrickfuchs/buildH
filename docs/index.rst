@@ -28,17 +28,17 @@ User manual
     :maxdepth: 1
 
     buildh
-    algorithms_Hbuilding.md
-    command_line_options.md
-    def_format.md
-    json_format.md
+    algorithms_Hbuilding
+    command_line_options
+    def_format
+    json_format
     
 Tutorial
 ========
 .. toctree::
     :maxdepth: 1
 
-    notebooks/Notebook_01_buildH_calc_OP.ipynb
+    notebooks/README.md
 
 Reference manual
 ================
