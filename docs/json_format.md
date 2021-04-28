@@ -2,11 +2,11 @@
 
 To build new hydrogens on a united-atom lipid, we need different informations that are read by **buildH** in a json file. By default, some standard lipids are present in **buildH** (in the directory `buildh/lipids/`). However, it is possible for the user to supply his/her own json file. Here we explain the format of these json files.
 
-**TODO**: Explain the convention for file naming `FF_lipid.json`.
-
 ## Generality on the lipid json format
 
-The format ressembles a Python dictionnary. For example, if we look at the `Berger_POPC.json` file, we have the following:
+The convention for naming the json file is `Forcefield_Lipid.json`. `Forcefield` obviously specifies the force field and `Lipid` is the residue name of the lipid in the pdb or gro file. One such name can be for example `Berger_POPC.json`.
+
+The format of the json file ressembles a Python dictionnary. For example, if we look at the `Berger_POPC.json` file (already present in **buildH**), we have the following:
 
 ```
 {
@@ -80,3 +80,96 @@ We have explained here the format of the json file which tells buildH what are t
 - the order of helpers in each list **does matter** in the case of a CH3 or CH2 reconstruction:
     - for CH3, helper1 is bonded to the carbon on which we reconstruct hydrogens and helper2 is two atoms away; 
 	- for CH2, both helper1 and helper2 are bonded to the carbon on which we reconstruct hydrogens, but their order will determine which reconstucted H is pro-R or pro-S.
+
+## A guided example
+
+We show here how to build your own json file on the simple molecule of butane. We start with a pdb file of the molecule:
+
+```
+ATOM      1  C1  BUTA    1      -1.890   0.170   0.100  1.00  0.00
+ATOM      2  C2  BUTA    1      -0.560  -0.550  -0.100  1.00  0.00
+ATOM      3  C3  BUTA    1       0.540   0.520  -0.110  1.00  0.00
+ATOM      4  C4  BUTA    1       1.910  -0.140   0.100  1.00  0.00
+```
+
+![Butane without hydrogen](butane.png)
+
+Now we need to build the json file. According to the rule above, we have the following:
+
+- `C1` is of type CH3. Helper1 is connecte to it (thus `C2`), helper2 is two atoms away (thus it is `C3`).
+- `C2` is of type CH2. Helper1 is the carbon before in the chain (thus `C1`), helper2 is the atom after in the chain (thus `C3`).
+- `C3` is also of type CH2, so following the same rule, helper1 is `C2` and helper2 is `C4`. 
+- `C4` is also of type CH3, so following the same rule, helper1 is `C3` and helper2 is `C2`. 
+
+In summary, this would give the following file:
+
+```
+{
+    "resname": ["BUTA", "BUT"],
+    "C1": ["CH3", "C2", "C3"],
+    "C2": ["CH2", "C1", "C3"],
+    "C3": ["CH2", "C2", "C4"],
+    "C4": ["CH3", "C3", "C2"]
+}
+```
+
+We have to name it with the convention `Forcefield_Residue.json`. So let us imagine we use berger, we could call it `Berger_BUTA.json`.
+
+We also have to create the def file (see [here](def_format.md) on how to do that). We can use the following `Berger_BUTA.def`:
+
+```
+butane_C1a BUTA C1 H11
+butane_C1b BUTA C1 H12
+butane_C1c BUTA C1 H13
+butane_C2a BUTA C2 H21
+butane_C2b BUTA C2 H22
+butane_C3a BUTA C3 H31
+butane_C3b BUTA C3 H32
+butane_C4a BUTA C4 H41
+butane_C4b BUTA C4 H42
+butane_C4c BUTA C4 H43
+```
+
+With those 3 files, we can launch buildH:
+
+```
+buildH -c butane.pdb -l Berger_BUTA -lt Berger_BUTA.json -d Berger_BUTA.def -opx butane_wH
+```
+
+So we used here the option `-lt` to supply our own `Berger_BUTA.json` file. We also requested an ouput with option `-opx` which will generate the pdb with hydrogens `butane_wH.pdb`. Below is shown the generated pdb and structure.
+
+```
+ATOM      1  C1  BUTA    1      -1.890   0.170   0.100  1.00  0.00             C
+ATOM      2  H11 BUTA    1      -2.700  -0.560   0.113  1.00  0.00             H
+ATOM      3  H12 BUTA    1      -2.048   0.874  -0.717  1.00  0.00             H
+ATOM      4  H13 BUTA    1      -1.872   0.710   1.047  1.00  0.00             H
+ATOM      5  C2  BUTA    1      -0.560  -0.550  -0.100  1.00  0.00             C
+ATOM      6  H21 BUTA    1      -0.566  -1.088  -1.048  1.00  0.00             H
+ATOM      7  H22 BUTA    1      -0.390  -1.253   0.716  1.00  0.00             H
+ATOM      8  C3  BUTA    1       0.540   0.520  -0.110  1.00  0.00             C
+ATOM      9  H31 BUTA    1       0.356   1.235   0.692  1.00  0.00             H
+ATOM     10  H32 BUTA    1       0.531   1.039  -1.069  1.00  0.00             H
+ATOM     11  C4  BUTA    1       1.910  -0.140   0.100  1.00  0.00             C
+ATOM     12  H41 BUTA    1       2.687   0.625   0.092  1.00  0.00             H
+ATOM     13  H42 BUTA    1       2.096  -0.855  -0.702  1.00  0.00             H
+ATOM     14  H43 BUTA    1       1.920  -0.658   1.059  1.00  0.00             H
+```
+
+![Butane with hydrogens](butane_wH.png)
+
+**Last advice**
+
+We showed you a simple example on butane. Although this molecule is very simple, you can see that it is easy to make a mistake. So we recommend to triple check the json file before using it for production. **buildH** makes for you a lot of checks and will throw an error if something is wrong, but it cannot detect all types of mistakes. Any spelling error on atom names, inversion, etc., may lead also to aberrant results. So before going to production, do test on a single molecule and check thoroughly the molecule has all the hydrogens in good place. 
+
+The main lipids are already included in **buildH** (in the directory `buildh/lipids`) so you might not need to build your own json file. You can have a list of the supported lipids by invoking **buildH** with option `-h`:
+
+```
+$ buildH -h
+usage: buildH [-h] -c COORD [-t TRAJ] -l LIPID [-lt LIPID_TOPOLOGY [LIPID_TOPOLOGY ...]] -d DEFOP
+[...]
+The list of supported lipids (-l option) are: Berger_POP, Berger_PLA, Berger_POPC, CHARMM_POPC.
+```
+
+Last, one other project developed by us, called [autoLipMap](https://github.com/patrickfuchs/autoLipMap), can build automatically def and json files for the main known lipids.
+
+In case of problem, you can post an issue on github.

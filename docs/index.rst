@@ -38,7 +38,7 @@ Tutorial
 .. toctree::
     :maxdepth: 1
 
-    notebooks/README.md
+    notebooks/README
 
 Reference manual
 ================

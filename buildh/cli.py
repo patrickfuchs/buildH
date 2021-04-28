@@ -90,7 +90,7 @@ def parse_cli():
     parser.add_argument("-pi", "--pickle", type=str,
                         help="Output pickle filename. The structure pickled is a dictonnary "
                         "containing for each Order parameter, "
-                        "the value of each lipid and each frame as a matric")
+                        "the value of each lipid and each frame as a matrix")
     options = parser.parse_args()
 
 
