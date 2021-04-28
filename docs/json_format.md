@@ -81,7 +81,7 @@ We have explained here the format of the json file which tells buildH what are t
     - for CH3, helper1 is bonded to the carbon on which we reconstruct hydrogens and helper2 is two atoms away; 
 	- for CH2, both helper1 and helper2 are bonded to the carbon on which we reconstruct hydrogens, but their order will determine which reconstucted H is pro-R or pro-S.
 
-## A guided example
+## A guided example for writing a lipid json file
 
 We show here how to build your own json file on the simple molecule of butane. We start with a pdb file of the molecule `butane.pdb`:
 
@@ -115,7 +115,7 @@ In summary, this would give the following file:
 
 We have to name it with the convention `Forcefield_Residue.json`. So let us imagine we use Berger force field, we can call it `Berger_BUTA.json`.
 
-We also have to create the def file (see [here](def_format.md) on how to do that). We can use the following `Berger_BUTA.def`:
+We also have to create the def file (see [here](def_format.md#a-guided-example-for-writing-a-lipid-def-file) on how to do that). We can use the following `Berger_BUTA.def`:
 
 ```
 butane_C1a BUTA C1 H11
@@ -157,7 +157,7 @@ ATOM     14  H43 BUTA    1       1.920  -0.658   1.059  1.00  0.00             H
 
 ![Butane with hydrogens](img/butane_wH.png)
 
-**Last advices*
+**Last advices**
 
 - We showed you a simple example on butane. Although this molecule is very simple, you can see that it is easy to make a mistake. So we recommend to triple check the json file before using it for production. **buildH** makes for you a lot of checks and will throw an error if something is wrong, but it cannot detect all types of mistakes. Any spelling error on atom names, inversion, etc., may lead to aberrant results. So before going to production, do test on a single molecule and check thoroughly the molecule has all the hydrogens in good place. 
 
