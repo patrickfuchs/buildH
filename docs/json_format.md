@@ -92,7 +92,7 @@ ATOM      3  C3  BUTA    1       0.540   0.520  -0.110  1.00  0.00
 ATOM      4  C4  BUTA    1       1.910  -0.140   0.100  1.00  0.00
 ```
 
-![Butane without hydrogen](butane.png)
+![Butane without hydrogen](img/butane.png)
 
 Now we need to build the json file. According to the rule above, we have the following:
 
@@ -155,7 +155,7 @@ ATOM     13  H42 BUTA    1       2.096  -0.855  -0.702  1.00  0.00             H
 ATOM     14  H43 BUTA    1       1.920  -0.658   1.059  1.00  0.00             H
 ```
 
-![Butane with hydrogens](butane_wH.png)
+![Butane with hydrogens](img/butane_wH.png)
 
 **Last advice**
 
