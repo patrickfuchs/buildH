@@ -21,7 +21,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install pytest
         # Installation of numpy & MDAnalysis at the same time crashed on Python 3.6 (pip tried to install numpy 1.20.X)
-        if [ ${{ matrix.python-version }} == 3.6 ]; then pip install numpy pandas; pip install MDAnalysis; else pip install -r requirements.txt; fi
+        if [ ${{ matrix.python-version }} == 3.6 ]; then pip install numpy pandas numba; pip install MDAnalysis; else pip install -r requirements.txt; fi
         pip install .
     - name: Test with pytest
       run: |
