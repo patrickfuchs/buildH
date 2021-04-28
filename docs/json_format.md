@@ -83,7 +83,7 @@ We have explained here the format of the json file which tells buildH what are t
 
 ## A guided example
 
-We show here how to build your own json file on the simple molecule of butane. We start with a pdb file of the molecule:
+We show here how to build your own json file on the simple molecule of butane. We start with a pdb file of the molecule `butane.pdb`:
 
 ```
 ATOM      1  C1  BUTA    1      -1.890   0.170   0.100  1.00  0.00
@@ -94,9 +94,9 @@ ATOM      4  C4  BUTA    1       1.910  -0.140   0.100  1.00  0.00
 
 ![Butane without hydrogen](img/butane.png)
 
-Now we need to build the json file. According to the rule above, we have the following:
+Now we need to build the json file. According to the rules above, we have the following:
 
-- `C1` is of type CH3. Helper1 is connecte to it (thus `C2`), helper2 is two atoms away (thus it is `C3`).
+- `C1` is of type CH3. Helper1 is connected to `C1` (thus `C2`), helper2 is two atoms away (thus `C3`).
 - `C2` is of type CH2. Helper1 is the carbon before in the chain (thus `C1`), helper2 is the atom after in the chain (thus `C3`).
 - `C3` is also of type CH2, so following the same rule, helper1 is `C2` and helper2 is `C4`. 
 - `C4` is also of type CH3, so following the same rule, helper1 is `C3` and helper2 is `C2`. 
@@ -113,7 +113,7 @@ In summary, this would give the following file:
 }
 ```
 
-We have to name it with the convention `Forcefield_Residue.json`. So let us imagine we use berger, we could call it `Berger_BUTA.json`.
+We have to name it with the convention `Forcefield_Residue.json`. So let us imagine we use Berger force field, we can call it `Berger_BUTA.json`.
 
 We also have to create the def file (see [here](def_format.md) on how to do that). We can use the following `Berger_BUTA.def`:
 
@@ -132,7 +132,7 @@ butane_C4c BUTA C4 H43
 
 With those 3 files, we can launch buildH:
 
-```
+```bash
 buildH -c butane.pdb -l Berger_BUTA -lt Berger_BUTA.json -d Berger_BUTA.def -opx butane_wH
 ```
 
@@ -157,11 +157,11 @@ ATOM     14  H43 BUTA    1       1.920  -0.658   1.059  1.00  0.00             H
 
 ![Butane with hydrogens](img/butane_wH.png)
 
-**Last advice**
+**Last advices*
 
-We showed you a simple example on butane. Although this molecule is very simple, you can see that it is easy to make a mistake. So we recommend to triple check the json file before using it for production. **buildH** makes for you a lot of checks and will throw an error if something is wrong, but it cannot detect all types of mistakes. Any spelling error on atom names, inversion, etc., may lead also to aberrant results. So before going to production, do test on a single molecule and check thoroughly the molecule has all the hydrogens in good place. 
+- We showed you a simple example on butane. Although this molecule is very simple, you can see that it is easy to make a mistake. So we recommend to triple check the json file before using it for production. **buildH** makes for you a lot of checks and will throw an error if something is wrong, but it cannot detect all types of mistakes. Any spelling error on atom names, inversion, etc., may lead to aberrant results. So before going to production, do test on a single molecule and check thoroughly the molecule has all the hydrogens in good place. 
 
-The main lipids are already included in **buildH** (in the directory `buildh/lipids`) so you might not need to build your own json file. You can have a list of the supported lipids by invoking **buildH** with option `-h`:
+- The main lipids are already included in **buildH** (in the directory `buildh/lipids`) so you might not need to build your own json file. You can have a list of the supported lipids by invoking **buildH** with option `-h`:
 
 ```
 $ buildH -h
@@ -170,6 +170,6 @@ usage: buildH [-h] -c COORD [-t TRAJ] -l LIPID [-lt LIPID_TOPOLOGY [LIPID_TOPOLO
 The list of supported lipids (-l option) are: Berger_POP, Berger_PLA, Berger_POPC, CHARMM_POPC.
 ```
 
-Last, one other project developed by us, called [autoLipMap](https://github.com/patrickfuchs/autoLipMap), can build automatically def and json files for the main known lipids.
+- Last, one other project developed by us, called [autoLipMap](https://github.com/patrickfuchs/autoLipMap), can build automatically def and json files for the main known lipids.
 
 In case of problem, you can post an issue on github.
