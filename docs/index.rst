@@ -32,7 +32,7 @@ User manual
     command_line_options
     def_format
     json_format
-    
+
 Tutorial
 ========
 .. toctree::
