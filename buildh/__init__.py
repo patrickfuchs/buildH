@@ -31,4 +31,5 @@ __version__ = "1.2.0"
 __license__ = "BSD 3-Clause License"
 
 
-from . import cli
+from .cli import BuildHError, launch
+
