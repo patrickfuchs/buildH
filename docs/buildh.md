@@ -86,7 +86,7 @@ buildH -c start_128popc.pdb -l Berger_POPC \
 -o my_OP_buildH.out
 ```
 
-Here we add a `-o` flag which tells **buildH** to output the results in a file with name `my_OP_buildH.out`.
+Here we add a `-o` flag which tells **buildH** to output the results in a file named `my_OP_buildH.out`.
 
 ### Run on a trajectory
 
@@ -96,7 +96,7 @@ buildH -c start_128popc.pdb -l Berger_POPC \
 -t popc0-25ns_dt1000.xtc
 ```
 
-Here the flag `-t` indicates a trajectory. The final order parameters will be averaged over all lipids and all frames for each C-H present in the def file. More can be found on how the averaging is done [below](buildH.md#statistics). The default name `OP_buildH.out` will be used.
+Here the flag `-t` indicates a trajectory. The final order parameters will be averaged over all lipids and all frames for each C-H present in the def file. More can be found on how the averaging is done [below](https://github.com/patrickfuchs/buildH/blob/master/docs/buildh.md#statistics). The default name `OP_buildH.out` will be used.
 
 ### Same with an output trajectory with reconstructed hydrogens
 
@@ -106,13 +106,32 @@ buildH -c start_128popc.pdb -l Berger_POPC \
 -t popc0-25ns_dt1000.xtc -opx popc0-25ns_dt1000_with_H
 ```
 
-Here we had the flag `-opx` to request a pdb and an xtc file of the system with all the reconstructed hydrogens. Note that the flag takes a base name without extension since it will create a pdb and an xtc, here `popc0-25ns_dt1000_with_H.pdb` and `popc0-25ns_dt1000_with_H.xtc`. The use of this flag `-opx` requires the `.def` file to contain **all** possible pairs of C-H to reconstruct (since the trajectory with all Hs will be reconstructed).
+Here we added the flag `-opx` to request a pdb and an xtc file of the system with all the reconstructed hydrogens. Note that the flag takes a base name without extension since it will create a pdb and an xtc, here `popc0-25ns_dt1000_with_H.pdb` and `popc0-25ns_dt1000_with_H.xtc`. The use of this flag `-opx` requires the `.def` file to contain **all possible pairs of C-H** to reconstruct (since the trajectory with all Hs will be reconstructed).
 
 ## Additional features
 
+### Why do I need a def file?
+
+A def file looks like this.
+
+```
+gamma1_1 POPC C1  H11
+gamma1_2 POPC C1  H12
+gamma1_3 POPC C1  H13
+[...]
+```
+In **buildH**, the def file has two main purposes:
+
+- Tell what are the C-H we want to consider for H reconstruction and order parameter calculation.
+- Give a generic name to each C-H (which will appear in the output) and make the correspondance with the PDB names (e.g. `gamma1_1` stands for the C-H which have `C1` and `H11` atom names in the pdb file.
+
+The def files of the lipids supported by **buildH** can be found [here](https://github.com/patrickfuchs/buildH/tree/master/def_files)
+
+More on def files can be found [here](def_format.md)
+
 ### Supported lipids
 
-The list of supported lipids can be requested with `buildH -h`, it is indicated at the last line. If you want to analyze a lipid that is not present in **buildH**, you will have to create your own def file as well as a json file which explains to **buildH** how the hydrogens will be reconstructed. This user json file is passed with option `-lt`. More documentation on how to [create your own def file](def_format.md) and how to [create your own json file](json_format.md).
+The list of supported lipids by **buildH** can be requested with `buildH -h`. This command will throw a detailed help to the screen, the list will be indicated at the last line. If you want to analyze a lipid that is not present in **buildH**, you will have to create your own def file as well as a json file which explains to **buildH** how the hydrogens will be reconstructed. This user json file is passed with option `-lt`. Here is more documentation on how to [create your own def file](def_format.md) and how to [create your own json file](json_format.md).
 
 ### Mixtures of lipids
 
