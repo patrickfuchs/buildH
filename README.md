@@ -83,9 +83,9 @@ The minimal command for launching **buildH** can ressemble this:
 $ buildH -c start_128popc.pdb -t popc0-25ns_dt1000.xtc -l Berger_POPC -d order_parameter_definitions_MODEL_Berger_POPC.def
 ```
 
-The different arguments mean the following: `-c start_128popc.pdb` is a structure with 128 POPC, `-t popc0-25ns_dt1000.xtc` is a trajectory with 25 frames, `-l Berger_POPC` indicates the united-atom force field and the type of lipid, `-d order_parameter_definitions_MODEL_Berger_POPC.def` indicates what C-H are considered for H building and order parameter calculation. This latter file can be found [here](https://github.com/patrickfuchs/buildH/blob/master/def_files/order_parameter_definitions_MODEL_Berger_POPC.def). The final order parameters averaged over the trajectory will be written to `OP_buildH.out`
+The different arguments mean the following: `-c start_128popc.pdb` is a pdb file with 128 POPC, `-t popc0-25ns_dt1000.xtc` is a trajectory with 25 frames, `-l Berger_POPC` indicates the united-atom force field and the type of lipid to be analyzed, `-d order_parameter_definitions_MODEL_Berger_POPC.def` indicates what C-H are considered for H building and order parameter calculation. This latter file can be found [here](https://github.com/patrickfuchs/buildH/blob/master/def_files/order_parameter_definitions_MODEL_Berger_POPC.def). The final order parameters averaged over the trajectory will be written to the default output name `OP_buildH.out`
 
-Some other commented examples can be found on the [documentation part](https://github.com/patrickfuchs/buildH#documentation). 
+Some other commented examples can be found on the [documentation part](https://github.com/patrickfuchs/buildH#documentation). There is also a Notebook showing a full analaysis on a trajectory of 2500 frames (**TODO**: link to be added).
 
 Invoking **buildH** with the `-h` flag will display some help to the screen and tell the user which lipids are supported by **buildH**.
 
