@@ -112,7 +112,7 @@ Here we added the flag `-opx` to request a pdb and an xtc file of the system wit
 
 ### Why do I need a def file?
 
-A def file looks like this.
+A def file looks like this:
 
 ```
 gamma1_1 POPC C1  H11
@@ -120,14 +120,48 @@ gamma1_2 POPC C1  H12
 gamma1_3 POPC C1  H13
 [...]
 ```
+
+Each line corresponds to a given C-H. The 4 columns correspond to the generic name, residue name, carbon name and hydrogen name respectively for that C-H.
+
 In **buildH**, the def file has two main purposes:
 
 - Tell what are the C-H we want to consider for H reconstruction and order parameter calculation.
 - Give a generic name to each C-H (which will appear in the output) and make the correspondance with the PDB names (e.g. `gamma1_1` stands for the C-H which have `C1` and `H11` atom names in the pdb file.
 
-The def files of the lipids supported by **buildH** can be found [here](https://github.com/patrickfuchs/buildH/tree/master/def_files)
 
-More on def files can be found [here](def_format.md)
+For example, if you want to calculate the order parameters only on the polar head of a Berger POPC, you can use:
+
+```
+beta1 POPC C5  H51
+beta2 POPC C5  H52
+alpha1 POPC C6  H61
+alpha2 POPC C6  H62
+g3_1 POPC C12 H121
+g3_2 POPC C12 H122
+g2_1 POPC C13 H131
+g1_1 POPC C32 H321
+g1_2 POPC C32 H322
+```
+
+Using the [Berger POPC trajectory](https://github.com/patrickfuchs/buildH/tree/master/docs/Berger_POPC_test_case) of 25 frames, the output `OP_buildH.out` will contain the order parameters of the C-H specified in the def file:
+
+```
+# OP_name            resname atom1 atom2  OP_mean OP_stddev OP_stem
+#--------------------------------------------------------------------
+beta1                POPC    C5    H51    0.04934  0.11999  0.01061
+beta2                POPC    C5    H52    0.07162  0.12108  0.01070
+alpha1               POPC    C6    H61    0.11839  0.15261  0.01349
+alpha2               POPC    C6    H62    0.13903  0.19003  0.01680
+g3_1                 POPC    C12   H121  -0.28674  0.09135  0.00807
+g3_2                 POPC    C12   H122  -0.16195  0.14832  0.01311
+g2_1                 POPC    C13   H131  -0.15159  0.14511  0.01283
+g1_1                 POPC    C32   H321   0.21133  0.22491  0.01988
+g1_2                 POPC    C32   H322   0.09638  0.16189  0.01431
+```
+
+The def files of the lipids supported by **buildH** can be found [here](https://github.com/patrickfuchs/buildH/tree/master/def_files).
+
+More on def files and creating your own ones can be found [here](def_format.md).
 
 ### Supported lipids
 
