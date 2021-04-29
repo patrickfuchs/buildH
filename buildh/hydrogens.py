@@ -32,7 +32,7 @@ def get_CH(atom, helper1, helper2, helper3):
         Coordinates of the rebuilt hydrogen: ([x_H, y_H, z_H]).
     """
     helpers = np.array((helper1, helper2, helper3))
-    v2 = np.zeros(3)
+    v2 = np.zeros(3, dtype=np.float32)
     for i in range(len(helpers)):
         v2 = v2 + geo.normalize(helpers[i] - atom)
     v2 = v2 / (len(helpers)) + atom

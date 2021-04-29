@@ -113,7 +113,7 @@ def test_calc_rotation_matrix(quaternion, result):
 
 
 @pytest.mark.parametrize('vec_to_rotate, rotation_axis, rad_angle, result', [
-    (np.array([-1.0199966, -0.4300003,  0.9700012]),
+    (np.array([-1.0199966, -0.4300003,  0.9700012], dtype=np.float32),
      np.array([-0.61304796,  0.7198621,  -0.32553148]),
      1.9106332362490186,
      np.array([0.58863854, 0.69101293, 0.41953045])
