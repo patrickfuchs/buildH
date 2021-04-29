@@ -42,7 +42,7 @@ In the the next lines, each `key` is basically a carbon atom name (between quote
 
 So the general syntax is `[type of C on which we want to build Hs, name of helper1, name of helper2, ...]`. The choice of helpers and their order in the json file depends on the type of carbon. Everything is described below.
 
-## Building CH3 
+## CH3 
 
 In the figure below is shown a resconstruction of 3 hydrogens (methyl group) on atom `C1`. In the json file, it corresponds to the line `"C1": ["CH3", "N4", "C5"],`. The first helper (helper1) needs to be the one connected to `C1` (thus `N4`), and the second helper (helper2) is connected to `N4` and 2 atoms away from `C1` (thus `C5`) along the main chain. The 3 reconstructed H will have names `H11`, `H12`, `H13`. The first character `1` is the same as the carbon number, the second character is the hydrogen number (`1`, `2` or `3`). 
 
@@ -50,7 +50,7 @@ In the figure below is shown a resconstruction of 3 hydrogens (methyl group) on 
 
 In this example, the use of `C2` or `C3` as helper2 would have worked too. However, we decided to use `C5` because it stands along the main chain of the lipid.
 
-## Building CH2
+## CH2
 
 In the figure below is shown the resconstruction of 2 hydrogens (methylene group) on atom `C26`. On the left is shown a CH2 reconstruction coming from the line `"C26": ["CH2", "C25", "C27"],` in the json file. `"CH2"` means we want to reconstruct 2 hydrogens, `"C25"` is helper1, `"C27"` is helper2. With `C25` being up and `C27` being down, the new hydrogens reconstructed are arranged in space so that `H261` comes towards us and `H262` goes backwards. Their name `H261` or `H262` follows the same rule as for CH3: `26` means the Hs are connected to `C26` and the last digit is the hydrogen number (`1` or `2`). 
 
@@ -60,7 +60,7 @@ On the right, we show the other case where we swapped the order of helper1 and h
 
 **TODO**: tells which H is pro-R and pro-S.
 
-## Building CH
+## CH
 
 For a CH, we want to reconstruct a single hydrogen on a carbon connected to 3 other heavy atoms. In this case, the carbon can be asymetric. This is the case, for example, in phospholipids for the second carbon of the glycerol as shown in the figure below. There is shown the resconstruction of a unique hydrogen on atom `C13`. In this case, we have 3 helpers which are merely the 3 heavy atoms (`C12`, `C32`, and `O14`) connected to that carbon. Note that the order of helpers in the json file `"C13": ["CH", "C12", "C32", "O14"],` does not matter in this case. `"C12"`, `"C32"` and `"O14"` can be put in any order in this list, the H reconstruction will be strictly identical. The H name `H131` follows the same convention as before, `13` is the carbon number and `1` is the first (and unique) reconstructed H.
 

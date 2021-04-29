@@ -1,4 +1,4 @@
-# Lipid def files
+# Lipid def file format
 
 ## Role of def files
 
