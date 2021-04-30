@@ -78,7 +78,7 @@ Each option is explained below. Some of them are mandatory.
 
 ### User lipid (json file)
 
-`-lt LIPID_TOPOLOGY` or `--lipid_topology LIPID_TOPOLOGY`: `LIPID_TOPOLOGY` is a user supplied topology lipid json file(s). When you want to analyze a lipid not present in **buildH** you can [build your own json file](json_format.md) and supply it with this option. Again, it has to follow the naming convention `ForceField_Lipid.json`. For example, if you build your own json file for butane with the Berger force field, you can call use `-lt Berger_BUTA.json`; in this case, you will have to use also `-l Berger_BUTA` flag.
+`-lt LIPID_TOPOLOGY` or `--lipid_topology LIPID_TOPOLOGY`: `LIPID_TOPOLOGY` is a user supplied topology lipid json file(s). When you want to analyze a lipid not present in **buildH** you can [build your own json file](json_format.md) and supply it with this option. Again, it has to follow the naming convention `ForceField_Lipid.json`. For example, if you build your own json file for butane with the Berger force field, you can use `-lt Berger_BUTA.json`; in this case, you will have to use also `-l Berger_BUTA` flag.
 
 (**optional flag**)
 
@@ -96,7 +96,7 @@ Each option is explained below. Some of them are mandatory.
 
 ### Output name for the order parameter
 
-`-o OUT` or `--out OUT`: `OUT` will be the output base name for storing the calculated order parameters. If this option is not supplied, the default output name is `OP_buildH.out`.
+`-o OUT` or `--out OUT`: `OUT` will be the output name for storing the calculated order parameters. If this option is not supplied, the default output name is `OP_buildH.out`.
 
 (**optional flag**)
 

@@ -64,17 +64,18 @@ def parse_cli():
                                      epilog=epilog)
     # Avoid tpr for topology cause there's no .coord there!
     parser.add_argument("-c", "--coord", type=isfile, required=True,
-                        help="Coordinate file (pdb or gro).")
+                        help="Coordinate file (pdb or gro format).")
     parser.add_argument("-t", "--traj", type=isfile,
                         help="Input trajectory file. Could be in XTC, TRR or DCD format.")
     parser.add_argument("-l", "--lipid", type=str, required=True,
-                        help="Residue name of lipid to calculate the OP on (e.g. POPC).")
+                        help="Residue name of lipid to calculate the OP. "
+                             "The naming must follow ForeceField_Lipid convention, "
+                             "for example Berger_POPC.")
     parser.add_argument("-lt", "--lipid_topology", type=isfile, nargs='+',
-                        help="User topology lipid json file(s). Mandatory to build hydrogens.")
+                        help="User topology lipid json file(s).")
     parser.add_argument("-d", "--defop", required=True, type=isfile,
                         help="Order parameter definition file. Can be found on "
-                        "NMRlipids MATCH repository:"
-                        "https://github.com/NMRLipids/MATCH/tree/master/scripts/orderParm_defs")
+                        "https://github.com/patrickfuchs/buildH/tree/master/def_files.")           
     parser.add_argument("-opx", "--opdbxtc", help="Base name for trajectory "
                         "output with hydrogens. File extension will be "
                         "automatically added. For example -opx trajH will "
@@ -87,10 +88,10 @@ def parse_cli():
                         help="The first frame (ps) to read from the trajectory.")
     parser.add_argument("-e", "--end", type=int,
                         help="The last frame (ps) to read from the trajectory.")
-    parser.add_argument("-pi", "--pickle", type=str,
-                        help="Output pickle filename. The structure pickled is a dictonnary "
-                        "containing for each Order parameter, "
-                        "the value of each lipid and each frame as a matrix")
+    #parser.add_argument("-pi", "--pickle", type=str,
+    #                    help="Output pickle filename. The structure pickled is a dictonnary "
+    #                    "containing for each Order parameter, "
+    #                    "the value of each lipid and each frame as a matrix")
     options = parser.parse_args()
 
 
