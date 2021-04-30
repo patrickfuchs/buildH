@@ -188,11 +188,11 @@ Each line corresponds to a given CH. The 4 first columns contain the generic nam
 
 - `OP_mean` is the order parameter averaged over all lipids and all frames of the trajectory.
 - `OP_stddev` is the standard deviation of the order parameter; first we average each C-H over the whole trajectory, then we calculate the standard deviation over all residues: 
-$$ OP\_stddev(CH_j) = \frac{1}{nres} \sum_{i=1}^{i=nres} 
-\left[ \frac{1}{nframes} \sum_{t=0}^{t=nframes} OP(CH_j)(i)(t) \right]$$
+$ OP\_stddev(CH_j) = \frac{1}{nres} \sum_{i=1}^{i=nres} 
+\left[ \frac{1}{nframes} \sum_{t=0}^{t=nframes} OP(CH_j)(i)(t) \right]$
 where $CH_i$ is the $j^{th}$ C-H, $nframes$ is the total number of frames, $nres$ is the total number of residues (i.e. lipids).
 - `OP_stem` is the standard error of the mean, averaged in the same spirit: 
-$$OP\_stem(CH_j) = \frac{OP\_stddev(CH_j)}{\sqrt{nres}}$$
+$OP\_stem(CH_j) = \frac{OP\_stddev(CH_j)}{\sqrt{nres}}$
 
 ## Further documentations
 

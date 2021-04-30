@@ -90,7 +90,7 @@ Each option is explained below. Some of them are mandatory.
 
 ### Output trajectory
 
-`-opx OPDBXTC` or `--opdbxtc OPDBXTC`: if you want a trajectory with all hydrogens reconstructed, `OPDBXTC` is a base name. If you supply `-opx traj_wH`, two files will be created: `traj_wH.pdb` and `traj_wH.xtc` both containing all hydrogens. File extension will be automatically added. So far only pdb and xtc are supported. Note that this option is slow.
+`-opx OPDBXTC` or `--opdbxtc OPDBXTC`: if you want a trajectory with all hydrogens reconstructed, `OPDBXTC` is a base name. If you supply `-opx traj_wH`, two files will be created: `traj_wH.pdb` and `traj_wH.xtc` both containing all hydrogens. File extension will be automatically added. If no trajectory is supplied with the option `-t`, **buildH** will only create a pdb but not an xtc. So far only pdb and xtc are supported. Note that this option is slow.
 
 (**optional flag**)
 
