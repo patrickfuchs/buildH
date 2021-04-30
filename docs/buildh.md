@@ -76,7 +76,7 @@ buildH -c start_128popc.pdb -l Berger_POPC \
 -d order_parameter_definitions_MODEL_Berger_POPC.def
 ```
 
-**buildH** can be used on a single structure (OK not very common for reasearch, but useful for debugging ;-)). The pdb structure is passed with option `-c` (it also works with gro files), the def file with `-d`. The flag `-l` is mandatory, it tells buildH the force field and the lipid: here it is `Berger_POPC`. The order parameters will be written in `OP_buildH.out` which is the default name.
+**buildH** can be used on a single structure (OK not very common for research, but useful for debugging ;-)). The pdb structure is passed with option `-c` (it also works with gro files), the def file with `-d`. The flag `-l` is mandatory, it tells buildH what force field and lipid to use: here it is `Berger_POPC`. The order parameters will be written in `OP_buildH.out` which is the default name.
 
 ### Same but with a chosen output name
 
@@ -121,7 +121,7 @@ gamma1_3 POPC C1  H13
 [...]
 ```
 
-Each line corresponds to a given C-H. The 4 columns correspond to the generic name, residue name, carbon name and hydrogen name respectively for that C-H.
+Each line corresponds to a given C-H. The 4 columns correspond to the generic name, residue name, carbon name and hydrogen name, respectively, for that C-H.
 
 In **buildH**, the def file has two main purposes:
 
@@ -129,7 +129,7 @@ In **buildH**, the def file has two main purposes:
 - Give a generic name to each C-H (which will appear in the output) and make the correspondance with the PDB names (e.g. `gamma1_1` stands for the C-H which have `C1` and `H11` atom names in the pdb file.
 
 
-For example, if you want to calculate the order parameters only on the polar head of a Berger POPC, you can use:
+For example, if you want to calculate the order parameters only on the polar head (excluding the CH3s of choline) of a Berger POPC, you can use:
 
 ```
 beta1 POPC C5  H51
