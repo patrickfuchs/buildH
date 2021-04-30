@@ -1,4 +1,8 @@
-"""Command line entry point for buildH."""
+"""User Interface module.
+
+It contains functions used for the CLI mode
+and the one for the 'module mode'.
+"""
 
 import argparse
 import pickle
@@ -16,6 +20,11 @@ from . import utils
 
 
 class BuildHError(Exception):
+    """Raised when BuildH returns a error.
+
+    This should be used when using BuildH as a module.
+    """
+
     pass
 
 
@@ -68,14 +77,15 @@ def parse_cli():
     parser.add_argument("-t", "--traj", type=isfile,
                         help="Input trajectory file. Could be in XTC, TRR or DCD format.")
     parser.add_argument("-l", "--lipid", type=str, required=True,
-                        help="Residue name of lipid to calculate the OP. "
-                             "The naming must follow ForeceField_Lipid convention, "
-                             "for example Berger_POPC.")
+                        help="Combinaison of the name of the ForceField "
+                        "and the residue name of lipid to calculate the OP on (e.g. Berger_POPC)."
+                        "It must match with the internal topology files or the one(s) supplied."
+                        "A list of supported terms is printed when calling the help.")
     parser.add_argument("-lt", "--lipid_topology", type=isfile, nargs='+',
                         help="User topology lipid json file(s).")
     parser.add_argument("-d", "--defop", required=True, type=isfile,
                         help="Order parameter definition file. Can be found on "
-                        "https://github.com/patrickfuchs/buildH/tree/master/def_files.")           
+                        "https://github.com/patrickfuchs/buildH/tree/master/def_files.")
     parser.add_argument("-opx", "--opdbxtc", help="Base name for trajectory "
                         "output with hydrogens. File extension will be "
                         "automatically added. For example -opx trajH will "
@@ -88,10 +98,10 @@ def parse_cli():
                         help="The first frame (ps) to read from the trajectory.")
     parser.add_argument("-e", "--end", type=int,
                         help="The last frame (ps) to read from the trajectory.")
-    #parser.add_argument("-pi", "--pickle", type=str,
-    #                    help="Output pickle filename. The structure pickled is a dictonnary "
-    #                    "containing for each Order parameter, "
-    #                    "the value of each lipid and each frame as a matrix")
+    # parser.add_argument("-pi", "--pickle", type=str,
+    #                     help="Output pickle filename. The structure pickled is a dictonnary "
+    #                     "containing for each Order parameter, "
+    #                     "the value of each lipid and each frame as a matrix")
     options = parser.parse_args()
 
 
@@ -138,7 +148,44 @@ def entry_point():
 
 
 def launch(coord_file, def_file, lipid_type, traj_file=None, out_file="OP_buildH.out", prefix_traj_ouput=None, begin=0, end=1, lipid_jsons=None):
+    """Launch BuildH calculations.
 
+    This is the only function which can be called inside a Python script to use BuildH as a module.
+    It checks the different arguments and call the main function.
+
+    Parameters
+    ----------
+    coord_file : str
+        Coordinate file. Only .pdb and .gro files are currently supported.
+    def_file : str
+        Order parameter definition file.
+    lipid_type : str
+        Combinaison of the name of the ForceField and the residue name of lipid to calculate the OP on (e.g. Berger_POPC).
+        It must match with the internal topology files or the one(s) supplied.
+    traj_file : str, optional
+        Trajectory file (could be in XTC, TRR or DCD format.), by default None
+    out_file : str, optional
+        Output file name for storing order parameters, by default "OP_buildH.out"
+    prefix_traj_ouput : str, optional
+        Base name for trajectory output with hydrogens.
+        File extension will be automatically added
+        By default None
+    begin : int, optional
+        The first frame (ps) to read from the trajectory, by default 0
+    end : int, optional
+        The last frame (ps) to read from the trajectory., by default 1
+    lipid_jsons : list, optional
+        "User topology lipid json file(s), by default None
+
+    Raises
+    ------
+    FileNotFoundError
+        When either coord_file, def_file or the traj_file is missing.
+    TypeError
+        When lipid_jsons is not a list
+    BuildHError
+        When something went wront during calculation.
+    """
     # Check files
     for file in [coord_file, traj_file, def_file]:
         if file is not None:
@@ -146,16 +193,17 @@ def launch(coord_file, def_file, lipid_type, traj_file=None, out_file="OP_buildH
             if not pathlib.Path.is_file(source):
                 raise FileNotFoundError(f"{source} does not exist.")
 
-    # Construct available lipid topologies
+    # Construct available lipid topologies with only the user topology files.
     if lipid_jsons:
         if not isinstance(lipid_jsons, list):
             raise TypeError(f"a list is expected for argument 'lipid_jsons'")
         lipids_files = [pathlib.Path(f) for f in lipid_jsons]
-        # Regenerate lipid topologies dictionary
+        # Generate lipid topologies dictionary
         try:
             lipids_tops = lipids.read_lipids_topH(lipids_files)
         except ValueError as e:
             raise BuildHError(e)
+    # Generate lipid topologies dictionary from internal topology files.
     else:
         lipids_files = [f for f in lipids.PATH_JSON.iterdir() if f.is_file()]
         lipids_tops = lipids.read_lipids_topH(lipids_files)
@@ -174,8 +222,49 @@ def launch(coord_file, def_file, lipid_type, traj_file=None, out_file="OP_buildH
 
 
 def main(coord_file, traj_file, def_file, out_file, prefix_traj_ouput, begin, end, dic_lipid):
+    """Main function of BuildH.
 
-    # 2) Create universe without H.
+    It takes care of all the necessary steps to compute the Order Parameter :
+      - create MDAnalysis Universe
+      - create internal dictionaries
+      - Check topology
+      - Reconstruct the hydrogens
+      - Compute OP and write the result in the output file.
+      - If asked, write the trajectory with the hydrogens.
+
+    Note
+    ----
+    This function shouldn't be called directly.
+    Either it's called by the entry point or by the `launch` function.
+
+
+    Parameters
+    ----------
+    coord_file : str
+        Coordinate file. Only .pdb and .gro files are currently supported.
+    traj_file : str
+        Trajectory file (could be in XTC, TRR or DCD format.). Can be None.
+    def_file : str
+        Order parameter definition file.
+    out_file : str
+        Output file name for storing order parameters.
+    prefix_traj_ouput : str
+        Base name for trajectory output with hydrogens.
+        File extension will be automatically added.
+        Can be None.
+    begin : int
+        The first frame (ps) to read from the trajectory.
+    end : int
+        The last frame (ps) to read from the trajectory.
+    dic_lipid : dict
+        Lipid Topology for the reconstruction of the hydrogens.
+
+    Raises
+    ------
+    BuildHError
+        When something went wront during calculation.
+    """
+    # Create universe without H.
     print("Constructing the system...")
     if traj_file:
         try:
@@ -196,7 +285,7 @@ def main(coord_file, traj_file, def_file, out_file, prefix_traj_ouput, begin, en
             raise BuildHError(f"Can't create MDAnalysis universe with file {coord_file}.")
 
 
-    # 2) Initialize dic for storing OP.
+    # Initialize dic for storing OP.
     # Init dic of correspondance : {('C1', 'H11'): 'gamma1_1',
     # {('C1', 'H11'): 'gamma1_1', ...}.
     try:
@@ -225,7 +314,7 @@ def main(coord_file, traj_file, def_file, out_file, prefix_traj_ouput, begin, en
 
     # Check the def file and the topology are coherent.
     if not utils.check_def_topol_consistency(dic_Cname2Hnames, dic_lipid):
-        raise BuildHError(f"Atoms defined in {def_file} are not consistent with topology chosen.")
+        raise BuildHError(f"Atoms defined in {def_file} are not consistent with the chosen topology.")
 
 
     print("System has {} atoms".format(len(universe_woH.coord)))
@@ -243,7 +332,7 @@ def main(coord_file, traj_file, def_file, out_file, prefix_traj_ouput, begin, en
             raise BuildHError(f"Error on the number of H's to rebuild. An output trajectory has been "
                      f"requestest but {def_file} doesn't contain all hydrogens to rebuild.")
 
-    # 6) If no traj output file requested, use fast indexing to speed up OP
+    # If no traj output file requested, use fast indexing to speed up OP
     # calculation. The function fast_build_all_Hs() returns nothing, dic_OP
     # is modified in place.
     if not prefix_traj_ouput:
@@ -255,3 +344,13 @@ def main(coord_file, traj_file, def_file, out_file, prefix_traj_ouput, begin, en
     writers.write_OP(out_file, dic_atname2genericname,
                             dic_OP, dic_lipid['resname'])
     print(f"Results written to {out_file}")
+
+    # # Pickle results
+    # if args.pickle:
+    #     with open(args.pickle, "wb") as f:
+    #         # Pickle the dic using the highest protocol available.
+    #         pickle.dump(dic_OP, f, pickle.HIGHEST_PROTOCOL)
+    #         print("dictionary pickled and written to {}".format(args.pickle))
+    #     #  To unpickle
+    #     #with open("OP.pickle", "rb") as f:
+    #     #    dic_OP = pickle.load(f)
