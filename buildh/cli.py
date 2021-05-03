@@ -216,11 +216,11 @@ def main():
     print(f"Results written to {args.out}")
 
     # Pickle results
-    if args.pickle:
-        with open(args.pickle, "wb") as f:
-            # Pickle the dic using the highest protocol available.
-            pickle.dump(dic_OP, f, pickle.HIGHEST_PROTOCOL)
-            print("dictionary pickled and written to {}".format(args.pickle))
+    #if args.pickle:
+    #    with open(args.pickle, "wb") as f:
+    #        # Pickle the dic using the highest protocol available.
+    #        pickle.dump(dic_OP, f, pickle.HIGHEST_PROTOCOL)
+    #        print("dictionary pickled and written to {}".format(args.pickle))
         #  To unpickle
         #with open("OP.pickle", "rb") as f:
         #    dic_OP = pickle.load(f)
