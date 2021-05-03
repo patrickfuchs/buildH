@@ -77,8 +77,8 @@ def parse_cli():
     parser.add_argument("-t", "--traj", type=isfile,
                         help="Input trajectory file. Could be in XTC, TRR or DCD format.")
     parser.add_argument("-l", "--lipid", type=str, required=True,
-                        help="Combinaison of the name of the ForceField "
-                        "and the residue name of lipid to calculate the OP on (e.g. Berger_POPC)."
+                        help="Combinaison of ForceField name and residue name "
+                        "for the lipid to calculate the OP on (e.g. Berger_POPC)."
                         "It must match with the internal topology files or the one(s) supplied."
                         "A list of supported terms is printed when calling the help.")
     parser.add_argument("-lt", "--lipid_topology", type=isfile, nargs='+',
@@ -160,29 +160,29 @@ def launch(coord_file, def_file, lipid_type, traj_file=None, out_file="OP_buildH
     def_file : str
         Order parameter definition file.
     lipid_type : str
-        Combinaison of the name of the ForceField and the residue name of lipid to calculate the OP on (e.g. Berger_POPC).
+        Combinaison of ForceField name and residue name for the lipid to calculate the OP on (e.g. Berger_POPC).
         It must match with the internal topology files or the one(s) supplied.
     traj_file : str, optional
-        Trajectory file (could be in XTC, TRR or DCD format.), by default None
+        Trajectory file (could be in XTC, TRR or DCD format), by default None.
     out_file : str, optional
-        Output file name for storing order parameters, by default "OP_buildH.out"
+        Output file name for storing order parameters, by default "OP_buildH.out".
     prefix_traj_ouput : str, optional
         Base name for trajectory output with hydrogens.
-        File extension will be automatically added
-        By default None
+        File extension will be automatically added.
+        By default None.
     begin : int, optional
-        The first frame (ps) to read from the trajectory, by default 0
+        The first frame (ps) to read from the trajectory, by default 0.
     end : int, optional
-        The last frame (ps) to read from the trajectory., by default 1
+        The last frame (ps) to read from the trajectory, by default 1.
     lipid_jsons : list, optional
-        "User topology lipid json file(s), by default None
+        User topology lipid json file(s), by default None.
 
     Raises
     ------
     FileNotFoundError
         When either coord_file, def_file or the traj_file is missing.
     TypeError
-        When lipid_jsons is not a list
+        When lipid_jsons is not a list.
     BuildHError
         When something went wront during calculation.
     """
@@ -243,7 +243,7 @@ def main(coord_file, traj_file, def_file, out_file, prefix_traj_ouput, begin, en
     coord_file : str
         Coordinate file. Only .pdb and .gro files are currently supported.
     traj_file : str
-        Trajectory file (could be in XTC, TRR or DCD format.). Can be None.
+        Trajectory file (could be in XTC, TRR or DCD format). Can be None.
     def_file : str
         Order parameter definition file.
     out_file : str
