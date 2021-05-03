@@ -1,7 +1,7 @@
-name: buildh
+name: buildh2
 # channels priority
 # see https://bioconda.github.io/
-# conda-forge has highest prioriy
+# conda-forge has highest priority
 channels:
   - defaults
   - bioconda
