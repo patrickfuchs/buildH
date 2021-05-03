@@ -46,7 +46,7 @@ In **buildH** the hydrogens basically do not exist before running the program, a
 
 ## Trajectory output and def files
 
-If an output trajecotry (option `-opx`) is requested, the `.def` file provided **must** contain all possible C-H in that lipid (since the whole trajectory with Hs will be reconstructed). This option is slow, we do not recommend it if an output xtc file is not wanted.
+If an output trajectory (option `-opx`) is requested, the `.def` file provided **must** contain all possible C-H in that lipid (since the whole trajectory with Hs will be reconstructed). This option is slow, we do not recommend it if an output xtc file is not wanted.
 
 If no option `-opx` is used, **buildH** uses fast indexing. In this case the `.def` file can contain any subset of all possible C-H pairs. For example, if one wants to get the order parameters of the polar head only (Berger POPC), the `.def` will be the following:
 
@@ -77,7 +77,7 @@ ATOM      4  C4  BUTA    1       1.910  -0.140   0.100  1.00  0.00
 
 ![Butane without hydrogen](img/butane.png)
 
-Let us consider first `C1` which has 3 hydrogens to reconstruct. The new hydrogens will be called `H11`, `H12` and `H13`. The residue name is `BUTA`. Since the butane molecule does not exist in known def files, we can create any generic name we want. Following the same model as [order_parameter_definitions_MODEL_Berger_POPC.def](https://github.com/patrickfuchs/buildH/blob/master/def_files/order_parameter_definitions_MODEL_Berger_POPC.def), we could name them `butane_C1a`, `butane_C1a` and  `butane_C1c`. Applying this to all possible C-H, we obtain:
+Let us consider first `C1` which has 3 hydrogens to reconstruct. The new hydrogens will be called `H11`, `H12` and `H13`. The residue name is `BUTA`. Since the butane molecule does not exist in known def files, we can create any generic name we want for each C-H. Following the same model as [order_parameter_definitions_MODEL_Berger_POPC.def](https://github.com/patrickfuchs/buildH/blob/master/def_files/order_parameter_definitions_MODEL_Berger_POPC.def), we could name them `butane_C1a`, `butane_C1a` and  `butane_C1c`. Applying this to all possible C-H, we obtain:
 
 ```
 butane_C1a BUTA C1 H11
@@ -92,7 +92,7 @@ butane_C4b BUTA C4 H42
 butane_C4c BUTA C4 H43
 ```
 
-Following the naming convention `Forcefield_Lipid.def`, this file should be called `Berger_BUTA.def`.
+Following the file naming convention `Forcefield_Lipid.def`, this file should be called `Berger_BUTA.def`.
 
 We also have to create the json file (see [here](json_format.md#a-guided-example-for-writing-a-lipid-json-file) on how to do that). We can use the following `Berger_BUTA.json`:
 
@@ -137,7 +137,7 @@ ATOM     14  H43 BUTA    1       1.920  -0.658   1.059  1.00  0.00             H
 
 - We showed you a simple example on butane. Although this molecule is very simple, you can see that it is easy to make a mistake. Although this def file is less critical than the [json lipid file](json_format.md), we recommend to double check it before using it for production. **buildH** makes for you a lot of checks and will throw an error if something is wrong, but it cannot detect all types of mistakes. Any spelling error on atom names, inversion, etc., may lead to nonsense results. So before going to production, do test on a single molecule and check thoroughly the output looks right.
 
-- The main lipids are already included in **buildH** (in the directory `buildh/lipids`) so you might not need to build your own def file. You can have a list of the supported lipids by invoking **buildH** with option `-h`:
+- The main lipids are already included in **buildH** (in the directory [`buildh/lipids`](https://github.com/patrickfuchs/buildH/tree/master/def_files)) so you might not need to build your own def file. You can have a list of the supported lipids by invoking **buildH** with option `-h`:
 
 ```
 $ buildH -h

@@ -7,7 +7,7 @@
   1.  A slow mode when an output trajectory is requested by the user. In this case, the whole trajectory including newly built hydrogens is written to this trajectory file. So far, only the xtc format is supported.
   2. A fast mode without any output trajectory.
 
-In both modes, the order parameter is calculated.
+In both modes, the order parameters is calculated.
 
 It is possible to select only a part of the lipid on which **buildH** will do his job (e.g. the polar head, the sn-1 aliphatic chain, etc.) thanks to the [def file](def_format.md).
 
@@ -56,7 +56,9 @@ The initial motivation comes from the [NMRlipids](https://nmrlipids.blogspot.com
 
 ## Validation of buildH
 
-**buildH** has been thoroughly validated using a CHARMM36 all-atom trajetory. Everything is detailed in the folder `docs/CHARMM36_POPC_validation`. You can get started with the [README file](CHARMM36_POPC_validation/README.md). There is also a [report](CHARMM36_POPC_validation/report_buildH.pdf) and an [animated gif](CHARMM36_POPC_validation/CHARMM_vs_buildH.gif).
+**buildH** has been thoroughly validated using a CHARMM36 all-atom trajetory. Everything is detailed in the folder [`docs/CHARMM36_POPC_validation`](https://github.com/patrickfuchs/buildH/tree/master/docs/CHARMM36_POPC_validation). You can get started with the [README file](CHARMM36_POPC_validation/README.md). There is also a [report](CHARMM36_POPC_validation/report_buildH.pdf) and an [animated gif](CHARMM36_POPC_validation/CHARMM_vs_buildH.gif). All files used for this validation were deposited on [Zenodo](https://zenodo.org/record/4715962):
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4715962.svg)](https://doi.org/10.5281/zenodo.4715962)
 
 ## Simple examples
 
@@ -67,7 +69,7 @@ No more BLABLA, please show me how to run **buildH**! OK, the examples below are
 - `order_parameter_definitions_MODEL_Berger_POPC.def`: contains a list of C-H which tells **buildH** what hydrogens to reconstruct and what C-H to calculate the order parameter on.
 
 
-Here are some examples on how to run `buildH`:
+Here are some examples on how to run **buildH**:
 
 ### Basic run on a single structure
 

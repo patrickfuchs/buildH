@@ -66,7 +66,7 @@ Each option is explained below. Some of them are mandatory.
 
 ### Trajectory
 
-`-t TRAJ` or `--traj TRAJ`: `TRAJ` is an input trajectory file in XTC, TRR or DCD format. If not provided, the H reconstruction and order parameter calculation will be done solely on the `COORD` file. In this case, the resulting order parameters will be averaged over the trajectory. More on how this averaging is performed can be found [here](buildh.md#statistics).
+`-t TRAJ` or `--traj TRAJ`: `TRAJ` is an input trajectory file in XTC, TRR or DCD format. If not provided, the H reconstruction and order parameter calculation will be done solely on the `COORD` file. If a trajecotry is provided with `-t` flag, the resulting order parameters will be averaged over that trajectory. More on how this averaging is performed can be found [here](buildh.md#statistics).
 
 (**optional flag**)
 
@@ -78,7 +78,7 @@ Each option is explained below. Some of them are mandatory.
 
 ### User lipid (json file)
 
-`-lt LIPID_TOPOLOGY` or `--lipid_topology LIPID_TOPOLOGY`: `LIPID_TOPOLOGY` is a user supplied topology lipid json file(s). When you want to analyze a lipid not present in **buildH** you can [build your own json file](json_format.md) and supply it with this option. Again, it has to follow the naming convention `ForceField_Lipid.json`. For example, if you build your own json file for butane with the Berger force field, you can use `-lt Berger_BUTA.json`; in this case, you will have to use also `-l Berger_BUTA` flag.
+`-lt LIPID_TOPOLOGY` or `--lipid_topology LIPID_TOPOLOGY`: `LIPID_TOPOLOGY` is a user supplied topology lipid json file(s). When you want to analyze a lipid not present in **buildH** you can [build your own json file](json_format.md) and supply it with this option. Again, it has to follow the naming convention `ForceField_Lipid.json`. For example, if you build your own json file for butane with the Berger force field, you can use `-lt Berger_BUTA.json`; in this case, you will have to use also `-l Berger_BUTA` flag. 
 
 (**optional flag**)
 
@@ -103,7 +103,9 @@ Each option is explained below. Some of them are mandatory.
 ### Precising beginning and end of trajectory
 
 `-b BEGIN` or `--begin BEGIN`: The first frame (in ps) to read from the trajectory.
+
 `-e END` or `--end END`: The last frame (in ps) to read from the trajectory.
+
 **buildH** checks whether the `BEGIN` and `END` make sense with the supplied trajectory.
 
 (**optional flag**)
@@ -112,6 +114,6 @@ Each option is explained below. Some of them are mandatory.
 
 *Sorry, this option is not implemented yet*.
 
-`-pi PICKLE` or `--pickle PICKLE`: Output pickle filename. The structure pickled is a dictonnary containing for each Order parameter, the value of each lipid and each frame as a matric
+`-pi PICKLE` or `--pickle PICKLE`: Output pickle filename. The structure pickled is a dictonnary containing for each Order parameter, the value of each lipid and each frame as a matrix.
 
 (**optional flag**)

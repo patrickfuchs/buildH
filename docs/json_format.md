@@ -1,6 +1,6 @@
 # Lipid json file format
 
-To build new hydrogens on a united-atom lipid, we need different informations that are read by **buildH** in a json file. By default, some standard lipids are present in **buildH** (in the directory `buildh/lipids/`). However, it is possible for the user to supply his/her own json file. Here we explain the format of these json files.
+To build new hydrogens on a united-atom lipid, we need different informations that are read by **buildH** in a json file. By default, some standard lipids are present in **buildH** (in the directory [`buildh/lipids/`](https://github.com/patrickfuchs/buildH/tree/master/buildh/lipids)). However, it is possible for the user to supply his/her own json file. Here we explain the format of these json files.
 
 ## Generality on the lipid json format
 
@@ -37,7 +37,7 @@ The first line with a key `"resname"` indicates some possible residue names for 
 
 In the the next lines, each `key` is basically a carbon atom name (between quotes) on which one wants to reconstruct hydrogens. This is the same atom name as found in the pdb or gro file. The corresponding `value` is a list containing 3 or 4 strings separated by a comma:
 
-- The first string can be either `"CH"`, `"CH2"`, `"CH3"` or `"CHdoublebond"`. It indicates to buildH if we want to reconstruct one H, two Hs, 3 Hs (sp3 carbon) or one H of a double bond (sp2 carbon) respectively. In fact, it represents the type of carbon on which we want to build new hydrogens.
+- The first string can be either `"CH"`, `"CH2"`, `"CH3"` or `"CHdoublebond"`. It indicates to buildH if we want to reconstruct one H, 2 Hs, 3 Hs (sp3 carbon) or one H of a double bond (sp2 carbon) respectively. In fact, it represents the type of carbon on which we want to build new hydrogens.
 - The next strings are called helpers (see below) and are atom names between quotes. We have 2 helpers for `"CH2"`, `"CH3"` or `"CHdoublebond"`, and 3 helpers for `"CH"`.
 
 So the general syntax is `[type of C on which we want to build Hs, name of helper1, name of helper2, ...]`. The choice of helpers and their order in the json file depends on the type of carbon. Everything is described below.
@@ -79,7 +79,7 @@ We have explained here the format of the json file which tells buildH what are t
 - the order of helpers in each list does not matter in the case of a CH or CHdoublebond;
 - the order of helpers in each list **does matter** in the case of a CH3 or CH2 reconstruction:
     - for CH3, helper1 is bonded to the carbon on which we reconstruct hydrogens and helper2 is two atoms away; 
-	- for CH2, both helper1 and helper2 are bonded to the carbon on which we reconstruct hydrogens, but their order will determine which reconstucted H is pro-R or pro-S.
+	- for CH2, both helper1 and helper2 are bonded to the carbon on which we reconstruct hydrogens, but their order will determine which reconstructed H is pro-R or pro-S.
 
 ## A guided example for writing a lipid json file
 
