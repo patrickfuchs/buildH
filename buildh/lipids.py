@@ -46,10 +46,10 @@ def read_lipids_topH(filenames):
             try:
                 topol = json.load(json_file)
             except Exception as e:
-                raise ValueError(f"{filenam_path} is in a bad format.") from e
+                raise ValueError(f"{filenam_path} is in a bad format: " + str(e)) from e
             # make sure at least 'resname' key exists
             if "resname" not in topol:
-                raise ValueError(f"{filenam_path} is in a bad format.")
+                raise ValueError(f"{filenam_path} is in a bad format: keyword 'resname' is missing.")
 
             # Retrieve forcefield and lipid name from the filename
             try:

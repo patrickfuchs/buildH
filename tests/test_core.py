@@ -32,17 +32,17 @@ class TestPDBPOPC:
     # This used for test_fast_build_all_Hs_calc_OP() and test_reconstruct_Hs()
     ref_OP = {
         # values = 10 lipids x 1 frame
-        ('C1', 'H11'):   [[-0.23599134], [ 0.57873978], [ 0.02244849], [ 0.32463168], [-0.39586207],
-                          [ 0.87975500], [ 0.41808654], [-0.28873204], [-0.47090717], [-0.11264325]],
+        ('C1', 'H11'):   [[-0.2359911], [ 0.5787392], [ 0.0224484], [ 0.32463246], [-0.39586149],
+                          [ 0.87975540], [ 0.41808751], [-0.28873301], [-0.47090728], [-0.11264333]],
 
-        ('C32', 'H321'): [[-0.41362438], [-0.49548668], [ 0.14942125], [ 0.94630508], [ 0.31010313],
-                          [ 0.89795921], [-0.49998903], [-0.49960781], [ 0.79312234], [-0.05705310]],
+        ('C32', 'H321'): [[-0.41362472], [-0.49548676], [ 0.14942140], [ 0.94630521], [ 0.31010481],
+                          [ 0.89795911], [-0.49998903], [-0.49960781], [ 0.79312354], [-0.05705253]],
 
-        ('C19', 'H192'): [[-0.00139740], [-0.26007547], [-0.42209310], [-0.27136435], [-0.35669634],
-                          [-0.46162108], [-0.25302670], [ 0.65296859], [ 0.14922439], [-0.41107602]],
+        ('C19', 'H192'): [[-0.00139755], [-0.26007410], [-0.42209355], [-0.27136414], [-0.35669670],
+                          [-0.46162091], [-0.25302619], [ 0.65296792], [ 0.14922587], [-0.41107551]],
 
-        ('CA1', 'HA11'): [[-0.48614830], [-0.43749174], [-0.40528699], [-0.35136869], [-0.45664981],
-                          [-0.21534578], [ 0.08544719], [ 0.44870156], [-0.10571712], [-0.46312028]]
+        ('CA1', 'HA11'): [[-0.48614851], [-0.43749245], [-0.40528734], [-0.35136805], [-0.45665044],
+                          [-0.21534620], [ 0.08544723], [ 0.44870036], [-0.10571545], [-0.46312000]]
     }
 
     # Method called once per class.
@@ -80,16 +80,16 @@ class TestPDBPOPC:
 
     @pytest.mark.parametrize('atom_index, Hs_coords', [
             # atom C1 type CH3
-            (0,  (np.array([35.06161421, 47.69320272, 26.76728762]),
-                  np.array([33.93128850, 47.36328732, 25.43245201]),
-                  np.array([35.02249090, 46.08195972, 26.01188584]))),
+            (0,  (np.array([35.06161421, 47.69320272, 26.76728762], dtype=np.float32),
+                  np.array([33.93128850, 47.36328732, 25.432453], dtype=np.float32),
+                  np.array([35.02249090, 46.08195972, 26.011885], dtype=np.float32))),
             # atom C5 type CH2
-            (4,  (np.array([31.62418725, 45.50474260, 27.61469385]),
-                  np.array([32.93474471, 44.52992542, 26.90727792]))),
+            (4,  (np.array([31.62418725, 45.50474260, 27.61469385], dtype=np.float32),
+                  np.array([32.93474471, 44.52992542, 26.90727792], dtype=np.float32))),
             # atom C13 type CH
-            (12, (np.array([26.61868981, 44.14296091, 25.55244500]),)),
+            (12, (np.array([26.6186898,  44.1429609, 25.55245], dtype=np.float32),)),
             # atom C24 type CHdoublebond
-            (23, (np.array([20.46454439, 38.99866187, 31.19224364]),)),
+            (23, (np.array([20.46454439, 38.99866187, 31.19224364], dtype=np.float32),)),
     ])
     def test_buildHs_on_1C(self, atom_index, Hs_coords):
         """Test for buildHs_on_1C().
@@ -183,7 +183,8 @@ class TestPDBPOPC:
         # The values need to be assert with float desired precision.
         for (key), value in self.ref_OP.items():
             assert key in self.dic_OP.keys()
-            assert_almost_equal(value, self.dic_OP[key])
+            assert_almost_equal(self.dic_OP[key], value)
+
 
 
     ########################################
@@ -240,7 +241,7 @@ class TestPDBPOPC:
 
         # Check statistics
         assert_almost_equal(np.mean(self.dic_OP[('C21', 'H212')]), -0.22229490)
-        assert_almost_equal(np.mean(self.dic_OP[('CA2', 'HA23')]),  0.22305860)
+        assert_almost_equal(np.mean(self.dic_OP[('CA2', 'HA23')]),  0.22305829)
 
         # Check few particular cases
         # Use of a loop to check key and value separately.
@@ -263,19 +264,19 @@ class TestXTCPOPC:
     # This used for test_fast_calcOP() and test_gen_coordinates_calcOP()
     ref_OP = {
         # values = 2 lipids x 11 frames
-        ('C2', 'H23'):   [ [-0.47293904, -0.48531776, -0.33300023, -0.08279667, -0.49939686,
-                            -0.49903488, -0.35986740,  0.76890823,  0.08157466,  0.19420324,
-                             0.27986448],
-                           [ 0.16147857, -0.34630697,  0.43297339,  0.28733088, -0.29597471,
-                            -0.39957748, -0.48918187, -0.08307259,  0.56356016,  0.75693095,
-                             0.20062960]
+        ('C2', 'H23'):   [ [-0.4729392, -0.4853177, -0.3329995, -0.0827970, -0.4993968,
+                            -0.4990348, -0.3598688,  0.7689081,  0.0815748,  0.1942028,
+                             0.2798647],
+                           [ 0.1614778, -0.3463071,  0.4329743,  0.2873318, -0.2959748,
+                            -0.3995778, -0.4891822, -0.0830738,  0.5635600,  0.7569330,
+                             0.2006300]
                          ],
-        ('C27', 'H272'): [ [ 0.21477296, -0.49887799, -0.41609987, -0.19329433,  0.30621276,
-                             0.50099123, -0.21682994,  0.50280378,  0.06031779, -0.00397443,
-                            -0.49713104],
-                           [ 0.01288211, -0.46547434, -0.37864825, -0.29720486, -0.41992799,
-                            -0.00013077, -0.342879725, -0.464275827, -0.264702934, 0.87274949,
-                            -0.20216758]
+        ('C27', 'H272'): [ [ 0.2147729, -0.4988779, -0.4161010, -0.1932931,  0.3062109,
+                             0.5009914, -0.2168313,  0.5028035,  0.0603169, -0.0039737,
+                            -0.4971311],
+                           [ 0.0128815, -0.4654747, -0.3786469, -0.2972043, -0.4199277,
+                            -0.0001302, -0.3428786, -0.4642762, -0.2647048,  0.8727489,
+                            -0.2021679]
                          ]
     }
 
@@ -320,8 +321,8 @@ class TestXTCPOPC:
                                        self.dic_OP, self.dic_lipid, self.dic_Cname2Hnames)
 
         # Check statistics
-        assert_almost_equal(np.mean(self.dic_OP[('C32', 'H321')]),  0.15300163)
-        assert_almost_equal(np.mean(self.dic_OP[('C50', 'H503')]), -0.08801085)
+        assert_almost_equal(np.mean(self.dic_OP[('C32', 'H321')]),   0.1530018)
+        assert_almost_equal(np.mean(self.dic_OP[('C50', 'H503')]), -0.08801112)
         assert_almost_equal(np.mean(self.dic_OP[('C1', 'H11')]),  0.26908040)
         assert_almost_equal(np.mean(self.dic_OP[('C5', 'H52')]), -0.20147210)
 
@@ -330,7 +331,7 @@ class TestXTCPOPC:
         # The values need to be assert with float desired precision.
         for (key), value in self.ref_OP.items():
             assert key in self.dic_OP.keys()
-            assert_almost_equal(value, self.dic_OP[key])
+            assert_almost_equal(self.dic_OP[key], value)
 
     def test_gen_coordinates_calcOP(self):
         """Test for gen_coordinates_calcOP().
@@ -342,8 +343,8 @@ class TestXTCPOPC:
                                     self.begin, self.end, True)
 
         # Check  statistics
-        assert_almost_equal(np.mean(self.dic_OP[('C32', 'H321')]),  0.15300163)
-        assert_almost_equal(np.mean(self.dic_OP[('C50', 'H503')]), -0.08801085)
+        assert_almost_equal(np.mean(self.dic_OP[('C32', 'H321')]),  0.15300180)
+        assert_almost_equal(np.mean(self.dic_OP[('C50', 'H503')]), -0.08801112)
         assert_almost_equal(np.mean(self.dic_OP[('C1', 'H11')]),  0.26908040)
         assert_almost_equal(np.mean(self.dic_OP[('C5', 'H52')]), -0.20147210)
 
@@ -352,4 +353,4 @@ class TestXTCPOPC:
         # The values need to be assert with float desired precision.
         for (key), value in self.ref_OP.items():
             assert key in self.dic_OP.keys()
-            assert_almost_equal(value, self.dic_OP[key])
+            assert_almost_equal(self.dic_OP[key], value)

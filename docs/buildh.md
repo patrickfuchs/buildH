@@ -1,80 +1,137 @@
-## Motivation
+# buildH
 
-The initial motivation comes from the [NMRlipids](https://nmrlipids.blogspot.com/) project. As stated in this [post](https://nmrlipids.blogspot.com/2019/04/nmrlipids-ivb-assembling-pe-pg-results.html), there was a lack of suitable program for reconstructing hydrogens. In the past, we used to use `g_protonate` in GROMACS 3.*. But this program has been removed in recent versions. Our idea was to build our own implementation in Python upon libraries such MDAnalysis, Numpy and Pandas..
+**buildH** is a software that reads a united-atom (UA) trajectory of lipids, build the hydrogens on it and calculate the order parameter on each C-H bond. **buildH** also allows to output the trajectory with the new reconstructed hydrogens.
 
+**buildH** works in two modes:
 
-## Features
-
-BuildH can :
-  - reconstruct hydrogens from a **united-atom** structure file (PDB, GRO) or a trajectory.
-  - calculate the order parameter based on the reconstructed hydrogens
-  - write a new structure/trajectory file with the reconstructed hydrogens
-
-
-BuildH works in two modes :
-  1.  A slow mode when an output trajectory (e.g. in xtc format) is requested by
-     the user. In this case, the whole trajectory including newly built
-     hydrogens are written to this trajectory.
+  1.  A slow mode when an output trajectory is requested by the user. In this case, the whole trajectory including newly built hydrogens is written to this trajectory file. So far, only the xtc format is supported.
   2. A fast mode without any output trajectory.
 
+In both modes, the order parameters is calculated.
 
-## Usage
+It is possible to select only a part of the lipid on which **buildH** will do his job (e.g. the polar head, the sn-1 aliphatic chain, etc.) thanks to the [def file](def_format.md).
+
+In this page you will find general information about **buildH**.
+
+## Installation
+
+### Simple installation
+
+A simple installation with pip will do the trick:
 
 ```
-$ buildH
-usage: buildH [-h] -c COORD [-t TRAJ] -l LIPID [-lt LIPID_TOPOLOGY [LIPID_TOPOLOGY ...]]
-               -d DEFOP [-opx OPDBXTC] [-o OUT] [-b BEGIN] [-e END] [-pi PICKLE]
-
-This program builds hydrogens and calculate the order parameters (OP) from a
-united-atom trajectory. If -opx is requested, pdb and xtc output files with
-hydrogens are created but OP calculation will be slow. If no trajectory output
-is requested (no use of flag -opx), it uses a fast procedure to build
-hydrogens and calculate the OP.
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -c COORD, --coord COORD
-                        Coordinate file (pdb or gro).
-  -t TRAJ, --traj TRAJ  Input trajectory file. Could be in XTC, TRR or DCD format.
-  -l LIPID, --lipid LIPID
-                        Residue name of lipid to calculate the OP on (e.g.
-                        POPC).
-  -lt LIPID_TOPOLOGY [LIPID_TOPOLOGY ...], --lipid_topology LIPID_TOPOLOGY [LIPID_TOPOLOGY ...]
-                        User topology lipid json file(s). Mandatory to build hydrogens.
-  -d DEFOP, --defop DEFOP
-                        Order parameter definition file. Can be found on
-                        NMRlipids MATCH repository:https://github.com/NMRLipid
-                        s/MATCH/tree/master/scripts/orderParm_defs
-  -opx OPDBXTC, --opdbxtc OPDBXTC
-                        Base name for trajectory output with hydrogens. File
-                        extension will be automatically added. For example
-                        -opx trajH will generate trajH.pdb and trajH.xtc. So
-                        far only xtc is supported.
-  -o OUT, --out OUT     Output base name for storing order parameters.
-                        Extention ".out" will be automatically added. Default
-                        name is OP_buildH.out.
-  -b BEGIN, --begin BEGIN
-                        The first frame (ps) to read from the trajectory.
-  -e END, --end END     The last frame (ps) to read from the trajectory.
-  -pi PICKLE, --pickle PICKLE
-                        Output pickle filename. The structure pickled is a dictonnary containing for each Order parameter,
-                        the value of each lipid and each frame as a matric
-
-The list of supported lipids (-l option) are: CHARMM_POPC, Berger_POPC, Berger_PLA, Berger_POP.
+python3 -m pip install buildh
 ```
 
+All dependencies (modules) will be installed automatically by pip.
 
-The program needs one mandatory file (present in this repo):
-- `order_parameter_definitions_MODEL_Berger_POPC.def` (option `-d`).
+### Installation within a conda environment
 
-#### order_parameters_definitions_MODEL_X_Y.def
+In case you want to install buildH within a [conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html), first create a new conda env:
 
-This file is a mapping file created for the [NMRlipids](https://nmrlipids.blogspot.com/) project.
-It aims at giving a unique name for each order parameter value along the lipid regardless the model of lipid used. This `.def` files can be found on the [MATCH repository](https://github.com/NMRLipids/MATCH/tree/master/scripts/orderParm_defs). Two examples of such files are present in directories `docs/Berger_POPC_test_case` and `docs/CHARMM36_POPC_validation`.
+```
+conda create -n env_buildH python pip
+```
 
-If an output trajecotry (option `-opx`) is requested, this `.def` file **must** contain all possible pairs of C-H to reconstruct (since the whole trajectory with Hs will be reconstructed). This option is slow, we do not recommend it if an output xtc file is not wanted.
+Then activate your environment:
 
-If no option `-opx` is used buildH uses fast indexing. In this case the `.def` file can contain any subset of all possible C-H pairs. For example, if one wants to get OPs for the polar head only (Berger POPC), the `.def` file could look like the following:
+```
+conda activate env_buildH
+```
+
+Last, install buildH within that environment using `pip`:
+
+```
+pip install buildh
+```
+
+*Note*: we recall that once the conda env is activated, when you use `pip` it is the version of `pip` within the conda env, not the one of your Unix system. It allows to embed buildH and all its dependencies within the env without interacting with the Python of the Unix system.
+
+For installing a developement version, see [here](devtools/install_dev.md).
+
+## Motivation
+
+The initial motivation comes from the [NMRlipids](https://nmrlipids.blogspot.com/) project. As stated in this [post](https://nmrlipids.blogspot.com/2019/04/nmrlipids-ivb-assembling-pe-pg-results.html), there was a lack of suitable program for reconstructing hydrogens. In the past, we used to use `g_protonate` in GROMACS 3.*. But this program has been removed in recent versions. Our idea was to build our own implementation in Python using libraries such MDAnalysis, Numpy and Pandas.
+**buildH** is used actively in the recent projects of NMRlipids such as [NMRlipidsIVPEandPG](https://github.com/NMRLipids/NMRlipidsIVPEandPG) or [Databank](https://github.com/NMRLipids/Databank). **buildH** can also be used by anyone willing to analyze the order parameter from a UA trajectory, or if one needs to have explicit hydrogens for some further analyzes.
+
+## Validation of buildH
+
+**buildH** has been thoroughly validated using a CHARMM36 all-atom trajetory. Everything is detailed in the folder [`docs/CHARMM36_POPC_validation`](https://github.com/patrickfuchs/buildH/tree/master/docs/CHARMM36_POPC_validation). You can get started with the [README file](CHARMM36_POPC_validation/README.md). There is also a [report](CHARMM36_POPC_validation/report_buildH.pdf) and an [animated gif](CHARMM36_POPC_validation/CHARMM_vs_buildH.gif). All files used for this validation were deposited on [Zenodo](https://zenodo.org/record/4715962):
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4715962.svg)](https://doi.org/10.5281/zenodo.4715962)
+
+## Simple examples
+
+No more BLABLA, please show me how to run **buildH**! OK, the examples below are based on a simple test case using Berger POPC. The files can be found on github in the directory [docs/Berger_POPC_test_case](https://github.com/patrickfuchs/buildH/tree/master/docs/Berger_POPC_test_case). You will need 3 files :
+
+- `start_128popc.pdb`: contains 128 POPC.
+- `popc0-25ns_dt1000.xtc`: contains a small trajectory of 25 frames.
+- `order_parameter_definitions_MODEL_Berger_POPC.def`: contains a list of C-H which tells **buildH** what hydrogens to reconstruct and what C-H to calculate the order parameter on.
+
+
+Here are some examples on how to run **buildH**:
+
+### Basic run on a single structure
+
+```bash
+buildH -c start_128popc.pdb -l Berger_POPC \
+-d order_parameter_definitions_MODEL_Berger_POPC.def
+```
+
+**buildH** can be used on a single structure (OK not very common for research, but useful for debugging ;-)). The pdb structure is passed with option `-c` (it also works with gro files), the def file with `-d`. The flag `-l` is mandatory, it tells buildH what force field and lipid to use: here it is `Berger_POPC`. The order parameters will be written in `OP_buildH.out` which is the default name.
+
+### Same but with a chosen output name
+
+```bash
+buildH -c start_128popc.pdb -l Berger_POPC \
+-d order_parameter_definitions_MODEL_Berger_POPC.def \
+-o my_OP_buildH.out
+```
+
+Here we add a `-o` flag which tells **buildH** to output the results in a file named `my_OP_buildH.out`.
+
+### Run on a trajectory
+
+```bash
+buildH -c start_128popc.pdb -l Berger_POPC \
+-d order_parameter_definitions_MODEL_Berger_POPC.def \
+-t popc0-25ns_dt1000.xtc
+```
+
+Here the flag `-t` indicates a trajectory. The final order parameters will be averaged over all lipids and all frames for each C-H present in the def file. More can be found on how the averaging is done [below](https://github.com/patrickfuchs/buildH/blob/master/docs/buildh.md#statistics). The default name `OP_buildH.out` will be used.
+
+### Same with an output trajectory with reconstructed hydrogens
+
+```bash
+buildH -c start_128popc.pdb -l Berger_POPC \
+-d order_parameter_definitions_MODEL_Berger_POPC.def \
+-t popc0-25ns_dt1000.xtc -opx popc0-25ns_dt1000_with_H
+```
+
+Here we added the flag `-opx` to request a pdb and an xtc file of the system with all the reconstructed hydrogens. Note that the flag takes a base name without extension since it will create a pdb and an xtc, here `popc0-25ns_dt1000_with_H.pdb` and `popc0-25ns_dt1000_with_H.xtc`. The use of this flag `-opx` requires the `.def` file to contain **all possible pairs of C-H** to reconstruct (since the trajectory with all Hs will be reconstructed).
+
+## Additional features
+
+### Why do I need a def file?
+
+A def file looks like this:
+
+```
+gamma1_1 POPC C1  H11
+gamma1_2 POPC C1  H12
+gamma1_3 POPC C1  H13
+[...]
+```
+
+Each line corresponds to a given C-H. The 4 columns correspond to the generic name, residue name, carbon name and hydrogen name, respectively, for that C-H.
+
+In **buildH**, the def file has two main purposes:
+
+- Tell what are the C-H we want to consider for H reconstruction and order parameter calculation.
+- Give a generic name to each C-H (which will appear in the output) and make the correspondance with the PDB names (e.g. `gamma1_1` stands for the C-H which have `C1` and `H11` atom names in the pdb file.
+
+
+For example, if you want to calculate the order parameters only on the polar head (excluding the CH3s of choline) of a Berger POPC, you can use:
 
 ```
 beta1 POPC C5  H51
@@ -88,60 +145,62 @@ g1_1 POPC C32 H321
 g1_2 POPC C32 H322
 ```
 
-## Examples
+Using the [Berger POPC trajectory](https://github.com/patrickfuchs/buildH/tree/master/docs/Berger_POPC_test_case) of 25 frames, the output `OP_buildH.out` will contain the order parameters of the C-H specified in the def file:
 
-A couple of test cases on Berger POPC are avaialble in the `docs/Berger_POPC_test_case` folder from the [GitHub repository of the project](https://github.com/patrickfuchs/buildH).
+```
+# OP_name            resname atom1 atom2  OP_mean OP_stddev OP_stem
+#--------------------------------------------------------------------
+beta1                POPC    C5    H51    0.04934  0.11999  0.01061
+beta2                POPC    C5    H52    0.07162  0.12108  0.01070
+alpha1               POPC    C6    H61    0.11839  0.15261  0.01349
+alpha2               POPC    C6    H62    0.13903  0.19003  0.01680
+g3_1                 POPC    C12   H121  -0.28674  0.09135  0.00807
+g3_2                 POPC    C12   H122  -0.16195  0.14832  0.01311
+g2_1                 POPC    C13   H131  -0.15159  0.14511  0.01283
+g1_1                 POPC    C32   H321   0.21133  0.22491  0.01988
+g1_2                 POPC    C32   H322   0.09638  0.16189  0.01431
+```
 
-Here are some examples on how to run `buildH`:
+The def files of the lipids supported by **buildH** can be found [here](https://github.com/patrickfuchs/buildH/tree/master/def_files).
 
-- Basic run on a single structure (default name for output OPs will be used):
-  ```bash
-  buildH start_128popc.pdb -l Berger_POPC \
-  -d order_parameter_definitions_MODEL_Berger_POPC.def
-  ```
-- Same but an output file for OPs name is given:
-  ```bash
-  buildH start_128popc.pdb -l Berger_POPC \
-  -d order_parameter_definitions_MODEL_Berger_POPC.def \
-  -o OP_buildH.out
-  ```
-- Run `buildH` on a trajectory `traj.xtc`:
-  ```bash
-  buildH start_128popc.pdb -l Berger_POPC \
-  -d order_parameter_definitions_MODEL_Berger_POPC.def \
-  -x traj.xtc
-  ```
-- Run `buildH` on a trajectory `traj.xtc` with the trajecory outputs with hydrogens (`traj_with_H.xtc` and `traj_with_H.pdb`), and a default file name for the OP:
-  ```bash
-  buildH start_128popc.pdb -l Berger_POPC \
-  -d order_parameter_definitions_MODEL_Berger_POPC.def \
-  -x traj.xtc -opx traj_with_H
-  ```
-  Note that in this last case, the `.def` file **must** contain all possible pairs of C-H to reconstruct. (since the whole trajectory with Hs will be reconstructed).
+More on def files and creating your own ones can be found [here](def_format.md).
 
-## Validation of buildH
+### Supported lipids
 
-The folder `docs/CHARMM36_POPC_validation` contains a thorough validation of `buildH` using a trajectory created with the CHARMM36 all-atom force field.
+The list of supported lipids by **buildH** can be requested with `buildH -h`. This command will throw a detailed help to the screen, the list will be indicated at the last line. If you want to analyze a lipid that is not present in **buildH**, you will have to create your own def file as well as a json file which explains to **buildH** how the hydrogens will be reconstructed. This user json file is passed with option `-lt`. Here is more documentation on how to [create your own def file](def_format.md) and how to [create your own json file](json_format.md).
 
-## Algorithm for building hydrogens
+### Mixtures of lipids
 
-The way of building H is largely inspired from a code of Jon Kapla originally written in fortran:
-<https://github.com/kaplajon/trajman/blob/master/module_trajop.f90#L242>.
+If you have a mixture of lipids, you will have to run **buildH** for each lipid separately.
 
-Below is an example of a reconstruction of 2 hydrogens (*H51* and *H52*) attached to a carbon *C5* with the help of 2 others atom *C6* and *N4*.
+### Statistics
 
-![Vectors](vectors.png)
+The order parameter output of buildH (default name `OP_buildH.out`) looks like this:
 
-First, we compute the cross product between the vector C5-C6 and C5-N4 (red).
+```
+# OP_name            resname atom1 atom2  OP_mean OP_stddev OP_stem
+#--------------------------------------------------------------------
+gamma1_1             POPC    C1    H11    0.01304  0.12090  0.01069
+gamma1_2             POPC    C1    H12    0.00666  0.09279  0.00820
+gamma1_3             POPC    C1    H13   -0.01531  0.09141  0.00808
+[...]
+```
 
-We determine a rotational axis determined by the vector N4-C6. (green)
+Each line corresponds to a given CH. The 4 first columns contain the generic name, residue name, carbon and hydrogen names respectively. The other column contains different statistics:
 
-We compute the cross product between the red one and green one. (orange)
+- `OP_mean` is the order parameter averaged over all lipids and all frames of the trajectory.
+- `OP_stddev` is the standard deviation of the order parameter; first we average each C-H over the whole trajectory, then we calculate the standard deviation over all residues: 
+$ OP\_stddev(CH_j) = \frac{1}{nres} \sum_{i=1}^{i=nres} 
+\left[ \frac{1}{nframes} \sum_{t=0}^{t=nframes} OP(CH_j)(i)(t) \right]$
+where $CH_i$ is the $j^{th}$ C-H, $nframes$ is the total number of frames, $nres$ is the total number of residues (i.e. lipids).
+- `OP_stem` is the standard error of the mean, averaged in the same spirit: 
+$OP\_stem(CH_j) = \frac{OP\_stddev(CH_j)}{\sqrt{nres}}$
 
-This orange vector is the rotational vector to construct the hydrogens.
+## Further documentations
 
-For this case, 2 hydrogens are constructed (yellow) : we apply a rotation of 109.47 deg for one and -109.47 deg for the other one.
+Some more detailed are available about:
 
-## TODO
-
-How the other hydrogens are reconstructed (CH3, CH double bond, CH).
+- [More on command line options](command_line_options.md)
+- [How **buildH** builds hydrogens](algorithms_Hbuilding.md)
+- [The def file format](def_format.md)
+- [The lipid json format](json_format.md)

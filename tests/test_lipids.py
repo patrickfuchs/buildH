@@ -54,4 +54,4 @@ class TestLipids():
         bad_file = "Berger_wrongformat.json"
         with pytest.raises(ValueError) as err:
             lipids.read_lipids_topH([PATH_ROOT_DATA / bad_file])
-        assert f"{bad_file} is in a bad format." in str(err.value)
+        assert f"{bad_file} is in a bad format: keyword 'resname' is missing." in str(err.value)

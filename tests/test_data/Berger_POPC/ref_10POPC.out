@@ -15,8 +15,8 @@ alpha1               POPC    C6    H61   -0.00006  0.44207  0.13980
 alpha2               POPC    C6    H62    0.08568  0.35739  0.11302
 g3_1                 POPC    C12   H121  -0.19112  0.29956  0.09473
 g3_2                 POPC    C12   H122  -0.26903  0.31975  0.10112
-g2_1                 POPC    C13   H131  -0.18031  0.30075  0.09511
-g1_1                 POPC    C32   H321   0.11312  0.56928  0.18002
+g2_1                 POPC    C13   H131  -0.18032  0.30075  0.09511
+g1_1                 POPC    C32   H321   0.11312  0.56929  0.18002
 g1_2                 POPC    C32   H322   0.10458  0.42195  0.13343
 palmitoyl_C2a        POPC    C36   H361  -0.05215  0.43201  0.13661
 palmitoyl_C2b        POPC    C36   H362  -0.32485  0.20785  0.06573
@@ -33,7 +33,7 @@ palmitoyl_C7b        POPC    C41   H412  -0.38290  0.10786  0.03411
 palmitoyl_C8a        POPC    C42   H421  -0.17248  0.37633  0.11901
 palmitoyl_C8b        POPC    C42   H422  -0.36731  0.17801  0.05629
 palmitoyl_C9a        POPC    C43   H431  -0.14923  0.34164  0.10804
-palmitoyl_C9b        POPC    C43   H432  -0.35224  0.22715  0.07183
+palmitoyl_C9b        POPC    C43   H432  -0.35224  0.22716  0.07183
 palmitoyl_C10a       POPC    C44   H441  -0.24507  0.20125  0.06364
 palmitoyl_C10b       POPC    C44   H442  -0.25588  0.32002  0.10120
 palmitoyl_C11a       POPC    C45   H451  -0.17274  0.32373  0.10237
@@ -50,7 +50,7 @@ palmitoyl_C16a       POPC    C50   H501   0.12479  0.58161  0.18392
 palmitoyl_C16b       POPC    C50   H502  -0.31693  0.19770  0.06252
 palmitoyl_C16c       POPC    C50   H503   0.21265  0.42328  0.13385
 oleoyl_C2a           POPC    C17   H171  -0.18843  0.34927  0.11045
-oleoyl_C2b           POPC    C17   H172  -0.29408  0.31228  0.09875
+oleoyl_C2b           POPC    C17   H172  -0.29408  0.31229  0.09875
 oleoyl_C3a           POPC    C18   H181  -0.16654  0.38414  0.12147
 oleoyl_C3b           POPC    C18   H182  -0.23018  0.23825  0.07534
 oleoyl_C4a           POPC    C19   H191  -0.08074  0.37116  0.11737
@@ -68,7 +68,7 @@ oleoyl_C10a          POPC    C25   H251  -0.27080  0.34211  0.10818
 oleoyl_C11a          POPC    C26   H261  -0.05356  0.45850  0.14499
 oleoyl_C11b          POPC    C26   H262  -0.05464  0.41436  0.13103
 oleoyl_C12a          POPC    C27   H271  -0.01784  0.41960  0.13269
-oleoyl_C12b          POPC    C27   H272  -0.02423  0.45760  0.14471
+oleoyl_C12b          POPC    C27   H272  -0.02423  0.45760  0.14470
 oleoyl_C13a          POPC    C28   H281  -0.13075  0.46126  0.14586
 oleoyl_C13b          POPC    C28   H282  -0.15316  0.32120  0.10157
 oleoyl_C14a          POPC    C29   H291  -0.23387  0.28454  0.08998

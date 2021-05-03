@@ -1,8 +1,10 @@
 """Module for geometric operations."""
 
 import numpy as np
+from numba import njit
 
 
+@njit
 def normalize(vec):
     """Normalize a vector.
 
@@ -18,6 +20,7 @@ def normalize(vec):
     return vec / norm(vec)
 
 
+@njit
 def norm(vec):
     """Return the norm of a vector.
 
@@ -33,6 +36,7 @@ def norm(vec):
     return np.sqrt((vec**2).sum())
 
 
+@njit
 def calc_angle(atom1, atom2, atom3):
     """Calculate the valence angle between atom1, atom2 and atom3.
 
@@ -59,6 +63,7 @@ def calc_angle(atom1, atom2, atom3):
     return np.arccos(costheta)
 
 
+@njit
 def vec2quaternion(vec, theta):
     """Translate a vector of 3 elements and angle theta to a quaternion.
 
@@ -79,6 +84,7 @@ def vec2quaternion(vec, theta):
     return np.array([w, x, y, z])
 
 
+@njit
 def calc_rotation_matrix(quaternion):
     """Translate a quaternion to a rotation matrix.
 
@@ -92,7 +98,7 @@ def calc_rotation_matrix(quaternion):
         The rotation matrix.
     """
     # Initialize rotation matrix.
-    matrix = np.zeros((3, 3))
+    matrix = np.zeros((3, 3), dtype=np.float32)
     # Get quaternion elements.
     w, x, y, z = quaternion
     # Compute rotation matrix.
@@ -108,6 +114,7 @@ def calc_rotation_matrix(quaternion):
     return matrix
 
 
+@njit
 def apply_rotation(vec_to_rotate, rotation_axis, rad_angle):
     """Rotate a vector around an axis by a given angle.
 
@@ -135,6 +142,7 @@ def apply_rotation(vec_to_rotate, rotation_axis, rad_angle):
     return normalize(vec_rotated)
 
 
+@njit
 def cross_product(A, B):
     """Return the cross product between vectors A & B.
 
@@ -163,6 +171,7 @@ def cross_product(A, B):
     return np.array((x, -y, z))
 
 
+@njit
 def calc_OP(C, H):
     """Return the Order Parameter of a CH bond (OP).
 

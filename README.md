@@ -28,97 +28,78 @@ BuildH works in two modes :
 
 Python >= 3.6 is mandatory for running buildH.
 
-buildH is written in Python 3 and need the following modules :
-  - numpy
-  - pandas
-  - MDAnalysis.
+buildH is written in Python 3 and needs the modules numpy, pandas, MDAnalysis and Numba.
 
-This is automatically taken into account if you follow the procedure below.
+## Installation
 
-## Installation (development)
+### Simple installation
 
-1. Install conda (either with Miniconda or Anaconda, we recommend Miniconda)
+A simple installation with pip will do the trick:
 
-2. Clone this GitHub repository:
 ```
-$ git clone https://github.com/patrickfuchs/buildH.git
-$ cd buildH
+python3 -m pip install buildh
 ```
 
-3. Create conda environment:
+All dependencies (modules) will be installed automatically by pip.
+
+### Installation within a conda environment
+
+In case you want to install buildH within a [conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html), first create a new conda env:
+
 ```
-$ conda env create -f binder/environment.yml
-$ conda activate buildh
+conda create -n env_buildH python pip
 ```
 
-If needed, update your conda env with
+Then activate your environment:
+
 ```
-$ conda env update -f binder/environment.yml
+conda activate env_buildH
 ```
 
-4. Install the dev version of buildH:
+Last, install buildH within that environment using `pip`:
+
 ```
-$ pip install -e .
+pip install buildh
 ```
 
+*Note*: we recall that once the conda env is activated, when you use `pip` it is the version of `pip` within the conda env, not the one of your Unix system. It allows to embed buildH and all its dependencies within the env without interacting with the Python of the Unix system.
 
-## Usage
+For installing a developement version, see [here](devtools/install_dev.md).
+
+## Launching buildH
+
+Once installed with `pip` as shown above, a simple invocation of `buildH` will launch the program (`$` represents the Unix prompt):
 
 ```
 $ buildH
-usage: buildH [-h] -c COORD [-t TRAJ] -l LIPID [-lt LIPID_TOPOLOGY [LIPID_TOPOLOGY ...]]
-               -d DEFOP [-opx OPDBXTC] [-o OUT] [-b BEGIN] [-e END] [-pi PICKLE]
-
-This program builds hydrogens and calculate the order parameters (OP) from a
-united-atom trajectory. If -opx is requested, pdb and xtc output files with
-hydrogens are created but OP calculation will be slow. If no trajectory output
-is requested (no use of flag -opx), it uses a fast procedure to build
-hydrogens and calculate the OP.
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -c COORD, --coord COORD
-                        Coordinate file (pdb or gro).
-  -t TRAJ, --traj TRAJ  Input trajectory file. Could be in XTC, TRR or DCD format.
-  -l LIPID, --lipid LIPID
-                        Residue name of lipid to calculate the OP on (e.g.
-                        POPC).
-  -lt LIPID_TOPOLOGY [LIPID_TOPOLOGY ...], --lipid_topology LIPID_TOPOLOGY [LIPID_TOPOLOGY ...]
-                        User topology lipid json file(s). Mandatory to build hydrogens.
-  -d DEFOP, --defop DEFOP
-                        Order parameter definition file. Can be found on
-                        NMRlipids MATCH repository:https://github.com/NMRLipid
-                        s/MATCH/tree/master/scripts/orderParm_defs
-  -opx OPDBXTC, --opdbxtc OPDBXTC
-                        Base name for trajectory output with hydrogens. File
-                        extension will be automatically added. For example
-                        -opx trajH will generate trajH.pdb and trajH.xtc. So
-                        far only xtc is supported.
-  -o OUT, --out OUT     Output base name for storing order parameters.
-                        Extention ".out" will be automatically added. Default
-                        name is OP_buildH.out.
-  -b BEGIN, --begin BEGIN
-                        The first frame (ps) to read from the trajectory.
-  -e END, --end END     The last frame (ps) to read from the trajectory.
-  -pi PICKLE, --pickle PICKLE
-                        Output pickle filename. The structure pickled is a dictonnary containing for each Order parameter,
-                        the value of each lipid and each frame as a matric
-
-The list of supported lipids (-l option) are: CHARMM_POPC, Berger_POPC, Berger_PLA, Berger_POP.
+usage: buildH [-h] -c COORD [-t TRAJ] -l LIPID [-lt LIPID_TOPOLOGY [LIPID_TOPOLOGY ...]] -d DEFOP
+              [-opx OPDBXTC] [-o OUT] [-b BEGIN] [-e END] [-pi PICKLE]
+buildH: error: the following arguments are required: -c/--coord, -l/--lipid, -d/--defop
 ```
 
-The program needs one mandatory file (present in this repo):
-- `order_parameter_definitions_MODEL_Berger_POPC.def` (option `-d`).
+The minimal command for launching **buildH** can ressemble this:
 
-## Further documentation
+```
+$ buildH -c start_128popc.pdb -t popc0-25ns_dt1000.xtc -l Berger_POPC -d order_parameter_definitions_MODEL_Berger_POPC.def
+```
 
-Some more documentation can be found in the directory `docs` :
+The different arguments mean the following: `-c start_128popc.pdb` is a pdb file with 128 POPC, `-t popc0-25ns_dt1000.xtc` is a trajectory with 25 frames, `-l Berger_POPC` indicates the united-atom force field and the type of lipid to be analyzed, `-d order_parameter_definitions_MODEL_Berger_POPC.def` indicates what C-H are considered for H building and order parameter calculation. This latter file can be found [here](https://github.com/patrickfuchs/buildH/blob/master/def_files/order_parameter_definitions_MODEL_Berger_POPC.def). The final order parameters averaged over the trajectory will be written to the default output name `OP_buildH.out`
 
-- Explanation of the different file formats.
-- Examples of how to launch buildH.
-- Validation of buildH.
-- The geometric algorithm on how H are rebuilt.
+Some other commented examples can be found on the [documentation part](https://github.com/patrickfuchs/buildH#documentation). There is also a Notebook showing a full analysis on a trajectory of 2500 frames (**TODO**: link to be added).
 
+Invoking **buildH** with the `-h` flag will display some help to the screen and tell the user which lipids are supported by **buildH**.
+
+```
+$ buildH -h
+usage: buildH [-h] -c COORD [-t TRAJ] -l LIPID [-lt LIPID_TOPOLOGY [LIPID_TOPOLOGY ...]] -d DEFOP
+              [-opx OPDBXTC] [-o OUT] [-b BEGIN] [-e END] [-pi PICKLE]
+[...]
+The list of supported lipids (-l option) are: Berger_POPC, Berger_PLA, Berger_POP, CHARMM_POPC.
+```
+
+## Documentation
+
+The full documentation is available on [readthedocs](https://buildh.readthedocs.io/en/latest/index.html).
 
 ## Contributors
 
@@ -126,7 +107,6 @@ Some more documentation can be found in the directory `docs` :
   - Amélie Bacle
   - Hubert Santuz
   - Pierre Poulain
-
 
 ## Licence
 
