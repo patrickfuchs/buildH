@@ -69,6 +69,7 @@ def parse_cli():
     fast procedure to build hydrogens and calculate the OP.
     """
     epilog = f"The list of supported lipids (-l option) are: {lipids_supported_str}."
+    epilog += "More documentation can be found at https://buildh.readthedocs.io/en/latest/index.html."
     parser = argparse.ArgumentParser(description=message,
                                      epilog=epilog)
     # Avoid tpr for topology cause there's no .coord there!
