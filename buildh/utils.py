@@ -157,11 +157,12 @@ def check_def_topol_consistency(dic_Cname2Hnames, lipid_top):
         if carbon != "resname":
             H_type = values[0]
             nb_Hs_topol = nb_Hs_expected[H_type]
-            nb_Hs_def = len(dic_Cname2Hnames[carbon])
-            if nb_Hs_def != nb_Hs_topol:
-                print(f"Carbon {carbon} from the definition file should contains "
-                      f"{nb_Hs_topol} hydrogen(s), found {nb_Hs_def}.")
-                return False
+            if carbon in dic_Cname2Hnames: # Handle partial def file
+                nb_Hs_def = len(dic_Cname2Hnames[carbon])
+                if nb_Hs_def != nb_Hs_topol:
+                    print(f"Carbon {carbon} from the definition file should contains "
+                        f"{nb_Hs_topol} hydrogen(s), found {nb_Hs_def}.")
+                    return False
     return True
 
 
