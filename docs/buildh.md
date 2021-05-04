@@ -7,7 +7,7 @@
   1.  A slow mode when an output trajectory is requested by the user. In this case, the whole trajectory including newly built hydrogens is written to this trajectory file. So far, only the xtc format is supported.
   2. A fast mode without any output trajectory.
 
-In both modes, the order parameters is calculated.
+In both modes, the order parameters are calculated.
 
 It is possible to select only a part of the lipid on which **buildH** will do his job (e.g. the polar head, the sn-1 aliphatic chain, etc.) thanks to the [def file](def_format.md).
 
@@ -64,12 +64,12 @@ The initial motivation comes from the [NMRlipids](https://nmrlipids.blogspot.com
 
 No more BLABLA, please show me how to run **buildH**! OK, the examples below are based on a simple test case using Berger POPC. The files can be found on github in the directory [docs/Berger_POPC_test_case](https://github.com/patrickfuchs/buildH/tree/master/docs/Berger_POPC_test_case). You will need 3 files :
 
-- `start_128popc.pdb`: contains 128 POPC.
-- `popc0-25ns_dt1000.xtc`: contains a small trajectory of 25 frames.
-- `order_parameter_definitions_MODEL_Berger_POPC.def`: contains a list of C-H which tells **buildH** what hydrogens to reconstruct and what C-H to calculate the order parameter on.
+- [`start_128popc.pdb`](https://github.com/patrickfuchs/buildH/blob/master/docs/Berger_POPC_test_case/start_128popc.pdb): contains 128 POPC.
+- [`popc0-25ns_dt1000.xtc`](https://github.com/patrickfuchs/buildH/blob/master/docs/Berger_POPC_test_case/popc0-25ns_dt1000.xtc): contains a small trajectory of 25 frames.
+- [`order_parameter_definitions_MODEL_Berger_POPC.def`](https://github.com/patrickfuchs/buildH/blob/master/docs/Berger_POPC_test_case/order_parameter_definitions_MODEL_Berger_POPC.def): contains a list of C-H which tells **buildH** what hydrogens to reconstruct and what C-H to calculate the order parameter on.
 
 
-Here are some examples on how to run **buildH**:
+Here are some examples on how to run **buildH** with these 3 files:
 
 ### Basic run on a single structure
 
@@ -78,7 +78,7 @@ buildH -c start_128popc.pdb -l Berger_POPC \
 -d order_parameter_definitions_MODEL_Berger_POPC.def
 ```
 
-**buildH** can be used on a single structure (OK not very common for research, but useful for debugging ;-)). The pdb structure is passed with option `-c` (it also works with gro files), the def file with `-d`. The flag `-l` is mandatory, it tells buildH what force field and lipid to use: here it is `Berger_POPC`. The order parameters will be written in `OP_buildH.out` which is the default name.
+**buildH** can be used on a single structure (OK not very common for research, but useful for debugging ;-)). The pdb structure is passed with option `-c` (it also works with gro files), the def file with `-d`. The flag `-l` is mandatory, it tells buildH what force field and lipid to use: here it is `Berger_POPC`. The order parameters will be written to `OP_buildH.out` which is the default name.
 
 ### Same but with a chosen output name
 
@@ -108,7 +108,19 @@ buildH -c start_128popc.pdb -l Berger_POPC \
 -t popc0-25ns_dt1000.xtc -opx popc0-25ns_dt1000_with_H
 ```
 
-Here we added the flag `-opx` to request a pdb and an xtc file of the system with all the reconstructed hydrogens. Note that the flag takes a base name without extension since it will create a pdb and an xtc, here `popc0-25ns_dt1000_with_H.pdb` and `popc0-25ns_dt1000_with_H.xtc`. The use of this flag `-opx` requires the `.def` file to contain **all possible pairs of C-H** to reconstruct (since the trajectory with all Hs will be reconstructed).
+Here we added the flag `-opx` to request a pdb and an xtc file of the system with all the reconstructed hydrogens. Note that the flag takes a base name without extension since it will create a pdb and an xtc, here `popc0-25ns_dt1000_with_H.pdb` and `popc0-25ns_dt1000_with_H.xtc`. The use of this flag `-opx` requires the `.def` file to contain **all possible pairs of C-H** to reconstruct (since the trajectory with all Hs will be reconstructed). The order parameters will be written in `OP_buildH.out` (default name).
+
+### Get a single pdb file with reconstructed hydrogens
+
+If you do not provide a trajectory with the `-t` flag and you use the `opx` flag, **buildH** will only output a pdb file with hydrogens (no xtc will be produced):
+
+```bash
+buildH -c start_128popc.pdb -l Berger_POPC \
+-d order_parameter_definitions_MODEL_Berger_POPC.def \
+-opx start_128popc_wH
+```
+
+In this case, the file `start_128popc_wH.pdb` with reconstructed hydrogens will be created as well as `OP_buildH.out` with the order parameters.
 
 ## Additional features
 
@@ -192,7 +204,7 @@ Each line corresponds to a given CH. The 4 first columns contain the generic nam
 - `OP_stddev` is the standard deviation of the order parameter; first we average each C-H over the whole trajectory, then we calculate the standard deviation over all residues: 
 $ OP\_stddev(CH_j) = \frac{1}{nres} \sum_{i=1}^{i=nres} 
 \left[ \frac{1}{nframes} \sum_{t=0}^{t=nframes} OP(CH_j)(i)(t) \right]$
-where $CH_i$ is the $j^{th}$ C-H, $nframes$ is the total number of frames, $nres$ is the total number of residues (i.e. lipids).
+where $CH_j$ is the $j^{th}$ C-H, $nframes$ is the total number of frames, $nres$ is the total number of residues (i.e. lipids).
 - `OP_stem` is the standard error of the mean, averaged in the same spirit: 
 $OP\_stem(CH_j) = \frac{OP\_stddev(CH_j)}{\sqrt{nres}}$
 
