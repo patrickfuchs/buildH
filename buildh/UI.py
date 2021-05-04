@@ -61,14 +61,14 @@ def parse_cli():
     lipids_tops = lipids.read_lipids_topH(lipids_files)
     lipids_supported_str = ", ".join(lipids_tops.keys())
 
-    message = """This program builds hydrogens and calculate the order
-    parameters
-    (OP) from a united-atom trajectory. If -opx is requested, pdb and xtc
-    output files with hydrogens are created but OP calculation will be slow.
-    If no trajectory output is requested (no use of flag -opx), it uses a
-    fast procedure to build hydrogens and calculate the OP.
+    message = """This program builds hydrogens and calculates the order
+    parameters (OP) from a united-atom trajectory of lipids. If -opx is 
+    requested, pdb and xtc output files with hydrogens are created but 
+    OP calculation will be slow. If no trajectory output is requested 
+    (no use of flag -opx), it uses a fast procedure to build hydrogens 
+    and calculate the OP.
     """
-    epilog = f"The list of supported lipids (-l option) are: {lipids_supported_str}."
+    epilog = f"The list of supported lipids (-l option) are: {lipids_supported_str}. "
     epilog += "More documentation can be found at https://buildh.readthedocs.io/en/latest/index.html."
     parser = argparse.ArgumentParser(description=message,
                                      epilog=epilog)
