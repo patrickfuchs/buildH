@@ -56,7 +56,7 @@ def test_make_dic_atname2genericname(inputs):
     # Test non existent file
     with pytest.raises(ValueError) as err:
         init_dics.make_dic_atname2genericname("none")
-    assert "Something went wrong wen parsing the order parameter definition in file" in str(err.value)
+    assert "Something went wrong when parsing the order parameter definition in file" in str(err.value)
 
 
 def test_init_dic_OP(inputs):
