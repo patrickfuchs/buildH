@@ -108,7 +108,7 @@ class TestMain:
 
 
     def test_fail_main_coord_topology_mismatch(self):
-        """ Test when coord file and topology doesn't match."""
+        """Test when coord file and topology doesn't match."""
         args = self.args.copy()
 
         lipids_tops = lipids.read_lipids_topH([lipids.PATH_JSON/"CHARMM_POPC.json"])
@@ -121,7 +121,7 @@ class TestMain:
 
 
     def test_fail_main_coord_def_mismatch(self):
-        """ Test when coord file and def file doesn't match."""
+        """Test when coord file and def file doesn't match."""
         args = self.args.copy()
         args["def_file"] = str(PATH_DATA / "op_wrong1.def")
         with pytest.raises(BuildHError) as err:
@@ -130,7 +130,7 @@ class TestMain:
 
 
     def test_fail_main_subdef_traj(self,):
-        """Test main with partial def file and a output trajectory. Must fail"""
+        """Test main with partial def file and a output trajectory. Must fail."""
         args = self.args.copy()
         args["def_file"] = str(PATH_DATA / "OP_def_HP_BergerPOPC.def")
         args["traj_file"] = str(PATH_DATA / "2POPC.xtc")
@@ -205,7 +205,8 @@ class TestCLI:
 class TestLaunch:
     """Test class for the launch function of buildH.
 
-    This is the function called when using buildH as a module."""
+    This is the function called when using buildH as a module.
+    """
 
     # Arguments of the main function
     args = {
