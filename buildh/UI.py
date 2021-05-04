@@ -62,10 +62,10 @@ def parse_cli():
     lipids_supported_str = ", ".join(lipids_tops.keys())
 
     message = """This program builds hydrogens and calculates the order
-    parameters (OP) from a united-atom trajectory of lipids. If -opx is 
-    requested, pdb and xtc output files with hydrogens are created but 
-    OP calculation will be slow. If no trajectory output is requested 
-    (no use of flag -opx), it uses a fast procedure to build hydrogens 
+    parameters (OP) from a united-atom trajectory of lipids. If -opx is
+    requested, pdb and xtc output files with hydrogens are created but
+    OP calculation will be slow. If no trajectory output is requested
+    (no use of flag -opx), it uses a fast procedure to build hydrogens
     and calculate the OP.
     """
     epilog = f"The list of supported lipids (-l option) are: {lipids_supported_str}. "
@@ -143,12 +143,12 @@ def entry_point():
     args, dic_lipid = parse_cli()
 
     try:
-        main(args.coord, args.traj, args.defop, args.out, args.opdbxtc, args.begin, args.end, dic_lipid)
+        main(args.coord, args.traj, args.defop, args.out, args.opdbxtc, dic_lipid, args.begin, args.end)
     except BuildHError as e:
         sys.exit(e)
 
 
-def launch(coord_file, def_file, lipid_type, traj_file=None, out_file="OP_buildH.out", prefix_traj_ouput=None, begin=0, end=1, lipid_jsons=None):
+def launch(coord_file, def_file, lipid_type, traj_file=None, out_file="OP_buildH.out", prefix_traj_ouput=None, begin=None, end=None, lipid_jsons=None):
     """Launch BuildH calculations.
 
     This is the only function which can be called inside a Python script to use BuildH as a module.
@@ -172,9 +172,9 @@ def launch(coord_file, def_file, lipid_type, traj_file=None, out_file="OP_buildH
         File extension will be automatically added.
         By default None.
     begin : int, optional
-        The first frame (ps) to read from the trajectory, by default 0.
+        The first frame (ps) to read from the trajectory, by default None.
     end : int, optional
-        The last frame (ps) to read from the trajectory, by default 1.
+        The last frame (ps) to read from the trajectory, by default None.
     lipid_jsons : list, optional
         User topology lipid json file(s), by default None.
 
@@ -217,12 +217,12 @@ def launch(coord_file, def_file, lipid_type, traj_file=None, out_file="OP_buildH
 
 
     try:
-        main(coord_file, traj_file, def_file, out_file, prefix_traj_ouput, begin, end, dic_lipid)
+        main(coord_file, traj_file, def_file, out_file, prefix_traj_ouput, dic_lipid, begin, end)
     except BuildHError as e:
         raise e
 
 
-def main(coord_file, traj_file, def_file, out_file, prefix_traj_ouput, begin, end, dic_lipid):
+def main(coord_file, traj_file, def_file, out_file, prefix_traj_ouput, dic_lipid, begin=None, end=None):
     """Main function of BuildH.
 
     It takes care of all the necessary steps to compute the Order Parameter :
@@ -238,7 +238,6 @@ def main(coord_file, traj_file, def_file, out_file, prefix_traj_ouput, begin, en
     This function shouldn't be called directly.
     Either it's called by the entry point or by the `launch` function.
 
-
     Parameters
     ----------
     coord_file : str
@@ -253,12 +252,12 @@ def main(coord_file, traj_file, def_file, out_file, prefix_traj_ouput, begin, en
         Base name for trajectory output with hydrogens.
         File extension will be automatically added.
         Can be None.
-    begin : int
-        The first frame (ps) to read from the trajectory.
-    end : int
-        The last frame (ps) to read from the trajectory.
     dic_lipid : dict
         Lipid Topology for the reconstruction of the hydrogens.
+    begin : int
+        The first frame (ps) to read from the trajectory, by default None.
+    end : int
+        The last frame (ps) to read from the trajectory, by default None.
 
     Raises
     ------
