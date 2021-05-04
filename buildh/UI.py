@@ -141,7 +141,6 @@ def entry_point():
     """Correspond to the entry point `buildH`."""
     # Parse arguments.
     args, dic_lipid = parse_cli()
-    print(sys.argv)
 
     try:
         main(args.coord, args.traj, args.defop, args.out, args.opdbxtc, dic_lipid, args.begin, args.end)

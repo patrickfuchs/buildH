@@ -62,6 +62,16 @@ class TestMain:
         captured = capsys.readouterr().out
         assert "Results written to text.txt" in captured
 
+
+    def test_main_subdef(self, capsys):
+        """Test main with partial def file."""
+        args = self.args.copy()
+        args["def_file"] = str(PATH_DATA / "OP_def_HP_BergerPOPC.def")
+        UI.main(**args)
+        captured = capsys.readouterr().out
+        assert self.stdout_output in captured
+
+
     def test_main_traj(self, capsys):
         """Test main with trajectory."""
         args = self.args.copy()
@@ -117,6 +127,17 @@ class TestMain:
         with pytest.raises(BuildHError) as err:
             UI.main(**args)
         assert f"Atoms defined in {args['def_file']} are missing in the structure" in str(err.value)
+
+
+    def test_fail_main_subdef_traj(self,):
+        """Test main with partial def file and a output trajectory. Must fail"""
+        args = self.args.copy()
+        args["def_file"] = str(PATH_DATA / "OP_def_HP_BergerPOPC.def")
+        args["traj_file"] = str(PATH_DATA / "2POPC.xtc")
+        args["prefix_traj_ouput"] = "test"
+        with pytest.raises(BuildHError) as err:
+            UI.main(**args)
+        assert "Error on the number of H's to rebuild" in str(err.value)
 
 
 class TestCLI:
