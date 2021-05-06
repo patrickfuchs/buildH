@@ -1,6 +1,6 @@
 # Lipid json file format
 
-To build new hydrogens on a united-atom lipid, we need different informations that are read by **buildH** in a json file. By default, some standard lipids are present in **buildH** (in the directory [`buildh/lipids/`](https://github.com/patrickfuchs/buildH/tree/master/buildh/lipids)). However, it is possible for the user to supply his/her own json file. Here we explain the format of these json files.
+To build new hydrogens on a united-atom lipid, we need different informations that are read by **buildH** in a json file. By default, some standard lipids are present in **buildH** (in the directory [`buildh/lipids/`](https://github.com/patrickfuchs/buildH/tree/master/buildh/lipids)). However, it is possible for the user to supply his/her own json file. Here we explain the format of these json files. All images in this page were generated with [Pymol](https://www.pymol.org/).
 
 ## Generality on the lipid json format
 
