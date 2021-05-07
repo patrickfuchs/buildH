@@ -87,6 +87,8 @@ The different arguments mean the following: `-c start_128popc.pdb` is a pdb file
 
 Some other commented examples can be found on the [documentation part](https://github.com/patrickfuchs/buildH#documentation). There is also a Notebook showing a full analysis on a trajectory of 2500 frames (**TODO**: link to be added).
 
+**Important**: sometimes, when performing MD, some molecules are split over periodic boundary conditions (PBC). **buildH** takes as input whole structure (pdb, gro, xtc, etc.). If broken molecules are supplied, it will most likely generate nonsense results. So it is up to the user to take care of making molecules whole before running **buildH** (e.g. by using a tool like *trjconv* in GROMACS).
+
 Invoking **buildH** with the `-h` flag will display some help to the screen and tell the user which lipids are supported by **buildH**.
 
 ```
