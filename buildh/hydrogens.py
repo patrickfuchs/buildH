@@ -31,12 +31,8 @@ def get_CH(atom, helper1, helper2, helper3):
     numpy 1D-array
         Coordinates of the rebuilt hydrogen: ([x_H, y_H, z_H]).
     """
-    helpers = np.array((helper1, helper2, helper3))
-    v2 = np.zeros(3, dtype=np.float32)
-    for i in range(len(helpers)):
-        v2 = v2 + geo.normalize(helpers[i] - atom)
-    v2 = v2 / (len(helpers)) + atom
-    unit_vect_H = geo.normalize(atom - v2)
+    v2 = (helper1-atom) + (helper2-atom) + (helper3-atom)
+    unit_vect_H = geo.normalize(-v2)
     coor_H = LENGTH_CH_BOND * unit_vect_H + atom
     return coor_H
 
