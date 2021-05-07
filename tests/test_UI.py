@@ -4,6 +4,7 @@ Unit tests for buildH.
 Test functions from module UI
 """
 
+import os
 import pathlib
 import pytest
 
@@ -21,6 +22,14 @@ pytestmark = pytest.mark.filterwarnings('ignore::UserWarning')
 PATH_DATA = PATH_ROOT_DATA / "Berger_POPC"
 
 
+@pytest.fixture
+def cd_tmp_dir(tmp_path):
+    """Change directory to a temporary one."""
+    os.chdir(tmp_path)
+
+
+# Move to a temporary directory because some output files are written in the current directory.
+@pytest.mark.usefixtures("cd_tmp_dir")
 class TestMain:
     """Test class for the main function of buildH."""
 
@@ -47,7 +56,7 @@ class TestMain:
         self.args["dic_lipid"] = dic_lipid
 
 
-    def test_main_minimal(self,  capsys):
+    def test_main_minimal(self, capsys):
         """Test main with minimal arguments."""
         UI.main(**self.args)
         captured = capsys.readouterr().out
@@ -140,6 +149,8 @@ class TestMain:
         assert "Error on the number of H's to rebuild" in str(err.value)
 
 
+# Move to a temporary directory because some output files are written in the current directory.
+@pytest.mark.usefixtures("cd_tmp_dir")
 class TestCLI:
     """Test class for the entry point of buildH.
 
@@ -202,6 +213,8 @@ class TestCLI:
         assert "Slicing is only possible with a trajectory file." in capsys.readouterr().err
 
 
+# Move to a temporary directory because some output files are written in the current directory.
+@pytest.mark.usefixtures("cd_tmp_dir")
 class TestLaunch:
     """Test class for the launch function of buildH.
 
