@@ -31,7 +31,11 @@ def get_CH(atom, helper1, helper2, helper3):
     numpy 1D-array
         Coordinates of the rebuilt hydrogen: ([x_H, y_H, z_H]).
     """
-    v2 = (helper1-atom) + (helper2-atom) + (helper3-atom)
+    # Calculate vector along tetrahedron median.
+    # !!! Important !!! Use unit vectors (some bonds may have different length).
+    v2 = geo.normalize(helper1-atom) + geo.normalize(helper2-atom) \
+         + geo.normalize(helper3-atom)
+    # CH bond is on the opposite direction.
     unit_vect_H = geo.normalize(-v2)
     coor_H = LENGTH_CH_BOND * unit_vect_H + atom
     return coor_H
