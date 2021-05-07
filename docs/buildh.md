@@ -185,7 +185,13 @@ The list of supported lipids by **buildH** can be requested with `buildH -h`. Th
 
 If you have a mixture of lipids, you will have to run **buildH** for each lipid separately.
 
-### Statistics
+### Order parameters and statistics
+
+The order parameter of bond $CH_j$ is calculated using the standard formula:
+
+$$S_{CH_j} = \frac{1}{2} \left \langle 3cos^2(\theta) -1 \right \rangle$$
+
+where $\theta$ is the angle between the $CH_j$ bond and the normal to the membrane (usually the *z* axis), <...> means averaging over molecules and frames. $S_{CH}$ can be measured by NMR which is useful to validate simulation results, as largely described in the [NMRlipids project](http://nmrlipids.blogspot.com).
 
 The order parameter output of buildH (default name `OP_buildH.out`) looks like this:
 
@@ -200,7 +206,7 @@ gamma1_3             POPC    C1    H13   -0.01531  0.09141  0.00808
 
 Each line corresponds to a given CH. The 4 first columns contain the generic name, residue name, carbon and hydrogen names respectively. The other column contains different statistics:
 
-- `OP_mean` is the order parameter averaged over all lipids and all frames of the trajectory.
+- `OP_mean` is the order parameter S_{CH}$ averaged over all lipids and all frames of the trajectory.
 - `OP_stddev` is the standard deviation of the order parameter; first we average each C-H over the whole trajectory, then we calculate the standard deviation over all residues: 
 $ OP\_stddev(CH_j) = \frac{1}{nres} \sum_{i=1}^{i=nres} 
 \left[ \frac{1}{nframes} \sum_{t=0}^{t=nframes} OP(CH_j)(i)(t) \right]$
