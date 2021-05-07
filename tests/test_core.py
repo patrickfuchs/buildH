@@ -87,7 +87,7 @@ class TestPDBPOPC:
             (4,  (np.array([31.62418725, 45.50474260, 27.61469385], dtype=np.float32),
                   np.array([32.93474471, 44.52992542, 26.90727792], dtype=np.float32))),
             # atom C13 type CH
-            (12, (np.array([26.6186898,  44.1429609, 25.55245], dtype=np.float32),)),
+            (12, (np.array([26.6186898,  44.1429600, 25.552444], dtype=np.float32),)),
             # atom C24 type CHdoublebond
             (23, (np.array([20.46454439, 38.99866187, 31.19224364], dtype=np.float32),)),
     ])
