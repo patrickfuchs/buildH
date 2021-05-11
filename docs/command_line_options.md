@@ -66,7 +66,7 @@ Each option is explained below. Some of them are mandatory.
 
 ### Trajectory
 
-`-t TRAJ` or `--traj TRAJ`: `TRAJ` is an input trajectory file in XTC, TRR or DCD format. If not provided, the H reconstruction and order parameter calculation will be done solely on the `COORD` file. If a trajecotry is provided with `-t` flag, the resulting order parameters will be averaged over that trajectory. More on how this averaging is performed can be found [here](buildh.md#statistics).
+`-t TRAJ` or `--traj TRAJ`: `TRAJ` is an input trajectory file in XTC, TRR or DCD format. If not provided, the H reconstruction and order parameter calculation will be done solely on the `COORD` file. If a trajecotry is provided with `-t` flag, the resulting order parameters will be averaged over that trajectory. More on how this averaging is performed can be found [here](https://buildh.readthedocs.io/en/latest/buildh.html#order-parameters-and-statistics).
 
 (**optional flag**)
 
