@@ -32,8 +32,6 @@ buildH is written in Python 3 and needs the modules numpy, pandas, MDAnalysis an
 
 ## Installation
 
-### Simple installation
-
 A simple installation with pip will do the trick:
 
 ```
@@ -42,27 +40,7 @@ python3 -m pip install buildh
 
 All dependencies (modules) will be installed automatically by pip.
 
-### Installation within a conda environment
-
-In case you want to install buildH within a [conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html), first create a new conda env:
-
-```
-conda create -n env_buildH python pip
-```
-
-Then activate your environment:
-
-```
-conda activate env_buildH
-```
-
-Last, install buildH within that environment using `pip`:
-
-```
-pip install buildh
-```
-
-*Note*: we recall that once the conda env is activated, when you use `pip` it is the version of `pip` within the conda env, not the one of your Unix system. It allows to embed buildH and all its dependencies within the env without interacting with the Python of the Unix system.
+More details on installation [here](https://buildh.readthedocs.io/en/latest/buildh.html#installation).
 
 For installing a developement version, see [here](devtools/install_dev.md).
 
@@ -85,9 +63,9 @@ $ buildH -c start_128popc.pdb -t popc0-25ns_dt1000.xtc -l Berger_POPC -d order_p
 
 The different arguments mean the following: `-c start_128popc.pdb` is a pdb file with 128 POPC, `-t popc0-25ns_dt1000.xtc` is a trajectory with 25 frames, `-l Berger_POPC` indicates the united-atom force field and the type of lipid to be analyzed, `-d order_parameter_definitions_MODEL_Berger_POPC.def` indicates what C-H are considered for H building and order parameter calculation. This latter file can be found [here](https://github.com/patrickfuchs/buildH/blob/master/def_files/order_parameter_definitions_MODEL_Berger_POPC.def). The final order parameters averaged over the trajectory will be written to the default output name `OP_buildH.out`
 
-Some other commented examples can be found on the [documentation part](https://github.com/patrickfuchs/buildH#documentation). There is also a Notebook showing a full analysis on a trajectory of 2500 frames (**TODO**: link to be added).
+Some other commented examples as well as a Notebook showing a full analysis on a trajectory of 2500 frames can be found on the [documentation part](https://github.com/patrickfuchs/buildH#documentation).
 
-**Important**: sometimes, when performing MD, some molecules are split over periodic boundary conditions (PBC). **buildH** takes as input whole structure (pdb, gro, xtc, etc.). If broken molecules are supplied, it will most likely generate nonsense results. So it is up to the user to take care of making molecules whole before running **buildH** (e.g. by using a tool like *trjconv* in GROMACS).
+**Important**: sometimes, when performing MD, some molecules are split over periodic boundary conditions (PBC). **buildH** takes as input whole structure (pdb, gro, xtc, etc.). If broken molecules are supplied, it will most likely generate nonsense results. So it is up to the user to take care of making molecules whole before running **buildH** (e.g. by using a tool like [trjconv](https://manual.gromacs.org/current/onlinehelp/gmx-trjconv.html) in GROMACS with flag `-pbc mol`).
 
 Invoking **buildH** with the `-h` flag will display some help to the screen and tell the user which lipids are supported by **buildH**.
 
