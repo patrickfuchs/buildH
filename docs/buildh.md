@@ -1,10 +1,10 @@
 # buildH
 
-**buildH** is a software that reads a united-atom (UA) trajectory of lipids, build the hydrogens on it and calculate the order parameter on each C-H bond. **buildH** also allows to output the trajectory with the new reconstructed hydrogens.
+**buildH** is a software that reads a united-atom (UA) trajectory of lipids, builds the hydrogens on it and calculates the order parameter on each C-H bond. **buildH** also allows to output the trajectory with the new reconstructed hydrogens.
 
 **buildH** works in two modes:
 
-  1.  A slow mode when an output trajectory is requested by the user. In this case, the whole trajectory including newly built hydrogens is written to this trajectory file. So far, only the xtc format is supported.
+  1.  A slow mode when an output trajectory is requested by the user. In this case, the whole trajectory including newly built hydrogens is written to this trajectory file. If other molecules are present (e.g. water, ions, etc.), they will just be copied to the output trajectory with the same coordinates. So far, only the xtc format is supported.
   2. A fast mode without any output trajectory.
 
 In both modes, the order parameters are calculated.
@@ -30,7 +30,7 @@ All dependencies (modules) will be installed automatically by pip.
 In case you want to install buildH within a [conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html), first create a new conda env:
 
 ```
-conda create -n env_buildH python pip
+conda create -n env_buildH "python>=3.6" pip
 ```
 
 Then activate your environment:
@@ -53,12 +53,6 @@ For installing a developement version, see [here](devtools/install_dev.md).
 
 The initial motivation comes from the [NMRlipids](https://nmrlipids.blogspot.com/) project. As stated in this [post](https://nmrlipids.blogspot.com/2019/04/nmrlipids-ivb-assembling-pe-pg-results.html), there was a lack of suitable program for reconstructing hydrogens. In the past, we used to use `g_protonate` in GROMACS 3.*. But this program has been removed in recent versions. Our idea was to build our own implementation in Python using libraries such MDAnalysis, Numpy and Pandas.
 **buildH** is used actively in the recent projects of NMRlipids such as [NMRlipidsIVPEandPG](https://github.com/NMRLipids/NMRlipidsIVPEandPG) or [Databank](https://github.com/NMRLipids/Databank). **buildH** can also be used by anyone willing to analyze the order parameter from a UA trajectory, or if one needs to have explicit hydrogens for some further analyzes.
-
-## Validation of buildH
-
-**buildH** has been thoroughly validated using a CHARMM36 all-atom trajetory. Everything is detailed in the folder [`docs/CHARMM36_POPC_validation`](https://github.com/patrickfuchs/buildH/tree/master/docs/CHARMM36_POPC_validation). You can get started with the [README file](CHARMM36_POPC_validation/README.md). There is also a [report](CHARMM36_POPC_validation/report_buildH.pdf) and an [animated gif](CHARMM36_POPC_validation/CHARMM_vs_buildH.gif). All files used for this validation were deposited on [Zenodo](https://zenodo.org/record/4715962):
-
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4715962.svg)](https://doi.org/10.5281/zenodo.4715962)
 
 ## Simple examples
 
@@ -183,7 +177,7 @@ The list of supported lipids by **buildH** can be requested with `buildH -h`. Th
 
 ### Mixtures of lipids
 
-If you have a mixture of lipids, you will have to run **buildH** for each lipid separately.
+If you have a mixture of lipids, you will have to run **buildH** for each lipid separately. If you request an output trajectory, this will have to be done iteratively as well. An example is shown in **TODO**.
 
 ### Order parameters and statistics
 
@@ -217,12 +211,3 @@ $OP\_stem(CH_j) = \frac{OP\_stddev(CH_j)}{\sqrt{nres}}$
 ### Periodic boundary conditions
 
 Sometimes, when performing MD, some molecules are split over periodic boundary conditions (PBC). **buildH** takes as input whole structures (pdb, gro, xtc, etc.). If broken molecules are supplied, it will most likely generate nonsense results. So it is up to the user to take care of making molecules whole before running **buildH** (e.g. by using a tool like [trjconv](https://manual.gromacs.org/current/onlinehelp/gmx-trjconv.html) in GROMACS with flag `-pbc mol`).
-
-## Further documentations
-
-Some more detailed are available about:
-
-- [More on command line options](command_line_options.md)
-- [How **buildH** builds hydrogens](algorithms_Hbuilding.md)
-- [The def file format](def_format.md)
-- [The lipid json format](json_format.md)

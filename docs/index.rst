@@ -16,7 +16,7 @@ User manual
     algorithms_Hbuilding
     def_format
     json_format
-    CHARMM36_POPC_validation/README.md
+    CHARMM36_POPC_validation/validation
 
 Tutorial
 ========
