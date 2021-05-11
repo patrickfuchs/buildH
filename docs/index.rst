@@ -4,7 +4,7 @@ Welcome to buildH's documentation!
 
 **Version** |release|
 
-    Build hydrogens from a united-atom MD of lipids and calculate the order parameter.
+    Build hydrogen atoms from a united-atom MD of lipids and calculate the order parameters.
    
 User manual
 ===========
@@ -23,7 +23,7 @@ Tutorial
 .. toctree::
     :maxdepth: 1
 
-    notebooks/buildhH_tutorials
+    notebooks/buildH_tutorials
 
 Reference manual
 ================
