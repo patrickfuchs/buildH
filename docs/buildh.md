@@ -49,7 +49,7 @@ pip install buildh
 
 *Note*: we recall that once the conda env is activated, when you use `pip` it is the version of `pip` within the conda env, not the one of your Unix system. It allows to embed buildH and all its dependencies within the env without interacting with the Python of the Unix system.
 
-For installing a developement version, see [here](devtools/install_dev.md).
+For installing a developement version, see [here](https://github.com/patrickfuchs/buildH/tree/master/devtools/install_dev.md).
 
 ## Motivation
 
