@@ -6,22 +6,22 @@ In this file is explained how to install buildH for developers.
 
 2. Clone this GitHub repository:
 ```
-$ git clone https://github.com/patrickfuchs/buildH.git
-$ cd buildH
+git clone https://github.com/patrickfuchs/buildH.git
+cd buildH
 ```
 
 3. Create conda environment:
 ```
-$ conda env create -f binder/environment.yml
-$ conda activate buildh
+conda env create -f binder/environment.yml
+conda activate buildh
 ```
 
 If needed, update your conda env with
 ```
-$ conda env update -f binder/environment.yml
+conda env update -f binder/environment.yml
 ```
 
 4. Install the dev version of buildH:
 ```
-$ pip install -e .
+pip install -e .
 ```

@@ -58,7 +58,7 @@ buildH: error: the following arguments are required: -c/--coord, -l/--lipid, -d/
 The minimal command for launching **buildH** can ressemble this:
 
 ```
-$ buildH -c start_128popc.pdb -t popc0-25ns_dt1000.xtc -l Berger_POPC -d order_parameter_definitions_MODEL_Berger_POPC.def
+buildH -c start_128popc.pdb -t popc0-25ns_dt1000.xtc -l Berger_POPC -d order_parameter_definitions_MODEL_Berger_POPC.def
 ```
 
 The different arguments mean the following: `-c start_128popc.pdb` is a pdb file with 128 POPC, `-t popc0-25ns_dt1000.xtc` is a trajectory with 25 frames, `-l Berger_POPC` indicates the united-atom force field and the type of lipid to be analyzed, `-d order_parameter_definitions_MODEL_Berger_POPC.def` indicates what C-H are considered for H building and order parameter calculation. This latter file can be found [here](https://github.com/patrickfuchs/buildH/blob/master/def_files/order_parameter_definitions_MODEL_Berger_POPC.def). The final order parameters averaged over the trajectory will be written to the default output name `OP_buildH.out`
