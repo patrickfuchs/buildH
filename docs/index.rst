@@ -21,9 +21,9 @@ User manual
 Tutorial
 ========
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
 
-    notebooks/Notebook_01_buildH_calc_OP
+    notebooks/buildhH_tutorials
 
 Reference manual
 ================
