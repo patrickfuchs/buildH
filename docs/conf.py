@@ -31,10 +31,10 @@ release = buildh.__version__
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["sphinx.ext.mathjax", 
-              "sphinx.ext.autodoc", 
-              "sphinx.ext.napoleon", 
-              "nbsphinx", 
+extensions = ["sphinx.ext.mathjax",
+              "sphinx.ext.autodoc",
+              "sphinx.ext.napoleon",
+              "nbsphinx",
               "nbsphinx_link",
               "myst_parser"
 ]
@@ -63,7 +63,8 @@ source_suffix = {
 # a list of builtin themes.
 #
 #html_theme = 'alabaster'
-html_theme = 'sphinx_rtd_theme'
+#html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_book_theme"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
