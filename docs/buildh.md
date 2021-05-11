@@ -214,9 +214,9 @@ where $CH_j$ is the $j^{th}$ C-H, $nframes$ is the total number of frames, $nres
 - `OP_stem` is the standard error of the mean, averaged in the same spirit: 
 $OP\_stem(CH_j) = \frac{OP\_stddev(CH_j)}{\sqrt{nres}}$
 
-### PBC
+### Periodic boundary conditions
 
-Sometimes, when performing MD, some molecules are split over periodic boundary conditions (PBC). **buildH** takes as input whole structure (pdb, gro, xtc, etc.). If broken molecules are supplied, it will most likely generate nonsense results. So it is up to the user to take care of making molecules whole before running **buildH** (e.g. by using a tool like *trjconv* in GROMACS).
+Sometimes, when performing MD, some molecules are split over periodic boundary conditions (PBC). **buildH** takes as input whole structures (pdb, gro, xtc, etc.). If broken molecules are supplied, it will most likely generate nonsense results. So it is up to the user to take care of making molecules whole before running **buildH** (e.g. by using a tool like [trjconv](https://manual.gromacs.org/current/onlinehelp/gmx-trjconv.html) in GROMACS with flag `-pbc mol`).
 
 ## Further documentations
 
