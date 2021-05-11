@@ -1,6 +1,6 @@
-# Validation of buildH on a CHARMM36 POPC trajectory
+# Validation of buildH 
 
-**buildH** reconstructs hydrogens from a united-atom trajectory and calculates the order parameter on each reconstructed C-H bond. To validate **buildH**, we took an all-atom trajectory (generated with the CHARMM36 force field), removed the hydrogens and reconstructed them with **buildH**. Then we compared the H reconstruction and the order parameter values calculated with **buildH** to the real ones from the all-atom trajectory. The output of **buildH** was also compared to two  scripts made by Josef Melcr and Angel Pineiro.
+**buildH** reconstructs hydrogens from a united-atom trajectory and calculates the order parameter on each reconstructed C-H bond. To validate **buildH**, we took an all-atom POPC trajectory generated with the CHARMM36 force field. First, we removed the hydrogens and reconstructed them with **buildH**. Then we compared the H reconstruction and the order parameter values calculated with **buildH** to the real ones from the all-atom trajectory. The output of **buildH** was also compared to two  scripts made by Josef Melcr and Angel Pineiro.
 
 Here is a [report](report_buildH.pdf) made in August 2019 describing this validation.
 
