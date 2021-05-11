@@ -36,9 +36,11 @@ extensions = ["sphinx.ext.mathjax",
               "sphinx.ext.napoleon", 
               "nbsphinx", 
               "nbsphinx_link",
-              "recommonmark"
+              "myst_parser"
 ]
 
+# MyST parser is used to parse Markdown files
+# https://myst-parser.readthedocs.io/en/latest/using/intro.html
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
