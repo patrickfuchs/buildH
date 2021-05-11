@@ -1,8 +1,9 @@
 **Dev**
 - Add first notebook (basic buildH analysis on a Berger traj)
 - Complete documentation
-- Acceleration of functions within geometry.py with Numba
-- Implementation of the use of buildH as a module
+- Accelerate functions within geometry.py with Numba
+- Implement the use of buildH as a module
+- Simplify calculation of CH on an sp3 carbon
 
 **1.2.0**
 
