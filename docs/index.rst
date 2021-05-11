@@ -23,7 +23,7 @@ Tutorial
 .. toctree::
     :maxdepth: 2
 
-    notebooks/README
+    notebooks/Notebook_01_buildH_calc_OP
 
 Reference manual
 ================
