@@ -31,7 +31,7 @@ The format of the json file ressembles a Python dictionnary. For example, if we 
 
 Each lines has a `key: value` pattern as in a Python dictionnary. The `value` ressembles a Python list `[value1, value2, ...]`. Each couple `key: value` is separated by a comma. At the beginning and end of the file we have curly braces `{}`. 
 
-**Important**: notice that in the last line (atom `"C50"`), **the comma is not present** at the end of the line.
+**Important**: note that in the last line (atom `"C50"`), **the comma is not present** at the end of the line.
 
 The first line with a key `"resname"` indicates some possible residue names for the lipid described in the file. Here for example, it can be called `"POPC"`, `"PLA"` or `"POP"` in the pdb or gro file. Do not forget the quotes for each element. Thanks to this line, one can then use `Berger_POPC` `Berger_PLA` `Berger_POP` with the `-l` argument when launching **buildH** at the Unix command line.
 
@@ -78,7 +78,7 @@ We have explained here the format of the json file which tells buildH what are t
 
 - the order of helpers in each list does not matter in the case of a CH or CHdoublebond;
 - the order of helpers in each list **does matter** in the case of a CH3 or CH2 reconstruction:
-    - for CH3, helper1 is bonded to the carbon on which we reconstruct hydrogens and helper2 is two atoms away; 
+  - for CH3, helper1 is bonded to the carbon on which we reconstruct hydrogens and helper2 is two atoms away;
 	- for CH2, both helper1 and helper2 are bonded to the carbon on which we reconstruct hydrogens, but their order will determine which reconstructed H is pro-R or pro-S.
 
 ## A guided example for writing a lipid json file
