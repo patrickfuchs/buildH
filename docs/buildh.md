@@ -29,7 +29,7 @@ All dependencies (modules) will be installed automatically by pip.
 
 ### Installation within a conda environment
 
-In case you want to install buildH within a [conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html), first create a new conda env:
+In case you want to install **buildH** within a [conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html), first create a new conda env:
 
 ```
 conda create -n env_buildH "python>=3.6" pip
@@ -41,13 +41,13 @@ Then activate your environment:
 conda activate env_buildH
 ```
 
-Last, install buildH within that environment using `pip`:
+Last, install **buildH** within that environment using `pip`:
 
 ```
 pip install buildh
 ```
 
-*Note*: we recall that once the conda env is activated, when you use `pip` it is the version of `pip` within the conda env, not the one of your Unix system. It allows to embed buildH and all its dependencies within the env without interacting with the Python of the Unix system.
+*Note*: we recall that once the conda env is activated, when you use `pip` it is the version of `pip` within the conda env, not the one of your Unix system. It allows to embed **buildH** and all its dependencies within the env without interacting with the Python of the Unix system.
 
 For installing a developement version, see [here](https://github.com/patrickfuchs/buildH/tree/master/devtools/install_dev.md).
 
@@ -74,7 +74,7 @@ buildH -c start_128popc.pdb -l Berger_POPC \
 -d order_parameter_definitions_MODEL_Berger_POPC.def
 ```
 
-**buildH** can be used on a single structure (OK not very common for research, but useful for debugging ;-)). The pdb structure is passed with option `-c` (it also works with gro files), the def file with `-d`. The flag `-l` is mandatory, it tells buildH what force field and lipid to use: here it is `Berger_POPC`. The order parameters will be written to `OP_buildH.out` which is the default name.
+**buildH** can be used on a single structure (OK not very common for research, but useful for debugging ;-)). The pdb structure is passed with option `-c` (it also works with gro files), the def file with `-d`. The flag `-l` is mandatory, it tells **buildH** what force field and lipid to use: here it is `Berger_POPC`. The order parameters will be written to `OP_buildH.out` which is the default name.
 
 ### Same but with a chosen output name
 
