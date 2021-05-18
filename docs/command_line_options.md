@@ -43,7 +43,7 @@ optional arguments:
                         The first frame (ps) to read from the trajectory.
   -e END, --end END     The last frame (ps) to read from the trajectory.
 
-The list of supported lipids (-l option) are: CHARMM_POPC, Berger_POPC, Berger_PLA, Berger_POP.
+The list of supported lipids (-l option) are: CHARMM36_POPC, Berger_POPC, Berger_PLA, Berger_POP.
 ```
 
 Importantly, the `-h` option also displays the list of supported lipids at the end. Note that they are always written using the naming convention `ForceField_Lipid`.

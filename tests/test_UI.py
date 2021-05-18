@@ -120,8 +120,8 @@ class TestMain:
         """Test when coord file and topology doesn't match."""
         args = self.args.copy()
 
-        lipids_tops = lipids.read_lipids_topH([lipids.PATH_JSON/"CHARMM_POPC.json"])
-        dic_lipid = lipids_tops["CHARMM_POPC"]
+        lipids_tops = lipids.read_lipids_topH([lipids.PATH_JSON/"CHARMM36_POPC.json"])
+        dic_lipid = lipids_tops["CHARMM36_POPC"]
         args["dic_lipid"] = dic_lipid
 
         with pytest.raises(BuildHError) as err:

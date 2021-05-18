@@ -167,7 +167,7 @@ ATOM     14  H43 BUTA    1       1.920  -0.658   1.059  1.00  0.00             H
 $ buildH -h
 usage: buildH [-h] -c COORD [-t TRAJ] -l LIPID [-lt LIPID_TOPOLOGY [LIPID_TOPOLOGY ...]] -d DEFOP
 [...]
-The list of supported lipids (-l option) are: Berger_POP, Berger_PLA, Berger_POPC, CHARMM_POPC.
+The list of supported lipids (-l option) are: Berger_POP, Berger_PLA, Berger_POPC, CHARMM36_POPC.
 ```
 
 - Last, one other project developed by us, called [autoLipMap](https://github.com/patrickfuchs/autoLipMap), can build automatically def and json files for the main known lipids.

@@ -74,7 +74,7 @@ $ buildH -h
 usage: buildH [-h] -c COORD [-t TRAJ] -l LIPID [-lt LIPID_TOPOLOGY [LIPID_TOPOLOGY ...]] -d DEFOP
               [-opx OPDBXTC] [-o OUT] [-b BEGIN] [-e END] [-pi PICKLE]
 [...]
-The list of supported lipids (-l option) are: Berger_POPC, Berger_PLA, Berger_POP, CHARMM_POPC.
+The list of supported lipids (-l option) are: Berger_POPC, Berger_PLA, Berger_POP, CHARMM36_POPC.
 ```
 
 ## Documentation

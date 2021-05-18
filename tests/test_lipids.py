@@ -26,7 +26,7 @@ class TestLipids():
 
     def setup_class(self):
         """Initialize attributes."""
-        filenames = ["Berger_POPC.json", "CHARMM_POPC.json"]
+        filenames = ["Berger_POPC.json", "CHARMM36_POPC.json"]
         self.path_files = [PATH_ROOT_DATA / f for f in filenames]
 
         pdb = self.PATH_DATA / "2POPC.pdb"
@@ -39,10 +39,10 @@ class TestLipids():
 
         # key : key of the outer dict
         # values : number of atoms in each dict
-        reference = {'Berger_POPC': 41, 'Berger_PLA': 41, 'Berger_POP': 41, 'CHARMM_POPC': 41}
+        reference = {'Berger_POPC': 41, 'Berger_PLA': 41, 'Berger_POP': 41, 'CHARMM36_POPC': 41}
 
         assert len(lipids_tops) == 4
-        assert lipids_tops.keys() == set(['Berger_POPC', 'Berger_PLA', 'Berger_POP', 'CHARMM_POPC'])
+        assert lipids_tops.keys() == set(['Berger_POPC', 'Berger_PLA', 'Berger_POP', 'CHARMM36_POPC'])
 
         # Test if each dic contains the right number of atoms
         for name in lipids_tops.keys():
