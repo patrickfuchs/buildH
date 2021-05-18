@@ -173,7 +173,7 @@ def is_allHs_present(def_file, lipids_name, dic_ref_CHnames):
     ----------
     def_file : str
         Filename containing OP definition
-        (e.g. `order_parameter_definitions_MODEL_Berger_POPC.def`).
+        (e.g. `Berger_POPC.def`).
     lipids_name : dictionary
         Comes from dic_lipids.py. Contains carbon names and helper names needed
         for reconstructing hydrogens.

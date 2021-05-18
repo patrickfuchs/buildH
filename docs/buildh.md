@@ -62,7 +62,7 @@ No more BLABLA, please show me how to run **buildH**! OK, the examples below are
 
 - [`start_128popc.pdb`](https://github.com/patrickfuchs/buildH/blob/master/docs/Berger_POPC_test_case/start_128popc.pdb): contains 128 POPC.
 - [`popc0-25ns_dt1000.xtc`](https://github.com/patrickfuchs/buildH/blob/master/docs/Berger_POPC_test_case/popc0-25ns_dt1000.xtc): contains a small trajectory of 25 frames.
-- [`order_parameter_definitions_MODEL_Berger_POPC.def`](https://github.com/patrickfuchs/buildH/blob/master/docs/Berger_POPC_test_case/order_parameter_definitions_MODEL_Berger_POPC.def): contains a list of C-H which tells **buildH** what hydrogens to reconstruct and what C-H to calculate the order parameter on.
+- [`Berger_POPC.def`](https://github.com/patrickfuchs/buildH/blob/master/docs/Berger_POPC_test_case/Berger_POPC.def): contains a list of C-H which tells **buildH** what hydrogens to reconstruct and what C-H to calculate the order parameter on.
 
 
 Here are some examples on how to run **buildH** with these 3 files:
@@ -71,7 +71,7 @@ Here are some examples on how to run **buildH** with these 3 files:
 
 ```bash
 buildH -c start_128popc.pdb -l Berger_POPC \
--d order_parameter_definitions_MODEL_Berger_POPC.def
+-d Berger_POPC.def
 ```
 
 **buildH** can be used on a single structure (OK not very common for research, but useful for debugging ;-)). The pdb structure is passed with option `-c` (it also works with gro files), the def file with `-d`. The flag `-l` is mandatory, it tells **buildH** what force field and lipid to use: here it is `Berger_POPC`. The order parameters will be written to `OP_buildH.out` which is the default name.
@@ -80,7 +80,7 @@ buildH -c start_128popc.pdb -l Berger_POPC \
 
 ```bash
 buildH -c start_128popc.pdb -l Berger_POPC \
--d order_parameter_definitions_MODEL_Berger_POPC.def \
+-d Berger_POPC.def \
 -o my_OP_buildH.out
 ```
 
@@ -90,7 +90,7 @@ Here we add a `-o` flag which tells **buildH** to output the results in a file n
 
 ```bash
 buildH -c start_128popc.pdb -l Berger_POPC \
--d order_parameter_definitions_MODEL_Berger_POPC.def \
+-d Berger_POPC.def \
 -t popc0-25ns_dt1000.xtc
 ```
 
@@ -100,7 +100,7 @@ Here the flag `-t` indicates a trajectory. The final order parameters will be av
 
 ```bash
 buildH -c start_128popc.pdb -l Berger_POPC \
--d order_parameter_definitions_MODEL_Berger_POPC.def \
+-d Berger_POPC.def \
 -t popc0-25ns_dt1000.xtc -opx popc0-25ns_dt1000_with_H
 ```
 
@@ -112,7 +112,7 @@ If you do not provide a trajectory with the `-t` flag and you use the `opx` flag
 
 ```bash
 buildH -c start_128popc.pdb -l Berger_POPC \
--d order_parameter_definitions_MODEL_Berger_POPC.def \
+-d Berger_POPC.def \
 -opx start_128popc_wH
 ```
 

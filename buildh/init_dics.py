@@ -19,7 +19,7 @@ def make_dic_atname2genericname(filename):
     ----------
     filename : str
         Filename containing OP definition
-        (e.g. `order_parameter_definitions_MODEL_Berger_POPC.def`).
+        (e.g. `Berger_POPC.def`).
 
     Returns
     -------

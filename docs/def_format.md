@@ -22,7 +22,7 @@ Each line represents a given C-H with 4 columns:
 - Column 3 is the carbon name in the pdb or gro file for that C-H.
 - Column 4 is the H name in the pdb or gro file for that C-H.
 
-Here is an example for the polar head of [Berger POPC](https://github.com/patrickfuchs/buildH/blob/master/def_files/order_parameter_definitions_MODEL_Berger_POPC.def):
+Here is an example for the polar head of [Berger POPC](https://github.com/patrickfuchs/buildH/blob/master/def_files/Berger_POPC.def):
 
 ```
 beta1 POPC C5  H51
@@ -77,7 +77,7 @@ ATOM      4  C4  BUTA    1       1.910  -0.140   0.100  1.00  0.00
 
 ![Butane without hydrogen](img/butane.png)
 
-Let us consider first `C1` which has 3 hydrogens to reconstruct. The new hydrogens will be called `H11`, `H12` and `H13`. The residue name is `BUTA`. Since the butane molecule does not exist in known def files, we can create any generic name we want for each C-H. Following the same model as [order_parameter_definitions_MODEL_Berger_POPC.def](https://github.com/patrickfuchs/buildH/blob/master/def_files/order_parameter_definitions_MODEL_Berger_POPC.def), we could name them `butane_C1a`, `butane_C1a` and  `butane_C1c`. Applying this to all possible C-H, we obtain:
+Let us consider first `C1` which has 3 hydrogens to reconstruct. The new hydrogens will be called `H11`, `H12` and `H13`. The residue name is `BUTA`. Since the butane molecule does not exist in known def files, we can create any generic name we want for each C-H. Following the same model as [Berger_POPC.def](https://github.com/patrickfuchs/buildH/blob/master/def_files/Berger_POPC.def), we could name them `butane_C1a`, `butane_C1a` and  `butane_C1c`. Applying this to all possible C-H, we obtain:
 
 ```
 butane_C1a BUTA C1 H11
