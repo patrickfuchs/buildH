@@ -68,8 +68,8 @@ def buildHs_on_1C(atom, H_type, helper1, helper2, helper3=None):
 def build_system_hydrogens(universe_woH, dic_lipid, dic_Cname2Hnames, dic_lipid_indexes):
     """Build a new system *with* hydrogens.
 
-    The function take the MDAnalysis universe *without* hydrogens, reconstruct all hydrogens
-    and return a pandas dataframe. This latter will be used later to build a new
+    The function takes the MDAnalysis universe *without* hydrogens, reconstructs all hydrogens
+    and returns a pandas dataframe. This latter will be used later to build a new
     MDAnalysis universe with H.
 
     Notes
@@ -103,7 +103,8 @@ def build_system_hydrogens(universe_woH, dic_lipid, dic_Cname2Hnames, dic_lipid_
     new_atom_num = 1
     # Loop over all atoms in the universe without H.
     for atom in universe_woH.atoms:
-        resnum = atom.resnum
+        # Make resnum resets to 0 when it exceeds 9999.
+        resnum = atom.resnum-((atom.resnum//10000)*10000)
         resname = atom.resname
         name = atom.name
         # Append atom to the new list.
