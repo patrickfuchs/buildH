@@ -29,5 +29,5 @@ dependencies:
   - sphinx
   - nbsphinx
   - myst-parser
-   - pip:
+  - pip:
     - sphinx-book-theme
