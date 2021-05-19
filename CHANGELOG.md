@@ -1,4 +1,5 @@
 **Dev**
+
 - Add first notebook (basic buildH analysis on a Berger traj)
 - Complete documentation
 - Accelerate functions within geometry.py with Numba
