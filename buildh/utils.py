@@ -147,7 +147,7 @@ def check_def_topol_consistency(dic_Cname2Hnames, lipid_top):
     if not set(dic_Cname2Hnames.keys()).issubset(lipid_top.keys()):
         miss_atoms = ",".join(set(dic_Cname2Hnames.keys()) - set(lipid_top.keys()))
         print(f"Some carbons ({miss_atoms}) from the definition file are not"
-              "present in the topology chosen.")
+              "present in the json file.")
         return False
 
     # For each carbon in topology, make sure all hydrogens attached
