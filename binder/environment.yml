@@ -28,7 +28,6 @@ dependencies:
   # Documentation
   - sphinx
   - nbsphinx
-  - sphinx_rtd_theme
-  - nbsphinx-link
   - myst-parser
- 
+   - pip:
+    - sphinx-book-theme
