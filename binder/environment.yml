@@ -11,6 +11,7 @@ dependencies:
   - pip
   - pip:
     - -r file:../requirements.txt
+    - sphinx-book-theme
   # Jupyter lab and visualisation
   - matplotlib
   - jupyterlab
@@ -28,5 +29,4 @@ dependencies:
   - sphinx
   - nbsphinx
   - myst-parser
-  - pip:
-    - sphinx-book-theme
+
