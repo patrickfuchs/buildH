@@ -24,6 +24,7 @@ Tutorial
     :maxdepth: 1
 
     notebooks/Notebook_01_buildH_calc_OP
+    notebooks/Notebook_03_buildH_POPC_POPE
 
 Reference manual
 ================
