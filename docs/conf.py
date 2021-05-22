@@ -19,7 +19,7 @@
 
 project = "buildH"
 copyright = "2021, Patrick Fuchs"
-author = "Patrick Fuchs, Amélie Bâcle, Hubert Santuz, Pierre Poulain"
+author = "Patrick Fuchs, Amélie Bacle, Hubert Santuz, Pierre Poulain"
 
 # The full version, including alpha/beta/rc tags
 import buildh
