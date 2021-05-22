@@ -35,7 +35,6 @@ extensions = ["sphinx.ext.mathjax",
               "sphinx.ext.autodoc",
               "sphinx.ext.napoleon",
               "nbsphinx",
-              "nbsphinx_link",
               "myst_parser"
 ]
 
