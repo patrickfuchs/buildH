@@ -200,15 +200,24 @@ gamma1_3             POPC    C1    H13   -0.01531  0.09141  0.00808
 [...]
 ```
 
-Each line corresponds to a given CH. The 4 first columns contain the generic name, residue name, carbon and hydrogen names respectively. The other column contains different statistics:
+Each line corresponds to a given CH. The 4 first columns contain the generic name, residue name, carbon and hydrogen names respectively. The other columns contains different statistics on order parameters (OP):
 
-- `OP_mean` is the order parameter S_{CH}$ averaged over all lipids and all frames of the trajectory.
-- `OP_stddev` is the standard deviation of the order parameter; first we average each C-H over the whole trajectory, then we calculate the standard deviation over all residues: 
-$ OP\_stddev(CH_j) = \frac{1}{nres} \sum_{i=1}^{i=nres} 
-\left[ \frac{1}{nframes} \sum_{t=0}^{t=nframes} OP(CH_j)(i)(t) \right]$
-where $CH_j$ is the $j^{th}$ C-H, $nframes$ is the total number of frames, $nres$ is the total number of residues (i.e. lipids).
-- `OP_stem` is the standard error of the mean, averaged in the same spirit: 
-$OP\_stem(CH_j) = \frac{OP\_stddev(CH_j)}{\sqrt{nres}}$
+- `OP_mean` is the OP of bond $CH_j$ averaged over all lipids and all frames of the trajectory, we shall write it $\overline{S_{CH_j}}$.
+- `OP_stddev` is the standard deviation of the OP, we shall write it $\sigma(S_{CH_j})$; first we average each OP of bond $CH_j$ (e.g. the CH of beta1) of residue $i$ (i.e. lipid $i$) over the whole trajectory:
+
+$$ \overline{S_{CH_j}(i)} = \frac{1}{nframes} \sum_{t=0}^{t=nframes} S_{CH_j}(i)(t) $$
+
+where $nframes$ is the total number of frames, then we calculate the standard deviation of those means over all residues: 
+
+$$ \sigma(S_{CH_j}) = 
+\sqrt{
+\frac{1}{nres} \sum_{i=1}^{i=nres} (\overline{S_{CH_j}(i)} - \overline{S_{CH_j}})^2
+}$$
+
+where $nres$ is the total number of residues (i.e. lipids).
+- `OP_stem` is the standard error of the mean averaged in the same spirit, let's call it $err(S_{CH_j})$: 
+
+$$err(S_{CH_j}) = \frac{\sigma(S_{CH_j})}{\sqrt{nres}}$$
 
 ### Periodic boundary conditions
 
