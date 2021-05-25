@@ -1,5 +1,7 @@
 **Dev**
 
+- Fix setup.cfg to include json files in python package archive
+
 **1.3.0**
 
 - Complete documentation
