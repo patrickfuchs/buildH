@@ -1,5 +1,7 @@
 **Dev**
 
+**1.3.0**
+
 - Complete documentation
 - Accelerate functions within geometry.py with Numba
 - Implement the use of buildH as a module
