@@ -1,10 +1,17 @@
 **Dev**
 
-- Add first notebook (basic buildH analysis on a Berger traj)
 - Complete documentation
 - Accelerate functions within geometry.py with Numba
 - Implement the use of buildH as a module
 - Simplify calculation of CH on an sp3 carbon
+- Use MyST parser for documentation (handles latex equations)
+- Clarify some error messages
+- Fix residue number exceeding 9999
+- Add POPE def and json files
+- Add Notebook01 (basic buildH analysis on a Berger traj)
+- Add Notebook02 (+trajectory output)
+- Add Notebook03 (analysis on a mixture POPC/POPE)
+- Move CHARMM36 POPC validation to Zenodo
 
 **1.2.0**
 
