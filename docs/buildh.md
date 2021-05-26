@@ -145,15 +145,15 @@ In **buildH**, the def file has three main purposes:
 In the following example dealing with a Berger POPC, the order parameters will be calculated on the polar head only (excluding the CH3s of choline):
 
 ```
-beta1 POPC C5  H51
-beta2 POPC C5  H52
+beta1  POPC C5  H51
+beta2  POPC C5  H52
 alpha1 POPC C6  H61
 alpha2 POPC C6  H62
-g3_1 POPC C12 H121
-g3_2 POPC C12 H122
-g2_1 POPC C13 H131
-g1_1 POPC C32 H321
-g1_2 POPC C32 H322
+g3_1   POPC C12 H121
+g3_2   POPC C12 H122
+g2_1   POPC C13 H131
+g1_1   POPC C32 H321
+g1_2   POPC C32 H322
 ```
 
 Using the [Berger POPC trajectory](https://github.com/patrickfuchs/buildH/tree/master/docs/Berger_POPC_test_case) of 25 frames, the output `OP_buildH.out` will contain the order parameters of the C-H specified in the def file:
@@ -206,7 +206,7 @@ gamma1_3             POPC    C1    H13   -0.01531  0.09141  0.00808
 Each line corresponds to a given CH. The 4 first columns contain the generic name, residue name, carbon and hydrogen names respectively. The other columns contains different statistics on order parameters (OP):
 
 - `OP_mean` is the mean OP of bond $CH_j$ averaged over all lipids and all frames of the trajectory, we shall write it $\overline{S_{CH_j}}$.
-- `OP_stddev` is the standard deviation of the OP, we shall write it $\sigma(S_{CH_j})$; first we average each OP of bond $CH_j$ (e.g. the CH of beta1) of residue $i$ (i.e. lipid $i$) over the whole trajectory:
+- `OP_stddev` is the standard deviation of the OP, we shall write it $\sigma(S_{CH_j})$; first we average each OP of bond $CH_j$ (e.g. the C-H of beta1) of residue $i$ (i.e. lipid $i$) over the whole trajectory:
 
 $$ \overline{S_{CH_j}(i)} = \frac{1}{nframes} \sum_{t=0}^{t=nframes} S_{CH_j}(i)(t) $$
 
