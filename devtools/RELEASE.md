@@ -44,7 +44,7 @@ For major update (x.y.z → **x+1**.0.0):
 $ bump2version --verbose --config-file devtools/bumpversion.cfg major
 ```
 
-Remark: 
+Remark:
 
 1. For a dry run with `bump2version`, use option `-n`.
 2. `bump2version` will fail if the git working directory is not clean, i.e. all changes are not commited.
@@ -85,3 +85,12 @@ $ make upload-to-pypi
 ```
 
 Enter your username and password upon request.
+
+
+## Bioconda package
+
+The `meta.yaml` file used to create the conda package is under the folder `bioconda`.
+
+Here a link to the merged PR which add buildH to the bioconda channel : https://github.com/bioconda/bioconda-recipes/pull/28673.
+
+Once a new release is made on GitHub, it should be automatically updated on the bioconda channel (https://bioconda.github.io/contributor/updating.html).

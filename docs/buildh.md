@@ -1,6 +1,6 @@
 # buildH
 
-**buildH** is a software that reads a united-atom (UA) trajectory of lipids, builds the hydrogens on it and calculates the order parameter on each C-H bond. **buildH** also allows to output the trajectory with the new reconstructed hydrogens. 
+**buildH** is a software that reads a united-atom (UA) trajectory of lipids, builds the hydrogens on it and calculates the order parameter on each C-H bond. **buildH** also allows to output the trajectory with the new reconstructed hydrogens.
 
 **buildH** works in two modes:
 
@@ -29,10 +29,12 @@ All dependencies (modules) will be installed automatically by pip.
 
 ### Installation within a conda environment
 
+**buildH** is also available through the [Bioconda](https://bioconda.github.io/) channel.
+
 In case you want to install **buildH** within a [conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html), first create a new conda env:
 
 ```
-conda create -n env_buildH "python>=3.6" pip
+conda create -n env_buildH "python>=3.6"
 ```
 
 Then activate your environment:
@@ -41,13 +43,13 @@ Then activate your environment:
 conda activate env_buildH
 ```
 
-Last, install **buildH** within that environment using `pip`:
+Last, install **buildH** within that environment:
 
 ```
-pip install buildh
+conda config --add channels conda-forge
+conda config --add channels bioconda
+conda install buildh
 ```
-
-*Note*: we recall that once the conda env is activated, when you use `pip` it is the version of `pip` within the conda env, not the one of your Unix system. It allows to embed **buildH** and all its dependencies within the env without interacting with the Python of the Unix system.
 
 For installing a developement version, see [here](https://github.com/patrickfuchs/buildH/tree/master/devtools/install_dev.md).
 
@@ -207,15 +209,15 @@ Each line corresponds to a given CH. The 4 first columns contain the generic nam
 
 $$ \overline{S_{CH_j}(i)} = \frac{1}{nframes} \sum_{t=0}^{t=nframes} S_{CH_j}(i)(t) $$
 
-where $nframes$ is the total number of frames, then we calculate the standard deviation of those means over all residues: 
+where $nframes$ is the total number of frames, then we calculate the standard deviation of those means over all residues:
 
-$$ \sigma(S_{CH_j}) = 
+$$ \sigma(S_{CH_j}) =
 \sqrt{
 \frac{1}{nres} \sum_{i=1}^{i=nres} (\overline{S_{CH_j}(i)} - \overline{S_{CH_j}})^2
 }$$
 
 where $nres$ is the total number of residues (i.e. lipids).
-- `OP_stem` is the standard error of the mean averaged in the same spirit, let's call it $err(S_{CH_j})$: 
+- `OP_stem` is the standard error of the mean averaged in the same spirit, let's call it $err(S_{CH_j})$:
 
 $$err(S_{CH_j}) = \frac{\sigma(S_{CH_j})}{\sqrt{nres}}$$
 
