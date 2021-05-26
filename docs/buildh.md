@@ -179,13 +179,13 @@ The list of supported lipids by **buildH** can be requested with `buildH -h`. Th
 
 ### Mixtures of lipids
 
-If you have a mixture of lipids, you will have to run **buildH** for each lipid separately. If you request an output trajectory, this will have to be done iteratively as well. An example is shown in **TODO**.
+If you have a mixture of lipids, you will have to run **buildH** for each lipid separately. If you request an output trajectory, this will have to be done iteratively as well. A guided example can be found on [Notebook03](https://buildh.readthedocs.io/en/latest/notebooks/Notebook_03_buildH_mixture.html).
 
 ### Order parameters and statistics
 
-The order parameter of bond $CH_j$ is calculated using the standard formula:
+The mean order parameter of bond $CH_j$ is calculated using the standard formula:
 
-$$S_{CH_j} = \frac{1}{2} \left \langle 3cos^2(\theta) -1 \right \rangle$$
+$$\overline{S_{CH_j}} = \frac{1}{2} \left \langle 3cos^2(\theta) -1 \right \rangle$$
 
 where $\theta$ is the angle between the $CH_j$ bond and the normal to the membrane (usually the *z* axis), <...> means averaging over molecules and frames. $S_{CH}$ can be measured by NMR which is useful to validate simulation results, as largely described in the [NMRlipids project](http://nmrlipids.blogspot.com).
 
@@ -202,7 +202,7 @@ gamma1_3             POPC    C1    H13   -0.01531  0.09141  0.00808
 
 Each line corresponds to a given CH. The 4 first columns contain the generic name, residue name, carbon and hydrogen names respectively. The other columns contains different statistics on order parameters (OP):
 
-- `OP_mean` is the OP of bond $CH_j$ averaged over all lipids and all frames of the trajectory, we shall write it $\overline{S_{CH_j}}$.
+- `OP_mean` is the mean OP of bond $CH_j$ averaged over all lipids and all frames of the trajectory, we shall write it $\overline{S_{CH_j}}$.
 - `OP_stddev` is the standard deviation of the OP, we shall write it $\sigma(S_{CH_j})$; first we average each OP of bond $CH_j$ (e.g. the CH of beta1) of residue $i$ (i.e. lipid $i$) over the whole trajectory:
 
 $$ \overline{S_{CH_j}(i)} = \frac{1}{nframes} \sum_{t=0}^{t=nframes} S_{CH_j}(i)(t) $$

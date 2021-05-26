@@ -24,8 +24,8 @@ We then go on with the reconstruction of the two other Hs as explained in the fi
 
 ![CH_building](img/how_CH3_building2.png)
 
-`vect3` (green) is obtained by rotating `vect2` of $-\frac{2\pi}{3}$ rad about vector "carbon -> helper1". 
-`vect4` (magenta) is obtained by rotating `vect2` of $+\frac{2\pi}{3}$ rad about vector "carbon -> helper1". 
+`vect3` (green) is obtained by rotating `vect2` of $+\frac{2\pi}{3}$ rad about vector "carbon -> helper1". 
+`vect4` (magenta) is obtained by rotating `vect2` of $-\frac{2\pi}{3}$ rad about vector "carbon -> helper1". 
 
 The second and third H will be obtained by translating of $l_{CH}$ Å a point located at the "carbon" along `vect3` and `vect4` respectively.
 

@@ -33,7 +33,7 @@ Each lines has a `key: value` pattern as in a Python dictionnary. The `value` re
 
 **Important**: note that in the last line (atom `"C50"`), **the comma is not present** at the end of the line.
 
-The first line with a key `"resname"` indicates some possible residue names for the lipid described in the file. Here for example, it can be called `"POPC"`, `"PLA"` or `"POP"` in the pdb or gro file. Do not forget the quotes for each element. Thanks to this line, one can then use `Berger_POPC` `Berger_PLA` `Berger_POP` with the `-l` argument when launching **buildH** at the Unix command line.
+The first line with a key `"resname"` indicates some possible residue names for the lipid described in the file. Here for example, it can be called `"POPC"`, `"PLA"` or `"POP"` in the pdb or gro file. Do not forget the quotes for each element. Thanks to this line, one can then use `Berger_POPC`, `Berger_PLA`, or `Berger_POP` with the `-l` argument when launching **buildH** at the Unix command line.
 
 In the the next lines, each `key` is basically a carbon atom name (between quotes) on which one wants to reconstruct hydrogens. This is the same atom name as found in the pdb or gro file. The corresponding `value` is a list containing 3 or 4 strings separated by a comma:
 
