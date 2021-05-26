@@ -12,18 +12,18 @@
 
 ## Features
 
-BuildH can :
-  - Reconstruct hydrogens from a **united-atom** structure file (PDB, GRO) or a trajectory.
-  - Calculate the order parameter based on the reconstructed hydrogens.
-  - Write a new structure/trajectory file with the reconstructed hydrogens.
+**buildH** can :
+  - Reconstruct hydrogens from a **united-atom** structure file (pdb, gro) or trajectory (e.g. xtc).
+  - Calculate the order parameters based on the reconstructed hydrogens.
+  - Write new structure trajectory files with the reconstructed hydrogens.
 
-
-BuildH works in two modes :
-  1. A slow mode when an output trajectory (e.g. in xtc format) is requested by
+**buildH** works in two modes :
+  1. A slow mode when an output trajectory (in xtc format) is requested by
      the user. In this case, the whole trajectory including newly built
      hydrogens are written to this trajectory.
   2. A fast mode without any output trajectory.
 
+In both modes, the order parameters are calculated. All calculations are accelerated with [Numba](https://numba.pydata.org/). As a CPU cost indication, running **buildH** on a trajectory of 2500 frames with 128 POPC takes ~ 7' on a single core Xeon @ 3.60GHz.
 
 ## Requirements
 
@@ -32,6 +32,8 @@ Python >= 3.6 is mandatory for running buildH.
 buildH is written in Python 3 and needs the modules numpy, pandas, MDAnalysis and Numba.
 
 ## Installation
+
+### Pip
 
 A simple installation with pip will do the trick:
 
@@ -42,18 +44,17 @@ python3 -m pip install buildh
 All dependencies (modules) will be installed automatically by pip.
 
 
-#### Conda
+### Conda
 
-buildH is also available through the [Bioconda](https://bioconda.github.io/) channel:
+**buildH** is also available through the [Bioconda](https://bioconda.github.io/) channel:
 
 ```
 conda install buildh -c bioconda -c conda-forge
 ```
 
-
 More details on installation [here](https://buildh.readthedocs.io/en/latest/buildh.html#installation).
 
-For installing a developement version, see [here](devtools/install_dev.md).
+For installing a development version, see [here](devtools/install_dev.md).
 
 ## Launching buildH
 
@@ -72,11 +73,11 @@ The minimal command for launching **buildH** can ressemble this:
 buildH -c start_128popc.pdb -t popc0-25ns_dt1000.xtc -l Berger_POPC -d Berger_POPC.def
 ```
 
-The different arguments mean the following: `-c start_128popc.pdb` is a pdb file with 128 POPC, `-t popc0-25ns_dt1000.xtc` is a trajectory with 25 frames, `-l Berger_POPC` indicates the united-atom force field and the type of lipid to be analyzed, `-d Berger_POPC.def` indicates what C-H are considered for H building and order parameter calculation. This latter file can be found [here](https://github.com/patrickfuchs/buildH/blob/master/def_files/Berger_POPC.def). The final order parameters averaged over the trajectory will be written to the default output name `OP_buildH.out`
+The different arguments mean the following: `-c start_128popc.pdb` is a pdb file with 128 POPC, `-t popc0-25ns_dt1000.xtc` is a trajectory with 25 frames, `-l Berger_POPC` indicates the united-atom force field and the type of lipid to be analyzed, `-d Berger_POPC.def` indicates what C-H are considered for H building and order parameter calculation (the structure and trajectory files can be found [here](https://github.com/patrickfuchs/buildH/tree/master/docs/Berger_POPC_test_case)). The def file can be found [here](https://github.com/patrickfuchs/buildH/blob/master/def_files/Berger_POPC.def). The final order parameters averaged over the trajectory will be written to the default output name `OP_buildH.out`
 
-Some other commented examples as well as a Notebook showing a full analysis on a trajectory of 2500 frames can be found on the [documentation part](https://github.com/patrickfuchs/buildH#documentation).
+Some other detailed examples and Jupyter Notebooks can be found on the [documentation part](https://github.com/patrickfuchs/buildH#documentation).
 
-**Important**: sometimes, when performing MD, some molecules are split over periodic boundary conditions (PBC). **buildH** takes as input whole structure (pdb, gro, xtc, etc.). If broken molecules are supplied, it will most likely generate nonsense results. So it is up to the user to take care of making molecules whole before running **buildH** (e.g. by using a tool like [trjconv](https://manual.gromacs.org/current/onlinehelp/gmx-trjconv.html) in GROMACS with flag `-pbc mol`).
+**Important**: sometimes, when performing MD, some molecules are split over periodic boundary conditions (PBC). **buildH** takes as input whole structures (pdb, gro, xtc, etc.). If broken molecules are supplied, it will most likely generate nonsense results. So it is up to the user to take care of making molecules whole before running **buildH** (e.g. by using a tool like [trjconv](https://manual.gromacs.org/current/onlinehelp/gmx-trjconv.html) in GROMACS with flag `-pbc mol`).
 
 Invoking **buildH** with the `-h` flag will display some help to the screen and tell the user which lipids are supported by **buildH**.
 
