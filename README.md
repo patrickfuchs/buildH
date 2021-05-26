@@ -29,7 +29,7 @@ In both modes, the order parameters are calculated. All calculations are acceler
 
 Python >= 3.6 is mandatory for running buildH.
 
-buildH is written in Python 3 and needs the modules numpy, pandas, MDAnalysis and Numba.
+**buildH** is written in Python 3 and needs the modules numpy, pandas, MDAnalysis and Numba.
 
 ## Installation
 

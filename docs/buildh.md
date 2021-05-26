@@ -11,7 +11,7 @@ In both modes, the order parameters are calculated.
 
 It is possible to select only a part of the lipid on which **buildH** will do his job (e.g. the polar head, the sn-1 aliphatic chain, etc.) thanks to the [def file](def_format.md).
 
-In this page you will find general information about **buildH**.
+All basic geometrical operations in **buildH** are accelerated using [Numba](https://numba.pydata.org/).
 
 **buildH** is hosted on [github](https://github.com/patrickfuchs/buildH).
 
