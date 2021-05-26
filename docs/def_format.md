@@ -2,7 +2,7 @@
 
 ## Role of def files
 
-The def file has two main functions:
+The def file has three main functions:
 
 - Tell **buildH** which C-H bonds are considered for H reconstruction and order parameter calculation.
 - Give a generic name to each C-H for the output of the order parameter (the default name for that file is `OP_buildH.out`); a generic name can be for example `beta1` or `beta2`.
@@ -14,36 +14,30 @@ Many of these `.def` files can be found on the [MATCH repository](https://github
 
 ## Format of def files
 
-The general naming convention of def files on NMRLipids is `order_parameters_definitions_MODEL_X_Y.def`, where `X` is the force field and `Y` the lipid considered. You can name it whatever you like, but we recommend to indicate at least the force field and the lipid.
+The general naming convention of def files on NMRLipids is `order_parameters_definitions_MODEL_X_Y.def`, where `X` is the force field and `Y` the lipid considered. You can name it whatever you like, but we recommend to indicate at least the force field and the lipid. In **buildH**, the [def files](https://github.com/patrickfuchs/buildH/tree/master/def_files) present in the repo have mere names folllowing the convention `Forcefield_Lipid.def`, for example `Berger_POPC.def`.
 
 Each line represents a given C-H with 4 columns:
 
 - Column 1 is the generic name of the order parameter considered. We recommend to use the same convention as those already present in the [def_files](https://github.com/patrickfuchs/buildH/tree/master/def_files) provided in **buildH**.
 - Column 2 is the residue name in the pdb or gro file.
 - Column 3 is the carbon name in the pdb or gro file for that C-H.
-- Column 4 is the H name in the pdb or gro file for that C-H.
+- Column 4 is the H name for that C-H, it is used if an output pdb file is requested.
 
 Here is an example for the polar head of [Berger POPC](https://github.com/patrickfuchs/buildH/blob/master/def_files/Berger_POPC.def):
 
 ```
-beta1 POPC C5  H51
-beta2 POPC C5  H52
+beta1  POPC C5  H51
+beta2  POPC C5  H52
 alpha1 POPC C6  H61
 alpha2 POPC C6  H62
-g3_1 POPC C12 H121
-g3_2 POPC C12 H122
-g2_1 POPC C13 H131
-g1_1 POPC C32 H321
-g1_2 POPC C32 H322
+g3_1   POPC C12 H121
+g3_2   POPC C12 H122
+g2_1   POPC C13 H131
+g1_1   POPC C32 H321
+g1_2   POPC C32 H322
 ```
 
 Each column has to be separated by any combination of white space(s) (at least one).
-
-**Important**
-
-In **buildH** the hydrogens basically do not exist before running the program, and the program uses the following convention: each reconstructed H will have the same base name as the carbon (with `C` replaced by `H`) followed by a number (`1`, `2` or `3`). For example, if the carbon is called `C5` and has two Hs, they will be called `H51` and `H52`. If the carbon is called `CA2` and has three Hs, they will be called `HA21`, `HA22` and `HA23`. If the carbon is called `C13` and has one H, it will be called `H131`
-
-**We highly recommend to use this convention!**
 
 ## Trajectory output and def files
 
@@ -52,15 +46,15 @@ If an output trajectory (option `-opx`) is requested, the `.def` file provided *
 If no option `-opx` is used, **buildH** uses fast indexing. In this case the `.def` file can contain any subset of all possible C-H pairs. For example, if one wants to get the order parameters of the polar head only (Berger POPC), the `.def` will be the following:
 
 ```
-beta1 POPC C5  H51
-beta2 POPC C5  H52
+beta1  POPC C5  H51
+beta2  POPC C5  H52
 alpha1 POPC C6  H61
 alpha2 POPC C6  H62
-g3_1 POPC C12 H121
-g3_2 POPC C12 H122
-g2_1 POPC C13 H131
-g1_1 POPC C32 H321
-g1_2 POPC C32 H322
+g3_1   POPC C12 H121
+g3_2   POPC C12 H122
+g2_1   POPC C13 H131
+g1_1   POPC C32 H321
+g1_2   POPC C32 H322
 ```
 
 Of course, a lower number of Hs to reconstruct will make **buildH** run faster.
@@ -136,7 +130,7 @@ ATOM     14  H43 BUTA    1       1.920  -0.658   1.059  1.00  0.00             H
 
 **Last advices**
 
-- We showed you a simple example on butane. Although this molecule is very simple, you can see that it is easy to make a mistake. Although this def file is less critical than the [json lipid file](json_format.md), we recommend to double check it before using it for production. **buildH** makes for you a lot of checks and will throw an error if something is wrong, but it cannot detect all types of mistakes. Any spelling error on atom names, inversion, etc., may lead to nonsense results. So before going to production, do test on a single molecule and check thoroughly on a couple of examples the output looks right.
+- We showed you a simple example on butane. Although this molecule is very simple, you can see that it is easy to make a mistake. Although this def file is less critical than the [json lipid file](json_format.md), we recommend to double check it before using it for production. **buildH** makes for you a lot of checks and will throw an error if something is wrong, but it cannot detect all types of mistakes. Any spelling error on atom names, inversion, etc., may lead to nonsense results. So before going to production, do test on a single molecule and check thoroughly on a couple of examples whether the output looks right.
 
 - The main lipids are already included in **buildH** (in the directory [`buildh/lipids`](https://github.com/patrickfuchs/buildH/tree/master/def_files)) so you might not need to build your own def file. You can have a list of the supported lipids by invoking **buildH** with option `-h`:
 
@@ -144,8 +138,7 @@ ATOM     14  H43 BUTA    1       1.920  -0.658   1.059  1.00  0.00             H
 $ buildH -h
 usage: buildH [-h] -c COORD [-t TRAJ] -l LIPID [-lt LIPID_TOPOLOGY [LIPID_TOPOLOGY ...]] -d DEFOP
 [...]
-The list of supported lipids (-l option) are: Berger_POP, Berger_POPC, Berger_PLA, Berger_POPE,
-CHARMM36_POPC.
+The list of supported lipids (-l option) are: Berger_POP, Berger_POPC, Berger_PLA, Berger_POPE, CHARMM36_POPC.
 [...]
 ```
 
