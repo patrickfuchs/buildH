@@ -44,19 +44,34 @@ So the general syntax is `[type of C on which we want to build Hs, name of helpe
 
 ## CH3 
 
-In the figure below is shown a resconstruction of 3 hydrogens (methyl group) on atom `C1`. In the json file, it corresponds to the line `"C1": ["CH3", "N4", "C5"],`. The first helper (helper1) needs to be the one connected to `C1` (thus `N4`), and the second helper (helper2) is connected to `N4` and 2 atoms away from `C1` (thus `C5`) along the main chain. The 3 reconstructed H will have names `H11`, `H12`, `H13`. The first character `1` is the same as the carbon number, the second character is the hydrogen number (`1`, `2` or `3`). 
+In the figure below is shown a resconstruction of 3 hydrogens (methyl group) on atom `C1`. In the json file, it corresponds to the line `"C1": ["CH3", "N4", "C5"],`. The first helper (helper1) needs to be the one connected to `C1` (thus `N4`), and the second helper (helper2) is connected to `N4` and 2 atoms away from `C1` (thus `C5`) along the main chain. 
 
 ![Reconstruction of a CH3](img/build_CH3.png)
+
+The names of the 3 reconstructed H, here `H11`, `H12` and `H13`, are infered from the def file supplied with option `-d`. In this example, [Berger_POPC.def](https://github.com/patrickfuchs/buildH/blob/master/def_files/Berger_POPC.def) was used, the names for the 3 H of `C1` were read from the 4th column of these lines:
+
+```
+gamma1_1 POPC C1  H11
+gamma1_2 POPC C1  H12
+gamma1_3 POPC C1  H13
+```
 
 In this example, the use of `C2` or `C3` as helper2 would have worked too. However, we decided to use `C5` because it stands along the main chain of the lipid.
 
 ## CH2
 
-In the figure below is shown the resconstruction of 2 hydrogens (methylene group) on atom `C26`. On the left is shown a CH2 reconstruction coming from the line `"C26": ["CH2", "C25", "C27"],` in the json file. `"CH2"` means we want to reconstruct 2 hydrogens, `"C25"` is helper1, `"C27"` is helper2. With `C25` being up and `C27` being down, the new hydrogens reconstructed are arranged in space so that `H261` comes towards us and `H262` goes backwards. Their name `H261` or `H262` follows the same rule as for CH3: `26` means the Hs are connected to `C26` and the last digit is the hydrogen number (`1` or `2`). 
+In the figure below is shown the resconstruction of 2 hydrogens (methylene group) on atom `C26`. On the left is shown a CH2 reconstruction coming from the line `"C26": ["CH2", "C25", "C27"],` in the json file. `"CH2"` means we want to reconstruct 2 hydrogens, `"C25"` is helper1, `"C27"` is helper2. With `C25` being up and `C27` being down, the new hydrogens reconstructed are arranged in space so that `H261` comes towards us and `H262` goes backwards.
 
 On the right, we show the other case where we swapped the order of helper1 and helper2. One can see that the two reconstructed hydrogens are also swapped. **This shows that the order of helpers matters** for H reconstruction on CH2!
 
 ![Reconstruction of a CH2](img/build_CH2.png)
+
+The names `H261` or `H262` come again from the 4th column of the def file ([Berger_POPC.def](https://github.com/patrickfuchs/buildH/blob/master/def_files/Berger_POPC.def)). The relevant lines are:
+
+```
+oleoyl_C11a POPC C26  H261
+oleoyl_C11b POPC C26  H262
+```
 
 **TODO**: tells which H is pro-R and pro-S.
 
@@ -66,11 +81,23 @@ For a CH, we want to reconstruct a single hydrogen on a carbon connected to 3 ot
 
 ![Reconstruction of a CH](img/build_CH.png)
 
+The name `H131` comes again from the 4th column of the def file ([Berger_POPC.def](https://github.com/patrickfuchs/buildH/blob/master/def_files/Berger_POPC.def)). The relevant line is:
+
+```
+g2_1 POPC C13 H131
+```
+
 ## CH of a double bond
 
-When a carbon is involved in a double bond, we want to reconstruct a single H which respects the sp2 geometry. Below is shown an example on which the double bond stands between `C24` and `C25` and we want to build the single H on `C25`. The line in the json file for such a case is `"C25": ["CHdoublebond", "C24", "C26"],`, where the first string in the list is now `"CHdoublebond"`. The two helpers are `C24` and `C26` which are the atoms directly bonded to `C25`. Note that the order of helpers in the list does not matter in this case, `"C24", "C26"` or `"C26", "C24"` will work the same. The H name `H251` follows again the same convention as before, `25` is the carbon number and `1` is the first (and unique) reconstructed H.
+When a carbon is involved in a double bond, we want to reconstruct a single H which respects the sp2 geometry. Below is shown an example on which the double bond stands between `C24` and `C25` and we want to build the single H on `C25`. The line in the json file for such a case is `"C25": ["CHdoublebond", "C24", "C26"],`, where the first string in the list is now `"CHdoublebond"`. The two helpers are `C24` and `C26` which are the atoms directly bonded to `C25`. Note that the order of helpers in the list does not matter in this case, `"C24", "C26"` or `"C26", "C24"` will work the same.
 
 ![Reconstruction of a CH in a double bond](img/build_CHdoublebond.png)
+
+The name `H251` comes again from the 4th column of the def file ([Berger_POPC.def](https://github.com/patrickfuchs/buildH/blob/master/def_files/Berger_POPC.def)). The relevant line is:
+
+```
+oleoyl_C10a POPC C25  H251
+```
 
 ## Summary
 
@@ -79,7 +106,7 @@ We have explained here the format of the json file which tells buildH what are t
 - the order of helpers in each list does not matter in the case of a CH or CHdoublebond;
 - the order of helpers in each list **does matter** in the case of a CH3 or CH2 reconstruction:
   - for CH3, helper1 is bonded to the carbon on which we reconstruct hydrogens and helper2 is two atoms away;
-	- for CH2, both helper1 and helper2 are bonded to the carbon on which we reconstruct hydrogens, but their order will determine which reconstructed H is pro-R or pro-S.
+  - for CH2, both helper1 and helper2 are bonded to the carbon on which we reconstruct hydrogens, but their order will determine which reconstructed H is pro-R or pro-S.
 
 ## A guided example for writing a lipid json file
 
@@ -130,7 +157,7 @@ butane_C4b BUTA C4 H42
 butane_C4c BUTA C4 H43
 ```
 
-With those 3 files, we can launch buildH:
+With those 3 files, we can launch **buildH**:
 
 ```bash
 buildH -c butane.pdb -l Berger_BUTA -lt Berger_BUTA.json -d Berger_BUTA.def -opx butane_wH
@@ -154,6 +181,8 @@ ATOM     12  H41 BUTA    1       2.687   0.625   0.092  1.00  0.00             H
 ATOM     13  H42 BUTA    1       2.096  -0.855  -0.702  1.00  0.00             H
 ATOM     14  H43 BUTA    1       1.920  -0.658   1.059  1.00  0.00             H
 ```
+
+The pdb name of the newly built hydrogens (`H11`, `H12`, etc.) were infered from the 4th column of the def file.
 
 ![Butane with hydrogens](img/butane_wH.png)
 

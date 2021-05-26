@@ -64,7 +64,7 @@ No more BLABLA, please show me how to run **buildH**! OK, the examples below are
 
 - [`start_128popc.pdb`](https://github.com/patrickfuchs/buildH/blob/master/docs/Berger_POPC_test_case/start_128popc.pdb): contains 128 POPC.
 - [`popc0-25ns_dt1000.xtc`](https://github.com/patrickfuchs/buildH/blob/master/docs/Berger_POPC_test_case/popc0-25ns_dt1000.xtc): contains a small trajectory of 25 frames.
-- [`Berger_POPC.def`](https://github.com/patrickfuchs/buildH/blob/master/docs/Berger_POPC_test_case/Berger_POPC.def): contains a list of C-H which tells **buildH** what hydrogens to reconstruct and what C-H to calculate the order parameter on.
+- [`Berger_POPC.def`](https://github.com/patrickfuchs/buildH/blob/master/docs/Berger_POPC_test_case/Berger_POPC.def): contains a list of C-H which tells **buildH** what hydrogens to reconstruct, what C-H to calculate the order parameters on.
 
 
 Here are some examples on how to run **buildH** with these 3 files:
@@ -106,7 +106,7 @@ buildH -c start_128popc.pdb -l Berger_POPC \
 -t popc0-25ns_dt1000.xtc -opx popc0-25ns_dt1000_with_H
 ```
 
-Here we added the flag `-opx` to request a pdb and an xtc file of the system with all the reconstructed hydrogens. Note that the flag takes a base name without extension since it will create a pdb and an xtc, here `popc0-25ns_dt1000_with_H.pdb` and `popc0-25ns_dt1000_with_H.xtc`. The use of this flag `-opx` requires the `.def` file to contain **all possible pairs of C-H** to reconstruct (since the trajectory with all Hs will be reconstructed). The order parameters will be written in `OP_buildH.out` (default name).
+Here we added the flag `-opx` to request a pdb and an xtc file of the system with all the reconstructed hydrogens. Note that the flag takes a base name without extension since it will create a pdb and an xtc, here `popc0-25ns_dt1000_with_H.pdb` and `popc0-25ns_dt1000_with_H.xtc`. The use of this flag `-opx` requires the `.def` file to contain **all possible pairs of C-H** to reconstruct (since the trajectory with all Hs will be reconstructed). Importantly, the newly built hydrogens in the output pdb will be named according to the names written in the def file. See more about this [here](def_format.md). The order parameters will be written in `OP_buildH.out` (default name).
 
 ### Get a single pdb file with reconstructed hydrogens
 
@@ -135,13 +135,14 @@ gamma1_3 POPC C1  H13
 
 Each line corresponds to a given C-H. The 4 columns correspond to the generic name, residue name, carbon name and hydrogen name, respectively, for that C-H.
 
-In **buildH**, the def file has two main purposes:
+In **buildH**, the def file has three main purposes:
 
 - Tell what are the C-H we want to consider for H reconstruction and order parameter calculation.
 - Give a generic name to each C-H (which will appear in the output) and make the correspondance with the PDB names (e.g. `gamma1_1` stands for the C-H which have `C1` and `H11` atom names in the pdb file.
+- If an output file with the newly built hydrogens is requested, their names will follow the 4th column of the def file. For example, the 3 hydrogens reconstructed on atom `C1` will be named `H11`, `H12` and `H13`.
 
 
-For example, if you want to calculate the order parameters only on the polar head (excluding the CH3s of choline) of a Berger POPC, you can use:
+In the following example dealing with a Berger POPC, the order parameters will be calculated on the polar head only (excluding the CH3s of choline):
 
 ```
 beta1 POPC C5  H51
