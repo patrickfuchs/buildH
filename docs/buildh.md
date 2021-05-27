@@ -34,13 +34,13 @@ All dependencies (modules) will be installed automatically by pip.
 In case you want to install **buildH** within a [conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html), first create a new conda env:
 
 ```
-conda create -n env_buildH "python>=3.6"
+conda create -n buildH "python>=3.6"
 ```
 
 Then activate your environment:
 
 ```
-conda activate env_buildH
+conda activate buildH
 ```
 
 Last, install **buildH** within that environment:

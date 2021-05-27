@@ -23,7 +23,7 @@
      hydrogens are written to this trajectory.
   2. A fast mode without any output trajectory.
 
-In both modes, the order parameters are calculated. All calculations are accelerated with [Numba](https://numba.pydata.org/). As a CPU cost indication, running **buildH** on a trajectory of 2500 frames with 128 POPC takes ~ 7' on a single core Xeon @ 3.60GHz.
+In both modes, the order parameters are calculated. All calculations are accelerated with [Numba](https://numba.pydata.org/). As a CPU cost indication, running **buildH** on a trajectory of 2500 frames with 128 POPC (without trajectory output) takes ~ 7' on a single core Xeon @ 3.60GHz.
 
 ## Requirements
 
