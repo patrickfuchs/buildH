@@ -18,36 +18,25 @@ User manual
     json_format
     CHARMM36_POPC_validation/validation
 
-Tutorial
-========
+Tutorials
+=========
 .. toctree::
-    :maxdepth: 1
+   :maxdepth: 1
 
-    notebooks/Notebook_01_buildH_calc_OP
-    notebooks/Notebook_02_buildH_calc_OP_outputwH
-    notebooks/Notebook_03_buildH_mixture.ipynb
+   tutorials
 
-Reference manual
-================
+
+API documentation
+=================
 .. toctree::
-    :maxdepth: 2
+   :maxdepth: 1
 
-    api/core
-    api/geometry
-    api/hydrogens
-    api/init_dics
-    api/lipids
-    api/utils
-    api/writers
-
-
-Index
-=====
-
-* :ref:`genindex`
-
+   api_reference
 
 Changelog
 =========
 
-.. include:: ../CHANGELOG.md
+.. toctree::
+   :maxdepth: 1
+
+   changelog
