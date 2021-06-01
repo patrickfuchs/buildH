@@ -1,20 +1,3 @@
-# buildH
-
-**buildH** is a software that reads a united-atom (UA) trajectory of lipids, builds the hydrogens on it and calculates the order parameter on each C-H bond. **buildH** also allows to output the trajectory with the new reconstructed hydrogens.
-
-**buildH** works in two modes:
-
-  1.  A slow mode when an output trajectory is requested by the user. In this case, the whole trajectory including newly built hydrogens is written to this trajectory file. If other molecules are present (e.g. water, ions, etc.), they will just be copied to the output trajectory with the same coordinates. So far, only the xtc format is supported.
-  2. A fast mode without any output trajectory.
-
-In both modes, the order parameters are calculated.
-
-It is possible to select only a part of the lipid on which **buildH** will do his job (e.g. the polar head, the sn-1 aliphatic chain, etc.) thanks to the [def file](def_format.md).
-
-All basic geometrical operations in **buildH** are accelerated using [Numba](https://numba.pydata.org/).
-
-**buildH** is hosted on [github](https://github.com/patrickfuchs/buildH).
-
 ## Installation
 
 ### Simple installation
@@ -53,10 +36,6 @@ conda install buildh
 
 For installing a developement version, see [here](https://github.com/patrickfuchs/buildH/tree/master/devtools/install_dev.md).
 
-## Motivation
-
-The initial motivation comes from the [NMRlipids](https://nmrlipids.blogspot.com/) project. As stated in this [post](https://nmrlipids.blogspot.com/2019/04/nmrlipids-ivb-assembling-pe-pg-results.html), there was a lack of suitable program for reconstructing hydrogens. In the past, we used to use `g_protonate` in GROMACS 3.*. But this program has been removed in recent versions. Our idea was to build our own implementation in Python using libraries such MDAnalysis, Numpy and Pandas.
-**buildH** is used actively in the recent projects of NMRlipids such as [NMRlipidsIVPEandPG](https://github.com/NMRLipids/NMRlipidsIVPEandPG) or [Databank](https://github.com/NMRLipids/Databank). **buildH** can also be used by anyone willing to analyze the order parameter from a UA trajectory, or if one needs to have explicit hydrogens for some further analyzes.
 
 ## Simple examples
 
