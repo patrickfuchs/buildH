@@ -18,9 +18,12 @@ In both modes, the order parameters are calculated.
 
 It is possible to select only a part of the lipid on which **buildH** will do his job (e.g. the polar head, the sn-1 aliphatic chain, etc) thanks to the `def file <def_format.md>`_.
 
-All basic geometrical operations in **buildH** are accelerated using `Numba <https://numba.pydata.org>`_.
 
-**buildH** is hosted on `Github <https://github.com/patrickfuchs/buildH>`_.
+**buildH** has been carefully validated as explained in :doc:`Validation of buildH <CHARMM36_POPC_validation/validation>`.
+The algorithms used to reconstruct hydrogens is detailed in :doc:`Algorithms for building hydrogens <algorithms_Hbuilding>`
+and the one for the order parameter in :doc:`Order parameters and statistics <order_parameter>`.
+
+All basic geometrical operations in **buildH** are accelerated using `Numba <https://numba.pydata.org>`_. **buildH** is hosted on `Github <https://github.com/patrickfuchs/buildH>`_.
 
 Motivation
 ----------
@@ -50,19 +53,27 @@ User manual
 .. toctree::
     :maxdepth: 2
 
-    buildh
+    installation
+    usage
     command_line_options
-    algorithms_Hbuilding
     def_format
     json_format
-    CHARMM36_POPC_validation/validation
 
 Tutorials
 =========
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    tutorials
+
+Algorithms & validation
+=======================
+
+.. toctree::
+   :maxdepth: 2
+
+   algorithms
+
 
 API documentation
 =================
