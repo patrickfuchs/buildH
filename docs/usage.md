@@ -15,8 +15,7 @@ Here are some examples on how to run **buildH** with these 3 files:
 ### Basic run on a single structure
 
 ```bash
-buildH -c start_128popc.pdb -l Berger_POPC \
--d Berger_POPC.def
+buildH -c start_128popc.pdb -l Berger_POPC -d Berger_POPC.def
 ```
 
 **buildH** can be used on a single structure (OK not very common for research, but useful for debugging ;-)). The pdb structure is passed with option `-c` (it also works with gro files), the def file with `-d`. The flag `-l` is mandatory, it tells **buildH** what force field and lipid to use: here it is `Berger_POPC`. The order parameters will be written to `OP_buildH.out` which is the default name.
@@ -24,8 +23,7 @@ buildH -c start_128popc.pdb -l Berger_POPC \
 ### Same but with a chosen output name
 
 ```bash
-buildH -c start_128popc.pdb -l Berger_POPC \
--d Berger_POPC.def \
+buildH -c start_128popc.pdb -l Berger_POPC -d Berger_POPC.def \
 -o my_OP_buildH.out
 ```
 
@@ -34,8 +32,7 @@ Here we add a `-o` flag which tells **buildH** to output the results in a file n
 ### Run on a trajectory
 
 ```bash
-buildH -c start_128popc.pdb -l Berger_POPC \
--d Berger_POPC.def \
+buildH -c start_128popc.pdb -l Berger_POPC -d Berger_POPC.def \
 -t popc0-25ns_dt1000.xtc
 ```
 
@@ -44,8 +41,7 @@ Here the flag `-t` indicates a trajectory. The final order parameters will be av
 ### Same with an output trajectory with reconstructed hydrogens
 
 ```bash
-buildH -c start_128popc.pdb -l Berger_POPC \
--d Berger_POPC.def \
+buildH -c start_128popc.pdb -l Berger_POPC -d Berger_POPC.def \
 -t popc0-25ns_dt1000.xtc -opx popc0-25ns_dt1000_with_H
 ```
 
@@ -56,8 +52,7 @@ Here we added the flag `-opx` to request a pdb and an xtc file of the system wit
 If you do not provide a trajectory with the `-t` flag and you use the `opx` flag, **buildH** will only output a pdb file with hydrogens (no xtc will be produced):
 
 ```bash
-buildH -c start_128popc.pdb -l Berger_POPC \
--d Berger_POPC.def \
+buildH -c start_128popc.pdb -l Berger_POPC -d Berger_POPC.def \
 -opx start_128popc_wH
 ```
 
@@ -121,7 +116,7 @@ More on def files and creating your own ones can be found [here](def_format.md).
 
 ### Supported lipids
 
-The list of supported lipids by **buildH** can be requested with `buildH -h`. This command will throw a detailed help to the screen, the list will be indicated at the last line. If you want to analyze a lipid that is not present in **buildH**, you will have to create your own def file as well as a json file which explains to **buildH** how the hydrogens will be reconstructed. This user json file is passed with option `-lt`. Here is more documentation on how to [create your own def file](def_format.md) and how to [create your own json file](json_format.md).
+The list of supported lipids can be requested with `buildH -h`. This command will throw a detailed help to the screen, the list will be indicated at the last line. If you want to analyze a lipid that is not present in **buildH**, you will have to create your own def file as well as a json file which explains to **buildH** how the hydrogens will be reconstructed. This user json file is passed with option `-lt`. Here is more documentation on how to [create your own def file](def_format.md) and how to [create your own json file](json_format.md).
 
 ### Mixtures of lipids
 
@@ -135,10 +130,9 @@ Sometimes, when performing MD, some molecules are split over periodic boundary c
 
 ### BuildH as a module
 
-buildH is intended to be used mainly as a command line but also as a library to a lesser extent.
+buildH is intended to be used mainly in the Unix command line. It is also possible to use it as a module but to a lesser extent.
 The features available are minimal: you can just call the main function (`buildh.launch()`) and result files are still written.
 
 It's not a proper API but more a way to call buildH inside larger analysis python scripts.
 
 A guided example can be found on [Notebook04](notebooks/Notebook_04_library.ipynb).
-

@@ -47,4 +47,4 @@ cd buildh # if it's not already the case
 pytest
 ```
 
-All tests should pass. If anything fails, [open an issue](https://github.com/patrickfuchs/buildH/issues).
+All tests should pass. If anything fails, please [open an issue](https://github.com/patrickfuchs/buildH/issues).

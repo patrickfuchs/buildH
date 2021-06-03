@@ -73,7 +73,7 @@ oleoyl_C11a POPC C26  H261
 oleoyl_C11b POPC C26  H262
 ```
 
-**TODO**: tells which H is pro-R and pro-S.
+**TODO**: tell which H is pro-R and pro-S.
 
 ## CH
 

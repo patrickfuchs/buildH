@@ -20,8 +20,8 @@ It is possible to select only a part of the lipid on which **buildH** will do hi
 
 
 **buildH** has been carefully validated as explained in :doc:`Validation of buildH <CHARMM36_POPC_validation/validation>`.
-The algorithms used to reconstruct hydrogens is detailed in :doc:`Algorithms for building hydrogens <algorithms_Hbuilding>`
-and the one for the order parameter in :doc:`Order parameters and statistics <order_parameter>`.
+The algorithms used to reconstruct hydrogens are detailed in :doc:`Algorithms for building hydrogens <algorithms_Hbuilding>`
+and the formulas for computing the order parameters in :doc:`Order parameters and statistics <order_parameter>`.
 
 All basic geometrical operations in **buildH** are accelerated using `Numba <https://numba.pydata.org>`_. **buildH** is hosted on `Github <https://github.com/patrickfuchs/buildH>`_.
 
@@ -36,7 +36,7 @@ In the past, we used to use `g_protonate` in GROMACS 3 but this program has been
 Our idea was to build our own implementation in Python using libraries such as ``MDAnalysis``, ``Numpy`` and ``Pandas``.
 
 **buildH** is used actively in the recent projects of NMRlipids such as `NMRlipidsIVPEandPG <https://github.com/NMRLipids/NMRlipidsIVPEandPG>`_ or `Databank <https://github.com/NMRLipids/Databank>`_.
-**buildH** can also be used by anyone willing to analyze the order parameter from a UA trajectory, or if one needs to have explicit hydrogens for some further analyzes.
+**buildH** can also be used by anyone willing to analyze the order parameters from a UA trajectory, or if one needs to have explicit hydrogens for some further analyzes.
 
 Citations
 ---------
@@ -66,8 +66,8 @@ Tutorials
 
    tutorials
 
-Algorithms & validation
-=======================
+Algorithms, OP calculations & validation
+========================================
 
 .. toctree::
    :maxdepth: 2

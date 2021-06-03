@@ -1,5 +1,8 @@
 **Dev**
 
+- Reorganize doc
+- Add Notebook04 (launch buildH as a module)
+
 **1.3.1**
 
 - Fix setup.cfg to include json files in python package archive
