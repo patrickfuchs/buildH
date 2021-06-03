@@ -63,7 +63,7 @@ buildH -c start_128popc.pdb -l Berger_POPC \
 
 In this case, the file `start_128popc_wH.pdb` with reconstructed hydrogens will be created as well as `OP_buildH.out` with the order parameters.
 
-## Additional features
+## Additional details
 
 ### Why do I need a def file?
 
