@@ -125,9 +125,20 @@ The list of supported lipids by **buildH** can be requested with `buildH -h`. Th
 
 ### Mixtures of lipids
 
-If you have a mixture of lipids, you will have to run **buildH** for each lipid separately. If you request an output trajectory, this will have to be done iteratively as well. A guided example can be found on [Notebook03](https://buildh.readthedocs.io/en/latest/notebooks/Notebook_03_buildH_mixture.html).
+If you have a mixture of lipids, you will have to run **buildH** for each lipid separately. If you request an output trajectory, this will have to be done iteratively as well. A guided example can be found on [Notebook03](notebooks/Notebook_03_buildH_mixture.ipynb).
 
 
 ### Periodic boundary conditions
 
 Sometimes, when performing MD, some molecules are split over periodic boundary conditions (PBC). **buildH** takes as input whole structures (pdb, gro, xtc, etc.). If broken molecules are supplied, it will most likely generate nonsense results. So it is up to the user to take care of making molecules whole before running **buildH** (e.g. by using a tool like [trjconv](https://manual.gromacs.org/current/onlinehelp/gmx-trjconv.html) in GROMACS with flag `-pbc mol`).
+
+
+### BuildH as a module
+
+buildH is intended to be used mainly as a command line but also as a library to a lesser extent.
+The features available are minimal: you can just call the main function (`buildh.launch()`) and result files are still written.
+
+It's not a proper API but more a way to call buildH inside larger analysis python scripts.
+
+A guided example can be found on [Notebook04](notebooks/Notebook_04_library.ipynb).
+
