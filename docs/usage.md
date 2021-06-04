@@ -3,7 +3,7 @@
 
 ## Simple examples
 
-The examples below are based on a simple test case using Berger POPC. The files can be found on github in the directory [docs/Berger_POPC_test_case](https://github.com/patrickfuchs/buildH/tree/master/docs/Berger_POPC_test_case) and [def_files](https://github.com/patrickfuchs/buildH/tree/master/def_files). You will need 3 files :
+The examples below are based on a simple test case using Berger POPC. The files can be found on github in the directories [docs/Berger_POPC_test_case](https://github.com/patrickfuchs/buildH/tree/master/docs/Berger_POPC_test_case) and [def_files](https://github.com/patrickfuchs/buildH/tree/master/def_files). You will need 3 files :
 
 - [`start_128popc.pdb`](https://github.com/patrickfuchs/buildH/blob/master/docs/Berger_POPC_test_case/start_128popc.pdb): contains 128 POPC.
 - [`popc0-25ns_dt1000.xtc`](https://github.com/patrickfuchs/buildH/blob/master/docs/Berger_POPC_test_case/popc0-25ns_dt1000.xtc): contains a small trajectory of 25 frames.

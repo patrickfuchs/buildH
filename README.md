@@ -102,4 +102,4 @@ The full documentation is available on [readthedocs](https://buildh.readthedocs.
 
 ## Licence
 
-buildH is licensed under the [BSD License](LICENSE).
+buildH is licensed under the [BSD License](LICENSE.txt).
