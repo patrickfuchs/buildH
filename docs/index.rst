@@ -2,10 +2,12 @@
 Welcome to buildH's documentation!
 ==================================
 
+.. image:: img/buildH_logo.png
+  :width: 600
+
 **Version** |release|
 
     *Build hydrogen atoms from a united-atom MD of lipids and calculate the order parameters.*
-
 
 **buildH** is a software that reads a united-atom (UA) trajectory of lipids, builds the hydrogens on it and calculates the order parameter on each C-H bond. **buildH** also allows to output the trajectory with the new reconstructed hydrogens.
 
