@@ -28,7 +28,7 @@ and the formulas for computing the order parameters in :doc:`Order parameters an
 All basic geometrical operations in **buildH** are accelerated using `Numba <https://numba.pydata.org>`_. **buildH** is hosted on `Github <https://github.com/patrickfuchs/buildH>`_.
 
 Motivation
-----------
+==========
 
 The initial motivation comes from the `NMRlipids <https://nmrlipids.blogspot.com/>`_ project.
 As stated in this `post <https://nmrlipids.blogspot.com/2019/04/nmrlipids-ivb-assembling-pe-pg-results.html>`_,
@@ -41,17 +41,20 @@ Our idea was to build our own implementation in Python using libraries such as `
 **buildH** can also be used by anyone willing to analyze the order parameters from a UA trajectory, or if one needs to have explicit hydrogens for some further analyzes.
 
 Citations
----------
+=========
 
 If you use buildH, please cite:
 
 Licence
--------
+=======
 
 buildH is licensed under `BSD 3-Clause <https://github.com/patrickfuchs/buildH/blob/master/LICENSE.txt>`_.
 
+Content
+=======
+
 User manual
-===========
+-----------
 .. toctree::
     :maxdepth: 2
 
@@ -62,14 +65,14 @@ User manual
     json_format
 
 Tutorials
-=========
+---------
 .. toctree::
    :maxdepth: 2
 
    tutorials
 
 Algorithms, OP calculations & validation
-========================================
+----------------------------------------
 
 .. toctree::
    :maxdepth: 2
@@ -78,14 +81,14 @@ Algorithms, OP calculations & validation
 
 
 API documentation
-=================
+-----------------
 .. toctree::
    :maxdepth: 1
 
    api_reference
 
 Changelog
-=========
+---------
 
 .. toctree::
    :maxdepth: 1
