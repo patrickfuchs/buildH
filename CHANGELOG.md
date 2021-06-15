@@ -2,6 +2,10 @@
 
 - Reorganize doc
 - Add Notebook04 (launch buildH as a module)
+- Support Berger cholesterol
+- Add Notebook05 (mixture POPC / cholesterol)
+- Create buildH logo and add it to doc
+- Add first draft of the paper
 
 **1.3.1**
 
