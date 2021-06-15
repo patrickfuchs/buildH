@@ -38,9 +38,9 @@ bibliography: paper.bib
 
 # Background
 
-Molecular dynamics (MD) simulations of lipids are widely used to understand the complex structure and dynamics of biological or model membranes [@Tieleman1997; @Feller2000; @Lyubartsev2011]. They are very complementary to biophysical experiments and have thus become important to get insights at the microscopic scale. Many of them are performed using all-atom (AA) or united-atom (UA) representations. In AA force fields (such as CHARMM36 [@Klauda2010]), all the atoms are considered whereas in UA force fields (such as Berger [@Berger1997]) the aliphatic hydrogen atoms (Hs) are merged to their parent carbon into a larger particule representing a CH, CH2 or CH3 (e.g. a methyl group is represented by a single CH3 particle). In simulations of phospholipids, the use of UA representations allows to divide by almost 3 the number of atoms to simulate due to aliphatic chains of the lipids and reduce the computation time.
+Molecular dynamics (MD) simulations of lipids are widely used to understand the complex structure and dynamics of biological or model membranes [@Tieleman1997; @Feller2000; @Lyubartsev2011]. They are very complementary to biophysical experiments and have thus become important to get insights at the microscopic scale. Many of them are performed using all-atom (AA) or united-atom (UA) representations. In AA force fields (such as CHARMM36 [@Klauda2010]), all the atoms are considered whereas in UA force fields (such as Berger [@Berger1997]) the aliphatic hydrogen atoms (Hs) are merged to their parent carbon into a larger particule representing a CH, CH2 or CH3 (e.g. a methyl group is represented by a single CH3 particle). In simulations of phospholipids, the use of UA representations allows to divide by almost 3 the number of atoms to simulate because these molecules contain many aliphatic Hs. It thus reduces the computational cost without loosing important chemical details.
 
-MD simulations of lipids are usually validated against experimental data [@Klauda2010] or used to help interpret experiments [@Feller2007]. One type of experiment which is widely for that is $^2H$ NMR. In this type of experiment, aliphatic Hs atoms are replaced by deuterons. $^2H$ NMR allows one to measure the order parameter of a given C-H bond (where the H is replaced by a deuteron):
+MD simulations of lipids are usually validated against experimental data [@Klauda2010] or used to help interpret experiments [@Feller2007]. One type of experiment which is often used for that is $^2H$ NMR. In this type of experiment, aliphatic Hs atoms are replaced by deuterons. $^2H$ NMR allows one to measure the order parameter of a given C-H bond (where the H is replaced by a deuteron):
 
 $$S_{CH} = \frac{1}{2} \left \langle 3cos^2(\theta) -1 \right \rangle$$
 
@@ -64,7 +64,7 @@ Here, we propose a software `buildH` to fill this need. `buildH` is very light a
 
 Beyond order parameter calculations, the trajectory with Hs can be be used for any further analyses (e.g. precise molecular volume calculation).
 
-`buildH` has been natively developed for a use in the Unix command line. It possesses a minimum number of options to be easy to use and learn. It is also possible to use it as a Python module which may be convenient in some cases.
+`buildH` has been natively developed for a use in the Unix command line. It possesses a minimum number of options making it easy to learn or use. It is also possible to use it as a Python module which may be convenient in some cases.
 
 To reconstruct H atoms, `buildH` uses standard geometric rules. These rules require so-called *helper* atoms. For example, the reconstruction of the two Hs of a CH2 on carbon $C_i$, requires two helpers which are $C_{i-1}$ and $C_{i+1}$, that is, the two neighbours of $C_i$ in the chain (note that helpers can also be other heavy atoms such as oxygen or nitrogen). The list of helpers used for the reconstruction of each H is written in a json file. Many json files are already present on the `buildH` repository representing the major lipids: Phoshphatidylcholine (PC), Phoshphatidylethanolamine (PE), Phoshphatidylglycerol (PG) for the polar heads and palmitoyl, myristoyl, oleoyl for the aliphatic chains, as well as cholesterol. Major UA force fields are also represented (Berger [@Berger1997], GROMOS-CPK [@Piggot2012], CHARMM-UA [@Lee2014]). In case a user wants to analyze a lipid which is not present in `buildH`, it is possible to supply his/her own json file with a full documentation on how to do that.
 
@@ -77,7 +77,7 @@ All structure and trajectory reading / writing are dealt with the MDAnalysis mod
 - continuous integration through tests,
 - and documentation [https://buildh.readthedocs.io/](https://buildh.readthedocs.io/).
 
-Some notebooks are present on the the github repository which explain how `buildH` works and how to analyze  the data produced. In case of trouble, any user can post an issueon the GitHub section.
+Some notebooks are present on the the github repository which explain how `buildH` works and how to analyze the data produced. In case of trouble, any user can post an issue on the GitHub section.
 
 `buildH` is available in the Python Package Index (PyPI) as well as in the Bioconda repository. All versions of the software are archived in the Zenodo repository ([https://zenodo.org/record/4792443](https://zenodo.org/record/4792443)) and in the Software Heritage archive (???).
 
