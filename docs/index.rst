@@ -2,9 +2,6 @@
 Welcome to buildH's documentation!
 ==================================
 
-.. image:: img/buildH_logo.png
-  :width: 600
-
 **Version** |release|
 
     *Build hydrogen atoms from a united-atom MD of lipids and calculate the order parameters.*
