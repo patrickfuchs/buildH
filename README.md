@@ -100,11 +100,11 @@ The full documentation is available on [readthedocs](https://buildh.readthedocs.
 
 ## Contributors
 
-  - Patrick Fuchs
-  - Amélie Bacle
-  - Hubert Santuz
-  - Pierre Poulain
+- Hubert Santuz
+- Amélie Bâcle
+- Pierre Poulain
+- Patrick Fuchs
 
-## Licence
+## License
 
 buildH is licensed under the [BSD License](LICENSE.txt).

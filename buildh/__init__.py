@@ -1,6 +1,6 @@
-"""
-This script builds hydrogens from a united-atom trajectory and calculate the
-order parameter for each C-H bond.
+"""buildH builds hydrogen atoms from united-atom molecular dynamics of lipids.
+
+It also calculates the order parameters.
 
 It works in two modes :
   1) A slow mode when an output trajectory (e.g. in xtc format) is requested by
@@ -24,12 +24,11 @@ Note2: sometimes numpy is slow on small arrays, thus we wrote a few "in-house"
 functions for vectorial operations (e.g. cross product).
 """
 
-__authors__ = ("Patrick Fuchs", "Amélie Bâcle",
-               "Hubert Santuz", "Pierre Poulain")
+__authors__ = ("Hubert Santuz", "Amélie Bâcle",
+               "Pierre Poulain", "Patrick Fuchs")
 __email__ = "patrick.fuchs@u-paris.fr"
 __version__ = "1.3.1"
 __license__ = "BSD 3-Clause License"
 
 
 from .UI import BuildHError, launch
-

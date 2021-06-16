@@ -1,20 +1,20 @@
 {
     "title": "buildH (v1.3.1): Build hydrogens from a united-atom MD of lipids and calculate the order parameter.",
     "creators": [{
-        "name": "Fuchs, Patrick",
-        "orcid": "0000-0001-7117-994X"
+        "name": "Santuz, Hubert",
+        "orcid": "0000-0001-6149-9480"
     },
     {
         "name": "Bâcle, Amélie",
         "orcid": "0000-0002-3317-9110"
     },
     {
-        "name": "Santuz, Hubert",
-        "orcid": "0000-0001-6149-9480"
-    },
-    {
         "name": "Poulain, Pierre",
         "orcid": "0000-0003-4177-3619"
+    },
+    {
+        "name": "Fuchs, Patrick",
+        "orcid": "0000-0001-7117-994X"
     }],
     "description": "This repository contains the archived release for the software buildH",
     "access_right": "open",
