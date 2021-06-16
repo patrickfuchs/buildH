@@ -26,7 +26,7 @@ affiliations:
   index: 2
 - name: Laboratoire Coopératif "Lipotoxicity and Channelopathies - ConicMeds", Université de Poitiers, F-86000 Poitiers, France
   index: 3
-- name: Mitochondria, Metals and Oxidative Stress group, Institut Jacques Monod, UMR 7592, Université de Paris, CNRS, F-75013 Paris, France.
+- name: Université de Paris, CNRS, Institut Jacques Monod, F-75006, Paris, France
   index: 4
 - name: Sorbonne Université, Ecole Normale Supérieure, PSL Research University, CNRS, Laboratoire des Biomolécules (LBM), F-75005 Paris, France
   index: 5
