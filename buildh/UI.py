@@ -12,13 +12,12 @@ import sys
 import numpy as np
 import MDAnalysis as mda
 
+from . import __version__
 from . import lipids
 from . import init_dics
 from . import core
 from . import writers
 from . import utils
-
-__version__ = "1.3.1"
 
 
 class BuildHError(Exception):
