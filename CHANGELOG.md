@@ -1,5 +1,6 @@
 **Dev**
 
+- Add -v / --version option
 - Reorganize doc
 - Add Notebook04 (launch buildH as a module)
 - Support Berger cholesterol
