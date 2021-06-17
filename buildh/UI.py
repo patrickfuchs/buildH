@@ -18,6 +18,8 @@ from . import core
 from . import writers
 from . import utils
 
+__version__ = "1.3.1"
+
 
 class BuildHError(Exception):
     """Raised when BuildH returns a error.
@@ -72,6 +74,7 @@ def parse_cli():
     epilog += "More documentation can be found at https://buildh.readthedocs.io/en/latest/index.html."
     parser = argparse.ArgumentParser(description=message,
                                      epilog=epilog)
+    parser.add_argument('-v', '--version', action='version', version=__version__)
     # Avoid tpr for topology cause there's no .coord there!
     parser.add_argument("-c", "--coord", type=isfile, required=True,
                         help="Coordinate file (pdb or gro format).")
