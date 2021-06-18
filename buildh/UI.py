@@ -12,6 +12,7 @@ import sys
 import numpy as np
 import MDAnalysis as mda
 
+from . import __version__
 from . import lipids
 from . import init_dics
 from . import core
@@ -72,6 +73,7 @@ def parse_cli():
     epilog += "More documentation can be found at https://buildh.readthedocs.io/en/latest/index.html."
     parser = argparse.ArgumentParser(description=message,
                                      epilog=epilog)
+    parser.add_argument('-v', '--version', action='version', version=__version__)
     # Avoid tpr for topology cause there's no .coord there!
     parser.add_argument("-c", "--coord", type=isfile, required=True,
                         help="Coordinate file (pdb or gro format).")
