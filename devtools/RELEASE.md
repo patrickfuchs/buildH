@@ -23,7 +23,7 @@ To publish a package in [PyPI](https://pypi.org/):
 
 ## Tests
 
-Before any release, double-check all tests had run successfully:
+Before publishing any release, double-check all tests had run successfully:
 ```
 $ make tests
 ```
