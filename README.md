@@ -61,9 +61,9 @@ More details on installation [here](https://buildh.readthedocs.io/en/latest/buil
 
 For installing a development version, see [here](devtools/install_dev.md).
 
-## Launching buildH
+## Running buildH
 
-Once installed with `pip` as shown above, a simple invocation of `buildH` will launch the program (`$` represents the Unix prompt):
+Once installed, a simple invocation of the `buildH` command will run the program (`$` represents the Unix prompt):
 
 ```
 $ buildH
@@ -72,15 +72,15 @@ usage: buildH [-h] -c COORD [-t TRAJ] -l LIPID [-lt LIPID_TOPOLOGY [LIPID_TOPOLO
 buildH: error: the following arguments are required: -c/--coord, -l/--lipid, -d/--defop
 ```
 
-The minimal command for launching **buildH** can ressemble this:
+The minimal command for running **buildH** can resemble this:
 
 ```
-buildH -c start_128popc.pdb -t popc0-25ns_dt1000.xtc -l Berger_POPC -d Berger_POPC.def
+$ buildH -c start_128popc.pdb -t popc0-25ns_dt1000.xtc -l Berger_POPC -d Berger_POPC.def
 ```
 
-The different arguments mean the following: `-c start_128popc.pdb` is a pdb file with 128 POPC, `-t popc0-25ns_dt1000.xtc` is a trajectory with 25 frames, `-l Berger_POPC` indicates the united-atom force field and the type of lipid to be analyzed, `-d Berger_POPC.def` indicates what C-H are considered for H building and order parameter calculation (the structure and trajectory files can be found [here](https://github.com/patrickfuchs/buildH/tree/master/docs/Berger_POPC_test_case)). The def file can be found [here](https://github.com/patrickfuchs/buildH/blob/master/def_files/Berger_POPC.def). The final order parameters averaged over the trajectory will be written to the default output name `OP_buildH.out`
+The different arguments mean the following: `-c start_128popc.pdb` is a pdb file with 128 POPC molecules, `-t popc0-25ns_dt1000.xtc` is a trajectory with 25 frames, `-l Berger_POPC` indicates the united-atom force field and the type of lipid to be analyzed, `-d Berger_POPC.def` indicates what C-H are considered for H building and order parameter calculation (the structure and trajectory files can be found [here](https://github.com/patrickfuchs/buildH/tree/master/docs/Berger_POPC_test_case)). The def file can be found [here](https://github.com/patrickfuchs/buildH/blob/master/def_files/Berger_POPC.def). The final order parameters averaged over the trajectory will be written to the default output name `OP_buildH.out`
 
-Some other detailed examples and Jupyter Notebooks can be found on the [documentation part](https://github.com/patrickfuchs/buildH#documentation).
+Other detailed examples and Jupyter Notebooks can be found in the documentation at [Read the Docs](https://buildh.readthedocs.io/en/latest/index.html).
 
 **Important**: sometimes, when performing MD, some molecules are split over periodic boundary conditions (PBC). **buildH** takes as input whole structures (pdb, gro, xtc, etc.). If broken molecules are supplied, it will most likely generate nonsense results. So it is up to the user to take care of making molecules whole before running **buildH** (e.g. by using a tool like [trjconv](https://manual.gromacs.org/current/onlinehelp/gmx-trjconv.html) in GROMACS with flag `-pbc mol`).
 
@@ -96,7 +96,7 @@ The list of supported lipids (-l option) are: Berger_POPC, Berger_PLA, Berger_PO
 
 ## Documentation
 
-The full documentation is available on [readthedocs](https://buildh.readthedocs.io/en/latest/index.html).
+The full documentation is available at [Read the Docs](https://buildh.readthedocs.io/en/latest/index.html).
 
 ## Contributors
 
@@ -107,4 +107,15 @@ The full documentation is available on [readthedocs](https://buildh.readthedocs.
 
 ## License
 
-buildH is licensed under the [BSD License](LICENSE.txt).
+**buildH** is licensed under the [BSD License](LICENSE.txt).
+
+
+## Contributing
+
+If you want to report a bug, request a feature, or propose an improvement use the [GitHub issue system](https://github.com/patrickfuchs/buildH/issues/).
+
+Please, see also the [CONTRIBUTING](CONTRIBUTING.md) file.
+
+Note that this project is released with a [Contributor Code of
+Conduct](http://contributor-covenant.org/). By participating in this project you
+agree to abide by its terms. See the [CODE_OF_CONDUCT](CODE_OF_CONDUCT.md) file.
