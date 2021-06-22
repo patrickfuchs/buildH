@@ -30,5 +30,8 @@ __email__ = "patrick.fuchs@u-paris.fr"
 __version__ = "1.3.1"
 __license__ = "BSD 3-Clause License"
 
+# Silent this unharmful warning from MDAnalysis
+import warnings
+warnings.filterwarnings("ignore", message="Element information is absent or missing for a few ")
 
 from .UI import BuildHError, launch

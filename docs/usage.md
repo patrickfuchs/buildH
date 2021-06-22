@@ -136,3 +136,30 @@ The features available are minimal: you can just call the main function (`buildh
 It's not a proper API but more a way to call buildH inside larger analysis python scripts.
 
 A guided example can be found on [Notebook04](notebooks/Notebook_04_library.ipynb).
+
+
+### Numpy warnings
+
+With numpy >= 1.20, you can encounter some numpy warnings in the MDAnalysis package:
+
+```
+$ buildH -c docs/Berger_POPC_test_case/start_128popc.pdb -t docs/Berger_POPC_test_case/popc0-25ns_dt1000.xtc -d docs/Berger_POPC_test_case/order_parameter_definitions_MODEL_Berger_POPC.def -l Berger_POPC
+Constructing the system...
+[..]/lib/python3.9/site-packages/MDAnalysis/topology/base.py:203: DeprecationWarning: `np.int` is a deprecated alias for the builtin `int`. To silence this warning, use `int` by itself. Doing this will not modify any behavior and is safe. When replacing `np.int`, you may wish to use e.g. `np.int64` or `np.int32` to specify the precision. If you wish to review your current use, check the release note link for additional information.
+Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
+  residx = np.zeros_like(criteria[0], dtype=np.int)
+[..]/lib/python3.9/site-packages/MDAnalysis/core/selection.py:521: DeprecationWarning: `np.bool` is a deprecated alias for the builtin `bool`. To silence this warning, use `bool` by itself. Doing this will not modify any behavior and is safe. If you specifically wanted the numpy scalar type, use `np.bool_` here.
+Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
+  mask = np.zeros(len(group), dtype=np.bool)
+System has 28526 atoms
+Dealing with frame 0 at 0.0 ps.
+Dealing with frame 1 at 1000.0 ps.
+[..]/lib/python3.9/site-packages/MDAnalysis/core/selection.py:521: DeprecationWarning: `np.bool` is a deprecated alias for the builtin `bool`. To silence this warning, use `bool` by itself. Doing this will not modify any behavior and is safe. If you specifically wanted the numpy scalar type, use `np.bool_` here.
+Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
+  mask = np.zeros(len(group), dtype=np.bool)
+Dealing with frame 2 at 2000.0 ps.
+Dealing with frame 3 at 3000.0 ps.
+[...]
+```
+
+Those can be safely ignored and should be resolved in the future versions of MDAnalysis.
