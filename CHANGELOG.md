@@ -6,7 +6,8 @@
 - Support Berger cholesterol
 - Add Notebook05 (mixture POPC / cholesterol)
 - Create buildH logo and add it to doc
-- Add first draft of the paper
+- Add paper for JOSS
+- Add community guidelines
 
 **1.3.1**
 
