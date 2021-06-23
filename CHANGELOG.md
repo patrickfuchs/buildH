@@ -1,5 +1,7 @@
 **Dev**
 
+**1.4.0**
+
 - Add -v / --version option
 - Reorganize doc
 - Add Notebook04 (launch buildH as a module)
