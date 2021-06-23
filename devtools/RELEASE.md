@@ -15,11 +15,15 @@ $ conda env update -f binder/environment.yml
 
 For Zenodo integration, see [Making Your Code Citable](https://guides.github.com/activities/citable-code/).
 
-To publish a package in [PyPI](https://pypi.org/), create an [account](https://pypi.org/account/register/) first.
+To publish a package in [PyPI](https://pypi.org/):
+
+- Create an [account](https://pypi.org/account/register/).
+- Create a new API token in the [account settings](https://pypi.org/manage/account/#api-tokens). Copy this token because you won't be able to see it again.
+- Paste this token in the [GitHub secrets for your repo](https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-a-repository) with the name `PYPI_API_TOKEN`.
 
 ## Tests
 
-Before any release, double-check all tests had run successfully:
+Before publishing any release, double-check all tests had run successfully:
 ```
 $ make tests
 ```
@@ -69,18 +73,18 @@ On [GitHub release page](https://github.com/patrickfuchs/buildH/releases) :
 
 ## Zenodo integration
 
-After the creation of the new release on GitHub, check the archive has been created on Zenodo.
+After the creation of the new release on GitHub, check a new archive has been created on [Zenodo](https://doi.org/10.5281/zenodo.4676217).
 
 
-## Publish in PyPI
+## PyPI package
 
-Build the package:
+After the creation of the new release on GitHub, check a new package has been published on [PyPI](https://pypi.org/project/buildh/).
+
+
+If you need to manually build and upload your package on PyPI, run the following commands:
+
 ```bash
 $ make build
-```
-
-Upload the package to PyPI:
-```bash
 $ make upload-to-pypi
 ```
 
