@@ -42,10 +42,11 @@ Citations
 
 If you use buildH, please cite:
 
-Licence
+License
 =======
 
 buildH is licensed under `BSD 3-Clause <https://github.com/patrickfuchs/buildH/blob/master/LICENSE.txt>`_.
+
 
 Content
 =======
