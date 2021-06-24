@@ -51,13 +51,13 @@ All dependencies (modules) will be installed automatically by pip.
 
 ### Conda
 
-**buildH** is also available through the [Bioconda](https://bioconda.github.io/) channel:
+**buildH** is also available through the [Bioconda](http://bioconda.github.io/recipes/buildh/README.html) channel:
 
 ```
 conda install buildh -c bioconda -c conda-forge
 ```
 
-More details on installation [here](https://buildh.readthedocs.io/en/latest/buildh.html#installation).
+More details on installation [here](https://buildh.readthedocs.io/en/latest/installation.html).
 
 For installing a development version, see [here](devtools/install_dev.md).
 
