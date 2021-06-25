@@ -12,7 +12,7 @@ All dependencies (modules) will be installed automatically by pip.
 
 ## Installation within a conda environment
 
-**buildH** is also available through the [Bioconda](https://bioconda.github.io/) channel.
+**buildH** is also available through the [Bioconda](https://anaconda.org/bioconda/buildh) channel.
 
 In case you want to install **buildH** within a [conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html), first create a new conda env:
 
