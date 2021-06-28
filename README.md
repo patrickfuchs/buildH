@@ -43,7 +43,7 @@ Python >= 3.6 is mandatory for running buildH.
 A simple installation with pip will do the trick:
 
 ```
-python3 -m pip install buildh
+$ python3 -m pip install buildh
 ```
 
 All dependencies (modules) will be installed automatically by pip.
@@ -54,7 +54,7 @@ All dependencies (modules) will be installed automatically by pip.
 **buildH** is also available through the [Bioconda](https://anaconda.org/bioconda/buildh) channel:
 
 ```
-conda install buildh -c bioconda -c conda-forge
+$ conda install buildh -c bioconda -c conda-forge
 ```
 
 More details on installation [here](https://buildh.readthedocs.io/en/latest/installation.html).
