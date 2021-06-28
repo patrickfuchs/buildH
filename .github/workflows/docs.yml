@@ -22,6 +22,8 @@ jobs:
         channels: conda-forge,defaults
         auto-activate-base: false
         mamba-version: "*"
+    - name: Install pandoc
+      run: sudo apt install pandoc
     - name: Print conda info
       shell: bash -l {0}
       run: |
