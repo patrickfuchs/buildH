@@ -43,7 +43,7 @@ Python >= 3.6 is mandatory for running buildH.
 A simple installation with pip will do the trick:
 
 ```
-$ python3 -m pip install buildh
+python3 -m pip install buildh
 ```
 
 All dependencies (modules) will be installed automatically by pip.
@@ -54,7 +54,7 @@ All dependencies (modules) will be installed automatically by pip.
 **buildH** is also available through the [Bioconda](https://anaconda.org/bioconda/buildh) channel:
 
 ```
-$ conda install buildh -c bioconda -c conda-forge
+conda install buildh -c bioconda -c conda-forge
 ```
 
 More details on installation [here](https://buildh.readthedocs.io/en/latest/installation.html).
@@ -66,7 +66,7 @@ For installing a development version, see [here](devtools/install_dev.md).
 Once installed, a simple invocation of the `buildH` command will run the program (`$` represents the Unix prompt):
 
 ```
-$ buildH
+buildH
 usage: buildH [-h] -c COORD [-t TRAJ] -l LIPID [-lt LIPID_TOPOLOGY [LIPID_TOPOLOGY ...]] -d DEFOP
               [-opx OPDBXTC] [-o OUT] [-b BEGIN] [-e END] [-pi PICKLE]
 buildH: error: the following arguments are required: -c/--coord, -l/--lipid, -d/--defop
@@ -87,7 +87,7 @@ Other detailed examples and Jupyter Notebooks can be found in the documentation 
 Invoking **buildH** with the `-h` flag will display some help to the screen and tell the user which lipids are supported by **buildH**.
 
 ```
-$ buildH -h
+buildH -h
 usage: buildH [-h] -c COORD [-t TRAJ] -l LIPID [-lt LIPID_TOPOLOGY [LIPID_TOPOLOGY ...]] -d DEFOP
               [-opx OPDBXTC] [-o OUT] [-b BEGIN] [-e END] [-pi PICKLE]
 [...]
