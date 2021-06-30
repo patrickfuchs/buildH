@@ -88,10 +88,12 @@ Invoking **buildH** with the `-h` flag will display some help to the screen and 
 
 ```
 $ buildH -h
-usage: buildH [-h] -c COORD [-t TRAJ] -l LIPID [-lt LIPID_TOPOLOGY [LIPID_TOPOLOGY ...]] -d DEFOP
-              [-opx OPDBXTC] [-o OUT] [-b BEGIN] [-e END] [-pi PICKLE]
+usage: buildH [-h] [-v] -c COORD [-t TRAJ] -l LIPID [-lt LIPID_TOPOLOGY [LIPID_TOPOLOGY ...]]
+              -d DEFOP [-opx OPDBXTC] [-o OUT] [-b BEGIN] [-e END]
 [...]
-The list of supported lipids (-l option) are: Berger_POPC, Berger_PLA, Berger_POP, CHARMM36_POPC.
+The list of supported lipids (-l option) are: Berger_POPC, Berger_POP, Berger_PLA, Berger_CHOL,
+CHARMM36_POPC, Berger_POPE. More documentation can be found at
+https://buildh.readthedocs.io/en/latest/index.html.
 ```
 
 ## Documentation
