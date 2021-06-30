@@ -66,7 +66,7 @@ For installing a development version, see [here](devtools/install_dev.md).
 Once installed, a simple invocation of the `buildH` command will run the program (`$` represents the Unix prompt):
 
 ```
-buildH
+$ buildH
 usage: buildH [-h] -c COORD [-t TRAJ] -l LIPID [-lt LIPID_TOPOLOGY [LIPID_TOPOLOGY ...]] -d DEFOP
               [-opx OPDBXTC] [-o OUT] [-b BEGIN] [-e END] [-pi PICKLE]
 buildH: error: the following arguments are required: -c/--coord, -l/--lipid, -d/--defop
@@ -87,7 +87,7 @@ Other detailed examples and Jupyter Notebooks can be found in the documentation 
 Invoking **buildH** with the `-h` flag will display some help to the screen and tell the user which lipids are supported by **buildH**.
 
 ```
-buildH -h
+$ buildH -h
 usage: buildH [-h] -c COORD [-t TRAJ] -l LIPID [-lt LIPID_TOPOLOGY [LIPID_TOPOLOGY ...]] -d DEFOP
               [-opx OPDBXTC] [-o OUT] [-b BEGIN] [-e END] [-pi PICKLE]
 [...]
