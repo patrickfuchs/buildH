@@ -79,7 +79,7 @@ All structure and trajectory read / write operations are handled by the MDAnalys
 
 Some notebooks are provided in the GitHub repository to explain how `buildH` works and how to analyze the data produced. In case of trouble, any user can post an issue on GitHub.
 
-`buildH` is available in the Python Package Index (PyPI) as well as in the Bioconda repository. The current version 1.4.? of `buildH` is archived in the Zenodo repository ([https://zenodo.org/record/4792443](https://zenodo.org/record/4792443)) and in the Software Heritage archive (???).
+`buildH` is available in the Python Package Index (PyPI) as well as in the Bioconda repository. The current version 1.4.0 of `buildH` is archived in the Zenodo repository ([https://zenodo.org/record/5021250](https://zenodo.org/record/5021250)) and in the Software Heritage archive ([swh:1:dir:7892f68ec165bb775cb0ac681ad2189d03f4cf17](https://archive.softwareheritage.org/swh:1:dir:7892f68ec165bb775cb0ac681ad2189d03f4cf17;origin=https://github.com/patrickfuchs/buildH/;visit=swh:1:snp:a637582b647460857f0b6ecafa174609817bbcbf;anchor=swh:1:rel:cb077170c2773ac197da4351c68062f5a62a046b)).
 
 # Acknowledgements
 
