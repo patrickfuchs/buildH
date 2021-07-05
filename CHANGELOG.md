@@ -1,5 +1,7 @@
 **Dev**
 
+- Limit Python version >= 3.6 <=3.8 (for MDanalysis compatibility)
+
 **1.4.0**
 
 - Add -v / --version option
