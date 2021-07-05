@@ -617,7 +617,7 @@ def gen_coordinates_calcOP(basename, universe_woH, dic_OP, dic_lipid,
     with open(pdbout_filename, "w") as f:
         f.write(writers.pandasdf2pdb(new_df_atoms))
     # Then create the universe with H from that pdb.
-    universe_wH = mda.Universe(pdbout_filename)
+    universe_wH = mda.Universe(pdbout_filename, dt=universe_woH.trajectory.dt)
 
     #Do we need to generate a trajectory file ?
     if traj_file:
