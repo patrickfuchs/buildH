@@ -196,7 +196,7 @@ The pdb name of the newly built hydrogens (`H11`, `H12`, etc.) were infered from
 $ buildH -h
 usage: buildH [-h] -c COORD [-t TRAJ] -l LIPID [-lt LIPID_TOPOLOGY [LIPID_TOPOLOGY ...]] -d DEFOP
 [...]
-The list of supported lipids (-l option) are: Berger_POP, Berger_PLA, Berger_POPC, CHARMM36_POPC.
+The list of supported lipids (-l option) are: Berger_CHOL, Berger_DOPC, Berger_DPPC, Berger_PLA, Berger_POPC, Berger_POP, Berger_POPE, Berger_POPS, CHARMM36UA_DPPC, CHARMM36UA_DPUC, CHARMM36_POPC, GROMOS53A6L_DPPC, GROMOSCKP_POPC, GROMOSCKP_POPS. More documentation can be found at https://buildh.readthedocs.io.
 ```
 
 - Last, one other project developed by us, called [autoLipMap](https://github.com/patrickfuchs/autoLipMap), can build automatically def and json files for the main known lipids.

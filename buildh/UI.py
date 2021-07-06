@@ -70,7 +70,7 @@ def parse_cli():
     and calculate the OP.
     """
     epilog = f"The list of supported lipids (-l option) are: {lipids_supported_str}. "
-    epilog += "More documentation can be found at https://buildh.readthedocs.io/en/latest/index.html."
+    epilog += "More documentation can be found at https://buildh.readthedocs.io."
     parser = argparse.ArgumentParser(description=message,
                                      epilog=epilog)
     parser.add_argument('-v', '--version', action='version', version=__version__)
