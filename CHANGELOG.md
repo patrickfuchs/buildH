@@ -1,5 +1,7 @@
 **Dev**
 
+- Add support for: CHARMM36UA DPPC 
+
 **1.4.0**
 
 - Add -v / --version option
