@@ -118,6 +118,12 @@ More on def files and creating your own ones can be found [here](def_format.md).
 
 The list of supported lipids can be requested with `buildH -h`. This command will throw a detailed help to the screen, the list will be indicated at the last line. If you want to analyze a lipid that is not present in **buildH**, you will have to create your own def file as well as a json file which explains to **buildH** how the hydrogens will be reconstructed. This user json file is passed with option `-lt`. Here is more documentation on how to [create your own def file](def_format.md) and how to [create your own json file](json_format.md).
 
+### What about polar hydrogens?
+
+When a lipid contains polar hydrogens, such as the 3 Hs of ethanolamine in PE or the H of the hydroxyl group in cholesterol, these Hs are handled explicitely by the force field. Thus they already exist in the input pdb (and possibly xtc) given as input to **buildH**. In this case, those Hs will be ignored by **buildH** and no order parameter will be calculated on these ones. Usually, these Hs are exchangeable and we do not have experimental order parameters for them. If an output trajectory is requested, **buildH** will just copy the coordinates of these Hs as it does for the heavy atoms.
+
+There is an exception for the force field CHARMM36UA. In this force field, only the apolar Hs of the sn-1 and sn-2 aliphatic tails are in a united-atom representation (starting from the 3rd carbon up to the end of the chain). The other apolar Hs (choline, glycerol, second carbon of sn-1 and sn-2) are explicit. Thus for these latter, **buildH** will ignore them as it does for polar Hs as explained above. Again, if an output pdb (or xtc) is requested, those Hs will be copied to the output pdb and xtc files.
+
 ### Mixtures of lipids
 
 If you have a mixture of lipids, you will have to run **buildH** for each lipid separately. If you request an output trajectory, this will have to be done iteratively as well. A guided example can be found on [Notebook03](notebooks/Notebook_03_buildH_mixture.ipynb).
