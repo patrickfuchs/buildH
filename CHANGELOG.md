@@ -1,6 +1,8 @@
 **Dev**
 
 - Add support for: CHARMM36UA DPPC 
+- Limit Python version >= 3.6 <=3.8 (for MDanalysis compatibility)
+- Add support for: Berger DOPC/DPPC/POPS, GROMOS-CKP POPC/POPS, GROMOS-53A6L DPPC
 
 **1.4.0**
 
