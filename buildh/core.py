@@ -10,7 +10,7 @@ from . import writers
 
 
 # For debugging.
-# TODO: Remove it after implement logging feature
+# TODO: Remove it after logging feature implementation.
 DEBUG=False
 
 
@@ -480,8 +480,11 @@ def fast_build_all_Hs_calc_OP(universe_woH, begin, end,
     ###
     # Loop over frames (ts is a Timestep instance).
     for ts in universe_woH.trajectory[begin:end]:
-        print("Dealing with frame {} at {} ps."
-              .format(ts.frame, universe_woH.trajectory.time))
+        if len(universe_woH.trajectory) == 1:
+            print(f"Dealing with current frame.")
+        else:
+            print(f"Dealing with frame {ts.frame} at "
+                  f"{universe_woH.trajectory.time} ps.")
         if DEBUG:
             print("Looping now over residues...")
             print()
@@ -617,7 +620,10 @@ def gen_coordinates_calcOP(basename, universe_woH, dic_OP, dic_lipid,
     with open(pdbout_filename, "w") as f:
         f.write(writers.pandasdf2pdb(new_df_atoms))
     # Then create the universe with H from that pdb.
-    universe_wH = mda.Universe(pdbout_filename, dt=universe_woH.trajectory.dt)
+    if len(universe_woH.trajectory) > 1:
+        universe_wH = mda.Universe(pdbout_filename, dt=universe_woH.trajectory.dt)
+    else:
+        universe_wH = mda.Universe(pdbout_filename)
 
     #Do we need to generate a trajectory file ?
     if traj_file:
@@ -631,8 +637,11 @@ def gen_coordinates_calcOP(basename, universe_woH, dic_OP, dic_lipid,
         # 4) Loop over all frames of the traj *without* H, build Hs and
         # calc OP (ts is a Timestep instance).
         for ts in universe_woH.trajectory[begin:end]:
-            print("Dealing with frame {} at {} ps."
-                .format(ts.frame, universe_woH.trajectory.time))
+            if len(universe_woH.trajectory) == 1:
+                print(f"Dealing with current frame.")
+            else:
+                print(f"Dealing with frame {ts.frame} at "
+                      f"{universe_woH.trajectory.time} ps.")
             # Build H and update their positions in the universe *with* H (in place).
             # Calculate OPs on the fly while building Hs  (dic_OP changed in place).
             build_all_Hs_calc_OP(universe_woH, ts, dic_lipid, dic_Cname2Hnames,
