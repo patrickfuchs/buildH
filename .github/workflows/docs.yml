@@ -3,12 +3,9 @@ name: GitHub CI doc
 on: [push, pull_request]
 
 jobs:
-  build:
+  build-documentation:
   
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.7, 3.8]
   
     steps:
     # https://github.com/marketplace/actions/setup-miniconda
@@ -18,7 +15,6 @@ jobs:
       with:
         activate-environment: buildh
         environment-file: binder/environment.yml
-        python-version: ${{ matrix.python-version }}
         channels: conda-forge,defaults
         auto-activate-base: false
         mamba-version: "*"
@@ -36,5 +32,4 @@ jobs:
     - name: Build documentation
       shell: bash -l {0}
       run: |
-        conda activate buildh
         make docs
