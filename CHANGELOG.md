@@ -1,10 +1,11 @@
 **Dev**
 
 - Write box dimensions in the requested trajectory output
-- Fix write duplicate 1st frame when requestest a trajectory output
-- Add support for: CHARMM36UA DPPC
-- Limit Python version >= 3.6 <=3.8 (for MDanalysis compatibility)
-- Add support for: Berger DOPC/DPPC/POPS, GROMOS-CKP POPC/POPS, GROMOS-53A6L DPPC
+- Fix write duplicate 1st frame when a trajectory output is requested
+- Avoid using universe.trajectory.time with on a single pdb
+- Limit Python version >= 3.6 <=3.8 (for MDAnalysis compatibility)
+- Add support for: Berger DOPC/DPPC/POPS, GROMOS-CKP POPC/POPS, GROMOS-53A6L DPPC, CHARMM36UA
+- Force Python 3.8 for doc building 
 
 **1.4.0**
 
