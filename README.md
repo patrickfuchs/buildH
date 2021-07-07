@@ -84,7 +84,7 @@ Other detailed examples and Jupyter Notebooks can be found in the documentation 
 
 **Important**: sometimes, when performing MD, some molecules are split over periodic boundary conditions (PBC). **buildH** takes as input whole structures (pdb, gro, xtc, etc.). If broken molecules are supplied, it will most likely generate nonsense results. So it is up to the user to take care of making molecules whole before running **buildH** (e.g. by using a tool like [trjconv](https://manual.gromacs.org/current/onlinehelp/gmx-trjconv.html) in GROMACS with flag `-pbc mol`).
 
-Invoking **buildH** with the `-h` flag will display some help to the screen and tell the user which lipids are supported by **buildH**.
+Invoking **buildH** with the `-h` flag will display some help to the screen and tell which lipids are supported.
 
 ```
 $ buildH -h
