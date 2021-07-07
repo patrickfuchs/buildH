@@ -9,20 +9,20 @@ version: 2
 sphinx:
   configuration: docs/conf.py
 
-
-# Optionally build your docs in additional formats such as PDF and ePub
+# Build documentation in additional formats such as PDF and ePub
 formats:
   - pdf
 
-# Optionally set the version of Python and requirements required to build your docs
+# Install local package
 python:
-  version: 3.7
   install:
     - method: pip
       path: .
 
+# Install conda env with Python version and dependencies
 conda:
   environment: binder/environment.yml
+
 
 # CONDA_USES_MAMBA feature flag uses mamba instead of conda to install dependencies
 # https://docs.readthedocs.io/en/stable/guides/feature-flags.html
