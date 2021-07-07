@@ -4,11 +4,12 @@ Unit tests for buildH_calcOP.
 Test functions from module core
 """
 
+import os
 import pathlib
 import pytest
 
 import numpy as np
-from numpy.testing import assert_almost_equal
+from numpy.testing import assert_almost_equal, assert_equal
 import MDAnalysis as mda
 import pandas as pd
 
@@ -354,3 +355,26 @@ class TestXTCPOPC:
         for (key), value in self.ref_OP.items():
             assert key in self.dic_OP.keys()
             assert_almost_equal(self.dic_OP[key], value)
+
+
+    def test_output_traj(self, tmp_path):
+        """Test the validity of the ouput trajectory files when requested
+
+        Parameters
+        ----------
+        tmp_path: function
+            pytest callback which return a unique directory.
+        """
+
+        os.chdir(tmp_path)
+        core.gen_coordinates_calcOP("test", self.universe_woH, self.dic_OP, self.dic_lipid,
+                                    self.dic_Cname2Hnames, self.dic_corresp_numres_index_dic_OP,
+                                    self.begin, self.end, True)
+
+        #Tests macro values of the output files
+        u = mda.Universe("test.pdb", "test.xtc")
+        assert_equal(u.trajectory.n_frames, 11)
+        assert_equal(u.atoms.n_atoms, 268)
+        assert_almost_equal(u.trajectory[4].dimensions,
+                            np.array([66.251070, 66.25107, 88.025925, 90.0, 90.0, 90.0], dtype=np.float32))
+

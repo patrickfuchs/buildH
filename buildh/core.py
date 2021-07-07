@@ -631,8 +631,6 @@ def gen_coordinates_calcOP(basename, universe_woH, dic_OP, dic_lipid,
         # Create an xtc writer.
         print("Writing trajectory with hydrogens in xtc file.")
         newxtc = XTC.XTCWriter(xtcout_filename, len(universe_wH.atoms))
-        # Write 1st frame.
-        newxtc.write(universe_wH)
 
         # 4) Loop over all frames of the traj *without* H, build Hs and
         # calc OP (ts is a Timestep instance).
@@ -647,6 +645,8 @@ def gen_coordinates_calcOP(basename, universe_woH, dic_OP, dic_lipid,
             build_all_Hs_calc_OP(universe_woH, ts, dic_lipid, dic_Cname2Hnames,
                                 universe_wH, dic_OP, dic_corresp_numres_index_dic_OP,
                                 dic_lipids_with_indexes)
+            # Update the box values into the new Universe
+            universe_wH.trajectory[0].dimensions = ts.dimensions
             # Write new frame to xtc.
             newxtc.write(universe_wH)
         # Close xtc.
