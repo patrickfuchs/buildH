@@ -126,8 +126,7 @@ There is an exception for the force field CHARMM36UA. In this force field, only 
 
 ### Mixtures of lipids
 
-If you have a mixture of lipids, you will have to run **buildH** for each lipid separately. If you request an output trajectory, this will have to be done iteratively as well. A guided example can be found on [Notebook03](notebooks/Notebook_03_buildH_mixture.ipynb).
-
+If you have a mixture of lipids, you will have to run **buildH** for each lipid separately. If you request an output trajectory, this will have to be done iteratively as well. A guided example on a POPC/POPE mixture can be found in [Notebook03](notebooks/Notebook_03_mixture_POPC_POPE.ipynb). Another one on a POPC/cholesterol mixture can be found in [Notebook05](Notebook_05_mixture_POPC_cholesterol.ipynb).
 
 ### Periodic boundary conditions
 
