@@ -37,4 +37,5 @@ jobs:
       shell: bash -l {0}
       run: |
         conda activate buildh
+        python --version
         make docs
