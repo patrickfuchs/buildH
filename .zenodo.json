@@ -1,5 +1,5 @@
 {
-    "title": "buildH (v1.4.0): Build hydrogens from a united-atom MD of lipids and calculate the order parameter.",
+    "title": "buildH (v1.5.0): Build hydrogens from a united-atom MD of lipids and calculate the order parameter.",
     "creators": [{
         "name": "Santuz, Hubert",
         "orcid": "0000-0001-6149-9480"

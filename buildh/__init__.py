@@ -27,7 +27,7 @@ functions for vectorial operations (e.g. cross product).
 __authors__ = ("Hubert Santuz", "Amélie Bâcle",
                "Pierre Poulain", "Patrick Fuchs")
 __email__ = "patrick.fuchs@u-paris.fr"
-__version__ = "1.4.0"
+__version__ = "1.5.0"
 __license__ = "BSD 3-Clause License"
 
 # Silent this unharmful warning from MDAnalysis

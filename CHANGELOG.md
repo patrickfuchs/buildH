@@ -1,5 +1,7 @@
 **Dev**
 
+**1.5.0**
+
 - Write box dimensions in the requested trajectory output
 - Fix write duplicate 1st frame when a trajectory output is requested
 - Avoid using universe.trajectory.time with on a single pdb

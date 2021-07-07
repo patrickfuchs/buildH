@@ -1,3 +1,3 @@
 import setuptools
 
-setuptools.setup(version="1.4.0")
+setuptools.setup(version="1.5.0")
