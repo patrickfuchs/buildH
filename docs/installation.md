@@ -8,13 +8,15 @@ A simple installation with pip will do the trick:
 python3 -m pip install buildh
 ```
 
-All dependencies (modules) will be installed automatically by pip.
+All dependencies (modules) will be installed automatically by pip. 
+
+Note that this way of proceeding will install **buildH** and its dependencies within the python of your Unix system, which may lead to conflicts of version if you have other scientific packages installed. To avoid this you may want to create a specific conda or virtual environment for **buildH** (see below).
 
 ## Installation within a conda environment
 
 **buildH** is also available through the [Bioconda](https://anaconda.org/bioconda/buildh) channel.
 
-In case you want to install **buildH** within a [conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html), first create a new conda env:
+We recommend to install **buildH** within a [conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html). First create a new conda env:
 
 ```
 conda create -n buildH "python>=3.6"
@@ -34,13 +36,54 @@ conda config --add channels bioconda
 conda install buildh
 ```
 
-## For developpers
+## Building from source
 
-For installing a developement version, see [here](https://github.com/patrickfuchs/buildH/tree/master/devtools/install_dev.md).
+We recommend to use a specific environment, either by using [venv](https://docs.python.org/3/library/venv.html) or [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands). All packages will be installed within that environment which avoid conficlts of version.
+
+If you still do not want to create a specific environment for **buildH**, you can skip the first section `Create an environment` below.
+
+In any case, the python version should be >= 3.6 and <= 3.8.
+
+### Create an environment
+
+First, create a new environment (we call it `env4buildH`):
+
+- If you chose conda: `conda create -n env4buildH python=3.8`
+- If you chose venv: `python3 -m venv /path/to/env4buildH`
+
+Activate your environment:
+
+- If you chose conda: `conda activate env4buildH`
+- If you chose venv: `source /path/to/env4buildH/bin/activate`
+
+### Install **buildH** from source
+
+Clone the **buildH** repository:
+
+```
+git clone https://github.com/patrickfuchs/buildH.git
+cd buildH
+```
+
+Install with `pip` the packages required by **buildH**, namely numpy, pandas, MDAnalysis and Numba, which are all specified in the file [requirements.txt](https://github.com/patrickfuchs/buildH/blob/master/requirements.txt):
+
+```
+pip install -r requirements.txt
+```
+
+Install **buildH** from source with `pip`:
+
+```
+pip install -e .
+```
+
+## For developers
+
+For installing a development version from source with the full environment (allowing building the doc, launching tests, etc.), see [here](https://github.com/patrickfuchs/buildH/tree/master/devtools/install_dev.md).
 
 ## Testing
 
-The tests rely on the `pytest` package. You need first to install a development version (see above). Once it's done, you can run the tests with just:
+The tests rely on the `pytest` package. You need first to install a development version (see above). Once done, you can run the tests with just:
 
 ```
 cd buildh # if it's not already the case
