@@ -38,7 +38,7 @@ conda install buildh
 
 ## Building from source
 
-We recommend to use a specific environment, either by using [venv](https://docs.python.org/3/library/venv.html) or [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands). All packages will be installed within that environment which avoid conficlts of version.
+We recommend to use a specific environment, either by using [venv](https://docs.python.org/3/library/venv.html) or [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands). All packages will be installed within that environment which avoid conflicts of version.
 
 If you still do not want to create a specific environment for **buildH**, you can skip the first section `Create an environment` below.
 
