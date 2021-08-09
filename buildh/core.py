@@ -1,5 +1,6 @@
 """Module holding the core functions."""
 
+import numpy as np
 import pandas as pd
 import MDAnalysis as mda
 import MDAnalysis.coordinates.XTC as XTC
@@ -618,6 +619,14 @@ def gen_coordinates_calcOP(basename, universe_woH, dic_OP, dic_lipid,
     print("Writing new pdb with hydrogens.")
     # Write pdb with H to disk.
     with open(pdbout_filename, "w") as f:
+        # Add box dimensions.
+        f.write("CRYST1{:9.3f}{:9.3f}{:9.3f}"
+                "{:7.2f}{:7.2f}{:7.2f} P 1           1\n"
+                .format(*universe_woH.trajectory.ts.dimensions))
+        # In case unitcell record was absent, add warning REMARK.
+        if np.allclose(universe_woH.dimensions, np.zeros(6)):
+            f.write("REMARK UNITCELL LINE CRYST1 AUTOMATICALLY ADDED BY BUILDH "
+                    "WITH ZERO VALUES\n")
         f.write(writers.pandasdf2pdb(new_df_atoms))
     # Then create the universe with H from that pdb.
     if len(universe_woH.trajectory) > 1:
@@ -646,7 +655,7 @@ def gen_coordinates_calcOP(basename, universe_woH, dic_OP, dic_lipid,
                                 universe_wH, dic_OP, dic_corresp_numres_index_dic_OP,
                                 dic_lipids_with_indexes)
             # Update the box values into the new Universe
-            universe_wH.trajectory[0].dimensions = ts.dimensions
+            universe_wH.trajectory.ts.dimensions = ts.dimensions
             # Write new frame to xtc.
             newxtc.write(universe_wH)
         # Close xtc.
