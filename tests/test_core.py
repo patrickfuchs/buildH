@@ -7,6 +7,7 @@ Test functions from module core
 import os
 import pathlib
 import pytest
+import filecmp
 
 import numpy as np
 from numpy.testing import assert_almost_equal, assert_equal
@@ -378,3 +379,10 @@ class TestXTCPOPC:
         assert_almost_equal(u.trajectory[4].dimensions,
                             np.array([66.251070, 66.25107, 88.025925, 90.0, 90.0, 90.0], dtype=np.float32))
 
+        # Test generated file content.
+        test_file = "test.pdb"
+        ref_file = PATH_ROOT_DATA / "correct_test.pdb"
+        assert filecmp.cmp(test_file, ref_file)
+        test_file = "test.xtc"
+        ref_file = PATH_ROOT_DATA / "correct_test.xtc"
+        assert filecmp.cmp(test_file, ref_file)
