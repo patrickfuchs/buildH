@@ -2,13 +2,15 @@
 
 First, **thank you** for contributing!
 
-Before starting, you should read, agree to, and follow these three things:
+Before starting, you should read, agree to, and follow these three points:
 
-- [Contributing Guidelines](#contributing-guidelines)
   - [How to contribute?](#how-to-contribute)
     - [Report bugs](#report-bugs)
     - [Submit feedback](#submit-feedback)
   - [Pull Request Guidelines](#pull-request-guidelines)
+  - [Code of Conduct](CODE_OF_CONDUCT.md)
+
+This page is largely inspired from a [blog post of William Durand](https://williamdurand.fr/2013/11/20/on-creating-pull-requests/).
 
 ---
 
