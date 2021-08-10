@@ -11,7 +11,7 @@ dependencies:
   # BuildH dependencies
   - pip
   - pip:
-    - -r file:../requirements.txt
+    - -r ../requirements.txt
     - sphinx-book-theme
   # Jupyter lab and visualisation
   - matplotlib
