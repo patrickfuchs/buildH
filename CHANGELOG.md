@@ -1,5 +1,7 @@
 **Dev**
 
+- Add support of Python 3.9
+
 **1.5.0**
 
 - Write box dimensions in the requested trajectory output
@@ -7,7 +9,7 @@
 - Avoid using universe.trajectory.time with on a single pdb
 - Limit Python version >= 3.6 <=3.8 (for MDAnalysis compatibility)
 - Add support for: Berger DOPC/DPPC/POPS, GROMOS-CKP POPC/POPS, GROMOS-53A6L DPPC, CHARMM36UA
-- Force Python 3.8 for doc building 
+- Force Python 3.8 for doc building
 
 **1.4.0**
 
