@@ -29,7 +29,7 @@ def get_CH(atom, helper1, helper2, helper3):
     Returns
     -------
     numpy 1D-array
-        Coordinates of the rebuilt hydrogen: ([x_H, y_H, z_H]).
+        Coordinates of the rebuilt hydrogen: `([x_H, y_H, z_H])`.
     """
     # Calculate vector along tetrahedron median.
     # !!! Important !!! Use unit vectors (some bonds may have different length).
@@ -57,7 +57,7 @@ def get_CH2(atom, helper1, helper2):
     -------
     tuple of numpy 1D-arrays
         Coordinates of the two hydrogens:
-        ([x_H1, y_H1, z_H1], [x_H2, y_H2, z_H2]).
+        `([x_H1, y_H1, z_H1], [x_H2, y_H2, z_H2])`.
     """
     # atom->helper1 vector.
     v2 = geo.normalize(helper1 - atom)
@@ -97,7 +97,7 @@ def get_CH3(atom, helper1, helper2):
     -------
     tuple of numpy 1D-arrays
         Coordinates of the 3 hydrogens:
-        ([x_H1, y_H1, z_H1], [x_H2, y_H2, z_H2], [x_H3, y_H3, z_H3]).
+        `([x_H1, y_H1, z_H1], [x_H2, y_H2, z_H2], [x_H3, y_H3, z_H3])`.
     """
     ### Build CH3e.
     theta = TETRAHEDRAL_ANGLE
@@ -144,7 +144,7 @@ def get_CH_double_bond(atom, helper1, helper2):
     Returns
     -------
     tuple of numpy 1D-arrays
-        Coordinates of the rebuilt hydrogen: ([x_H, y_H, z_H]).
+        Coordinates of the rebuilt hydrogen: `([x_H, y_H, z_H])`.
     """
     # calc CCC_angle helper1-atom-helper2 (in rad).
     CCC_angle = geo.calc_angle(helper1, atom, helper2)
