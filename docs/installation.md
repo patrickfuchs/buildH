@@ -8,7 +8,7 @@ A simple installation with pip will do the trick:
 python3 -m pip install buildh
 ```
 
-All dependencies (modules) will be installed automatically by pip. 
+All dependencies (modules) will be installed automatically by pip.
 
 Note that this way of proceeding will install **buildH** and its dependencies within the python of your Unix system, which may lead to conflicts of version if you have other scientific packages installed. To avoid this you may want to create a specific conda or virtual environment for **buildH** (see below).
 
@@ -42,7 +42,7 @@ We recommend to use a specific environment, either by using [venv](https://docs.
 
 If you still do not want to create a specific environment for **buildH**, you can skip the first section `Create an environment` below.
 
-In any case, the python version should be >= 3.6 and <= 3.8.
+In any case, the python version should be >= 3.6.
 
 ### Create an environment
 
