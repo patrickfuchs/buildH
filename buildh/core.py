@@ -40,7 +40,7 @@ def buildHs_on_1C(atom, H_type, helper1, helper2, helper3=None):
     tuple of numpy 1D-arrays
         Each element of the tuple is a numpy 1D-array containing 1, 2 or 3
         reconstructed hydrogen(s).
-        **Important**: This function return a tuple even if
+        **Important**: This function returns a tuple even if
         there's only one H that has been rebuilt.
     """
     if H_type == "CH2":
@@ -192,7 +192,7 @@ def build_all_Hs_calc_OP(universe_woH, ts, dic_lipid, dic_Cname2Hnames, universe
         This is the universe **with*** hydrogens.
     dic_OP : ordered dictionary
         Each key of this dict is a couple carbon/H, and at the beginning it
-        contains an empty list, e.g.
+        contains an empty list.
         (see `init_dic_OP()` in `init_dics.py`)
     dic_corresp_numres_index_dic_OP : dictionary
         This dict should contain the correspondance between the numres and
@@ -344,7 +344,7 @@ def make_dic_lipids_with_indexes(universe_woH, dic_lipid, dic_OP):
         Contains carbon names and helper names needed for reconstructing hydrogens.
     dic_OP : ordered dictionary
         Each key of this dict is a couple carbon/H, and at the beginning it
-        contains an empty list, e.g.
+        contains an empty list.
         (see `init_dic_OP()` in `init_dics.py`)
 
     Returns
@@ -431,7 +431,7 @@ def fast_build_all_Hs_calc_OP(universe_woH, begin, end,
         index of the last frame of trajectory
     dic_OP : ordered dictionary
         Each key of this dict is a couple carbon/H, and at the beginning it
-        contains an empty list, e.g.
+        contains an empty list.
         (see `init_dic_OP()` in `init_dics.py`)
     dic_lipid : dictionary
         Contains carbon names and helper names needed for reconstructing hydrogens.
@@ -571,7 +571,7 @@ def gen_coordinates_calcOP(basename, universe_woH, dic_OP, dic_lipid,
         This is the universe **without** hydrogen.
     dic_OP : ordered dictionary
         Each key of this dict is a couple carbon/H, and at the beginning it
-        contains an empty list, e.g.
+        contains an empty list.
         (see `init_dic_OP()` in `init_dics.py`)
     dic_lipid : dictionary
         Contains carbon names and helper names needed for reconstructing hydrogens.
