@@ -131,10 +131,10 @@ def check_def_topol_consistency(dic_Cname2Hnames, lipid_top):
 
     Parameters
     ----------
-    dic_Cname2Hnames : dict
-        This dict gives the correspondance Cname -> Hname. It is a dict of
+    dic_Cname2Hnames : dictionary
+        This dictionary gives the correspondance Cname -> Hname. It is a dictionary of
         tuples extracted from the def file.
-    lipid_top : dict
+    lipid_top : dictionary
         lipid topology for hydrogen.
 
     Returns

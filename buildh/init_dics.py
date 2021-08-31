@@ -10,8 +10,11 @@ def make_dic_atname2genericname(filename):
     """
     Make a dict of correspondance between generic H names and PDB names.
 
-    This dict will look like the following: {('C1', 'H11'): 'gamma1_1', ...}.
+    This dict will look like the following: `{('C1', 'H11'): 'gamma1_1', ...}`.
     Useful for outputing OP with generic names (such as beta1, beta 2, etc.).
+
+    Note
+    ----
     Such files can be found on the NMRlipids MATCH repository:
     https://github.com/NMRLipids/MATCH/tree/master/scripts/orderParm_defs.
 
@@ -51,14 +54,22 @@ def init_dic_OP(universe_woH, dic_atname2genericname, resname):
     To calculate the error, we need to first average over the
     trajectory, then over residues.
     Thus in dic_OP, we want for each key a list of lists, for example:
-    OrderedDict([
-                 (('C1', 'H11'), [[], [], ..., [], []]),
-                 (('C1', 'H12'), [[], ..., []]),
-                 ...
-                 ])
-    Thus each sublist will contain OPs for one residue.
-    e.g. ('C1', 'H11'), [[OP res 1 frame1, OP res1 frame2, ...],
-                         [OP res 2 frame1, OP res2 frame2, ...], ...]
+
+    .. code::
+
+        OrderedDict([
+                    (('C1', 'H11'), [[], [], ..., [], []]),
+                    (('C1', 'H12'), [[], ..., []]),
+                    ...
+                    ])
+
+    Thus each sublist will contain OPs for one residue:
+
+    .. code ::
+
+        ('C1', 'H11'), [[OP res 1 frame1, OP res1 frame2, ...],
+                        [OP res 2 frame1, OP res2 frame2, ...],
+                        ...]
 
     Parameters
     ----------
@@ -105,7 +116,18 @@ def init_dic_OP(universe_woH, dic_atname2genericname, resname):
 def make_dic_Cname2Hnames(dic_OP):
     """Initialize a dictionary of hydrogens bound to a carbon.
 
-    Each key is a carbon and the value is a list of hydrogens bound to it.
+    Each key is a carbon and the value is a tuple of hydrogens bound to it.
+
+    Note
+    ----
+
+    If there is more than 1 H for a given C, they need to be
+    **ordered** like in the PDB. e.g. for CHARMM POPC :
+
+    .. code::
+
+        {'C13': ('H13A', 'H13B', 'H13C'), 'C33': ('H3X', 'H3Y'),
+         'C216': ('H16R', 'H16S'), ...}
 
     Parameters
     ----------

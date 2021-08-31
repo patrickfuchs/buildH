@@ -83,7 +83,7 @@ def check_topology(universe, lipid_top):
     Parameters
     ----------
     universe : MDAnalysis universe instance
-    lipid_top : dict
+    lipid_top : dictionary
         lipid topology for hydrogen.
 
     Returns

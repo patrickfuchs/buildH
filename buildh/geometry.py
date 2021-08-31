@@ -40,8 +40,8 @@ def norm(vec):
 def calc_angle(atom1, atom2, atom3):
     """Calculate the valence angle between atom1, atom2 and atom3.
 
-    Notes
-    -----
+    Note
+    ----
     `atom2` is the central atom.
 
     Parameters
@@ -94,7 +94,7 @@ def calc_rotation_matrix(quaternion):
 
     Returns
     -------
-    numpy 2D-array (dimension [3, 3])
+    numpy 2D-array (dimension `[3, 3]`)
         The rotation matrix.
     """
     # Initialize rotation matrix.
@@ -118,8 +118,8 @@ def calc_rotation_matrix(quaternion):
 def apply_rotation(vec_to_rotate, rotation_axis, rad_angle):
     """Rotate a vector around an axis by a given angle.
 
-    Notes
-    -----
+    Note
+    ----
     The rotation axis is a vector of 3 elements.
 
     Parameters
@@ -148,8 +148,8 @@ def cross_product(A, B):
 
     Source: http://hyperphysics.phy-astr.gsu.edu/hbase/vvec.html.
 
-    Notes
-    -----
+    Note
+    ----
     On small vectors (i.e. of 3 elements), computing cross products
     with this functions is faster than `np.cross()`.
 
@@ -177,15 +177,17 @@ def calc_OP(C, H):
 
     OP is calculated according to equation:
 
-    S = 1/2 * (3*cos(theta)^2 -1)
+    .. math:: S = 1/2 * (3*cos(theta)^2 -1)
 
     theta is the angle between CH bond and the z(vertical) axis:
 
-    z
-    ^  H
-    | /
-    |/
-    C
+    .. code::
+
+        z
+        ^   H
+        |  /
+        | /
+        C
 
     Inspired from a function written by @jmelcr.
 
