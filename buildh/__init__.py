@@ -32,6 +32,6 @@ __license__ = "BSD 3-Clause License"
 
 # Silent this unharmful warning from MDAnalysis
 import warnings
-warnings.filterwarnings("ignore", message="Element information is absent or missing for a few ")
+warnings.filterwarnings("ignore", message="Element information is missing, elements attribute will not be populated.")
 
 from .UI import BuildHError, launch
