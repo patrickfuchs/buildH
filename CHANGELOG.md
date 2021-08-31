@@ -1,12 +1,15 @@
 **Dev**
 
+- Avoid output trajectory rewind when writing box dimensions
+- Switch to MDAnalysis 2.0
 - Add support of Python 3.9
+- Improve docstrings
 
 **1.5.0**
 
 - Write box dimensions in the requested trajectory output
 - Fix write duplicate 1st frame when a trajectory output is requested
-- Avoid using universe.trajectory.time with on a single pdb
+- Avoid using universe.trajectory.time on a single pdb
 - Limit Python version >= 3.6 <=3.8 (for MDAnalysis compatibility)
 - Add support for: Berger DOPC/DPPC/POPS, GROMOS-CKP POPC/POPS, GROMOS-53A6L DPPC, CHARMM36UA
 - Force Python 3.8 for doc building
