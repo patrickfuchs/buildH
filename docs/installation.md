@@ -1,5 +1,15 @@
 # Installation
 
+### Requirements and compatibility
+
+buildH requires at least Python 3.6 and needs the following modules:
+  - numpy
+  - pandas
+  - numba
+  - MDAnalysis (with support of 2.0)
+
+All the instructions below have been tested on Unix like platforms (e.g. Ubuntu), which we recommend for running **buildH**. We do not provide support for other platforms, but since **buildH** has been written in pure Python, it should work there provided its dependencies are supported. 
+
 ## Simple installation
 
 A simple installation with pip will do the trick:
