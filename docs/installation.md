@@ -1,6 +1,6 @@
 # Installation
 
-### Requirements and compatibility
+## Requirements and compatibility
 
 buildH requires at least Python 3.6 and needs the following modules:
   - numpy
