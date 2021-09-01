@@ -1,5 +1,7 @@
 **Dev**
 
+**1.6.0**
+
 - Avoid output trajectory rewind when writing box dimensions
 - Switch to MDAnalysis 2.0
 - Add support of Python 3.9
