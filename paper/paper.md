@@ -79,7 +79,7 @@ All structure and trajectory read / write operations are handled by the MDAnalys
 
 Some notebooks are provided in the GitHub repository to explain how `buildH` works and how to analyze the data produced. In case of trouble, any user can post an issue on GitHub.
 
-`buildH` is available in the Python Package Index (PyPI) as well as in the Bioconda repository. The current version 1.5.0 of `buildH` is archived in the Zenodo repository ([https://zenodo.org/record/5080126](https://zenodo.org/record/5080126)) and in the Software Heritage archive ([swh:1:dir:eb46a03f6e6188f93bd0b39ab78b4640e777ecd1](https://archive.softwareheritage.org/swh:1:dir:eb46a03f6e6188f93bd0b39ab78b4640e777ecd1;origin=https://github.com/patrickfuchs/buildH;visit=swh:1:snp:ce3e8efd06ea951364d1f5ee26cbd5776c117dc3;anchor=swh:1:rel:980b3a2f1332d172230eaf74a05bbfc9145b1266)).
+`buildH` is available in the Python Package Index (PyPI) as well as in the Bioconda repository. The current version 1.6.0 of `buildH` is archived in the Zenodo repository ([https://zenodo.org/record/5080126](https://zenodo.org/record/5356246)) and in the Software Heritage archive ([swh:1:dir:eb46a03f6e6188f93bd0b39ab78b4640e777ecd1](https://archive.softwareheritage.org/swh:1:dir:eb46a03f6e6188f93bd0b39ab78b4640e777ecd1;origin=https://github.com/patrickfuchs/buildH;visit=swh:1:snp:ce3e8efd06ea951364d1f5ee26cbd5776c117dc3;anchor=swh:1:rel:980b3a2f1332d172230eaf74a05bbfc9145b1266)).
 
 # Acknowledgements
 
