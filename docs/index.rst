@@ -42,6 +42,10 @@ Citations
 
 If you use buildH, please cite:
 
+```
+Santuz et al., (2021). buildH: Build hydrogen atoms from united-atom molecular dynamics of lipids and calculate the order parameters. Journal of Open Source Software, 6(65), 3521, https://doi.org/10.21105/joss.03521
+```
+
 License
 =======
 
