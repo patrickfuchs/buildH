@@ -1,5 +1,6 @@
 # buildH
 
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.03521/status.svg)](https://doi.org/10.21105/joss.03521)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4676217.svg)](https://doi.org/10.5281/zenodo.4676217)
 [![SWH](https://archive.softwareheritage.org/badge/origin/https://github.com/patrickfuchs/buildH/)](https://archive.softwareheritage.org/browse/origin/?origin_url=https://github.com/patrickfuchs/buildH/)
 [![License: BSD](https://img.shields.io/badge/License-BSD-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
