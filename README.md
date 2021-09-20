@@ -120,3 +120,11 @@ Please, see also the [CONTRIBUTING](CONTRIBUTING.md) file.
 Note that this project is released with a [Contributor Code of
 Conduct](http://contributor-covenant.org/). By participating in this project you
 agree to abide by its terms. See the [CODE_OF_CONDUCT](CODE_OF_CONDUCT.md) file.
+
+## Citing **buildH**
+
+If you use **buildH** for your research, please cite :
+
+```
+Santuz et al., (2021). buildH: Build hydrogen atoms from united-atom molecular dynamics of lipids and calculate the order parameters. Journal of Open Source Software, 6(65), 3521, https://doi.org/10.21105/joss.03521
+```
