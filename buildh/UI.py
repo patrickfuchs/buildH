@@ -101,12 +101,14 @@ def parse_cli():
                         help="The first frame (ps) to read from the trajectory.")
     parser.add_argument("-e", "--end", type=int,
                         help="The last frame (ps) to read from the trajectory.")
+    parser.add_argument("-ich", "--ignore-CH3s", action='store_true',
+                        help="Ignore CH3s groups for the construction of hydrogens "
+                             "and the calculation of the OP.")
     # parser.add_argument("-pi", "--pickle", type=str,
     #                     help="Output pickle filename. The structure pickled is a dictonnary "
     #                     "containing for each Order parameter, "
     #                     "the value of each lipid and each frame as a matrix")
     options = parser.parse_args()
-
 
     # Check coord file extension.
     if not options.coord.endswith("pdb") and not options.coord.endswith("gro"):
@@ -145,12 +147,13 @@ def entry_point():
     args, dic_lipid = parse_cli()
 
     try:
-        main(args.coord, args.traj, args.defop, args.out, args.opdbxtc, dic_lipid, args.begin, args.end)
+        main(args.coord, args.traj, args.defop, args.out, args.opdbxtc, dic_lipid, args.begin, args.end, args.ignore_CH3s)
     except BuildHError as e:
         sys.exit(e)
 
 
-def launch(coord_file, def_file, lipid_type, traj_file=None, out_file="OP_buildH.out", prefix_traj_ouput=None, begin=None, end=None, lipid_jsons=None):
+def launch(coord_file, def_file, lipid_type, traj_file=None, out_file="OP_buildH.out",
+           prefix_traj_ouput=None, begin=None, end=None, lipid_jsons=None, ignore_CH3s=False):
     """Launch BuildH calculations.
 
     This is the only function which can be called inside a Python script to use BuildH as a module.
@@ -179,6 +182,8 @@ def launch(coord_file, def_file, lipid_type, traj_file=None, out_file="OP_buildH
         The last frame (ps) to read from the trajectory, by default None.
     lipid_jsons : list, optional
         User topology lipid json file(s), by default None.
+    ignore_CH3s: bool, optional
+        Ignore CH3s groups for the construction of hydrogens and the calculation of the OP.
 
     Raises
     ------
@@ -219,12 +224,12 @@ def launch(coord_file, def_file, lipid_type, traj_file=None, out_file="OP_buildH
 
 
     try:
-        main(coord_file, traj_file, def_file, out_file, prefix_traj_ouput, dic_lipid, begin, end)
+        main(coord_file, traj_file, def_file, out_file, prefix_traj_ouput, dic_lipid, begin, end, ignore_CH3s)
     except BuildHError as e:
         raise e
 
 
-def main(coord_file, traj_file, def_file, out_file, prefix_traj_ouput, dic_lipid, begin=None, end=None):
+def main(coord_file, traj_file, def_file, out_file, prefix_traj_ouput, dic_lipid, begin=None, end=None, ignore_CH3s=False):
     """Main function of BuildH.
 
     It takes care of all the necessary steps to compute the Order Parameter :
@@ -260,6 +265,9 @@ def main(coord_file, traj_file, def_file, out_file, prefix_traj_ouput, dic_lipid
         The first frame (ps) to read from the trajectory, by default None.
     end : int
         The last frame (ps) to read from the trajectory, by default None.
+    ignore_CH3s: bool
+        Ignore CH3s groups for the construction of hydrogens and the calculation of the OP.
+        By default, False.
 
     Raises
     ------
@@ -297,7 +305,8 @@ def main(coord_file, traj_file, def_file, out_file, prefix_traj_ouput, dic_lipid
     # Initialize dic_OP (see function init_dic_OP() for the format).
     dic_OP, dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(universe_woH,
                                                                     dic_atname2genericname,
-                                                                    dic_lipid['resname'])
+                                                                    dic_lipid,
+                                                                    ignore_CH3s)
     # Initialize dic_Cname2Hnames.
     dic_Cname2Hnames = init_dics.make_dic_Cname2Hnames(dic_OP)
 
@@ -320,6 +329,9 @@ def main(coord_file, traj_file, def_file, out_file, prefix_traj_ouput, dic_lipid
 
 
     print("System has {} atoms".format(len(universe_woH.coord)))
+
+    if ignore_CH3s:
+        print("Building hydrogens and computing order parameters will be skipped on CH3 groups (--ignore-CH3s activated).")
 
     # If traj output files are requested.
     # NOTE Here, we need to reconstruct all Hs. Thus the op definition file (passed

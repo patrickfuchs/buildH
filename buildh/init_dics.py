@@ -45,7 +45,7 @@ def make_dic_atname2genericname(filename):
     return dic
 
 
-def init_dic_OP(universe_woH, dic_atname2genericname, resname):
+def init_dic_OP(universe_woH, dic_atname2genericname, lipid_top, ignore_CH3s):
     """Initialize the dictionary of result (`dic_op`).
 
     Initialize also the dictionary of correspondance
@@ -71,14 +71,22 @@ def init_dic_OP(universe_woH, dic_atname2genericname, resname):
                         [OP res 2 frame1, OP res2 frame2, ...],
                         ...]
 
+    If the flag `ignore_CH3s` is on, OP will not be computed for CH pairs belonging
+    to a CH3 group.
+    The `dic_OP` will not contain those pairs and they will be deleting from the
+    `dic_atname2genericname` dic.
+
+
     Parameters
     ----------
     universe_woH : MDAnalysis universe instance
         This is the universe *without* hydrogen.
     dic_atname2genericname: ordered dictionary
         dict of correspondance between generic H names and PDB names.
-    resname: str
-        The name of the lipid.
+    lipid_top : dictionary
+        lipid topology for hydrogen.
+    ignore_CH3s: bool
+        Don't compute the OP on CH3s if True.
 
     Returns
     -------
@@ -93,13 +101,24 @@ def init_dic_OP(universe_woH, dic_atname2genericname, resname):
 
 
     # Get list of residue id from the lipid name
-    all_resids = universe_woH.select_atoms( f"resname {resname}").residues.resids
+    all_resids = universe_woH.select_atoms( f"resname {lipid_top['resname']}").residues.resids
     nb_residus = len(all_resids)
 
     # Each key contain a list which contains a number of list equals to
     # the number of residus
+    keys_to_delete = []
     for key in dic_atname2genericname:
-        dic_OP[key] = [[] for _ in range(nb_residus)]
+        carbon, _ = key
+        # Store keys to be deleted with its belongs to a CH3 when ignore_CH3s is on.
+        if ignore_CH3s and lipid_top[carbon][0] == 'CH3':
+            keys_to_delete.append(key)
+            # don't add the OP '[]' if it's a CH3 with the ignore_CH3s flag on.
+        else:
+            dic_OP[key] = [[] for _ in range(nb_residus)]
+
+    # Remove stored keys.
+    for key in keys_to_delete:
+        del dic_atname2genericname[key]
 
     # We also need the correspondance between residue number (resid) and
     # its index in dic_OP.

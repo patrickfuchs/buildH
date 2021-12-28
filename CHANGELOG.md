@@ -1,5 +1,7 @@
 **Dev**
 
+- Add option to ignore CH pairs when they belongs to a CH3 group.
+
 **1.6.0**
 
 - Avoid output trajectory rewind when writing box dimensions
