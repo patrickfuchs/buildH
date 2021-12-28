@@ -30,10 +30,11 @@ def inputs():
     defop = path_data / "OP_def_BergerPOPC.def"
     lipids_tops = lipids.read_lipids_topH([lipids.PATH_JSON/"Berger_POPC.json"])
     dic_lipid = lipids_tops["Berger_POPC"]
+    ignore_CH3s = False
 
     universe_woH = mda.Universe(str(pdb))
     dic_atname2genericname = init_dics.make_dic_atname2genericname(defop)
-    return {'universe':universe_woH, 'defop':defop, 'dic_lipid':dic_lipid,
+    return {'universe':universe_woH, 'defop':defop, 'dic_lipid':dic_lipid, 'ignore_CH3s': ignore_CH3s,
             'dic_atname2genericname': dic_atname2genericname}
 
 
@@ -69,11 +70,44 @@ def test_init_dic_OP(inputs):
     """
     dic_OP, dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(inputs['universe'],
                                                                     inputs['dic_atname2genericname'],
-                                                                    inputs['dic_lipid']['resname'])
+                                                                    inputs['dic_lipid'],
+                                                                    inputs['ignore_CH3s'])
     # Number of Order parmeters
     assert len(dic_OP) == 82
     for key in [('C1', 'H11'), ('C44', 'H442'), ('C17', 'H171'), ('CA1', 'HA11')]:
         assert key  in dic_OP.keys()
+    # Number of lipid molecules
+    assert len(dic_OP[('C37', 'H371')]) == 10
+
+    # Number of lipid molecules
+    assert len(dic_corresp_numres_index_dic_OP) == 10
+    assert dic_corresp_numres_index_dic_OP[2] == 0
+    assert dic_corresp_numres_index_dic_OP[11] == 9
+
+
+def test_init_dic_OP_ignCH3s(inputs):
+    """Test for init_dic_OP() with ignore_CH3s activated.
+
+    Parameters
+    ----------
+    inputs : function
+        Callback which generates input data.
+    """
+    dic_atname_copy = inputs['dic_atname2genericname'].copy()
+    dic_OP, dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(inputs['universe'],
+                                                                    dic_atname_copy,
+                                                                    inputs['dic_lipid'],
+                                                                    True)
+    # Number of Order parmeters
+    assert len(dic_OP) == len(dic_atname_copy) == 67
+    for key in [('C44', 'H442'), ('C17', 'H171'), ('CA1', 'HA11')]:
+        assert key  in dic_OP.keys()
+
+    # CH3 pairs should not be present
+    for key in [('C1', 'H11'), ('C50', 'H503')]:
+        assert key not in dic_OP.keys()
+        assert key not in dic_atname_copy.keys()
+
     # Number of lipid molecules
     assert len(dic_OP[('C37', 'H371')]) == 10
 
@@ -92,7 +126,7 @@ def test_make_dic_Cname2Hnames(inputs):
         Callback which generates input data.
     """
     dic_OP, _ = init_dics.init_dic_OP(inputs['universe'], inputs['dic_atname2genericname'],
-                                      inputs['dic_lipid']['resname'])
+                                      inputs['dic_lipid'], inputs['ignore_CH3s'])
 
     dic = init_dics.make_dic_Cname2Hnames(dic_OP)
 
