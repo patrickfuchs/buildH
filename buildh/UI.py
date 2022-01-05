@@ -101,7 +101,7 @@ def parse_cli():
                         help="The first frame (ps) to read from the trajectory.")
     parser.add_argument("-e", "--end", type=int,
                         help="The last frame (ps) to read from the trajectory.")
-    parser.add_argument("-ich", "--ignore-CH3s", action='store_true',
+    parser.add_argument("-igch3", "--ignore-CH3s", action='store_true',
                         help="Ignore CH3s groups for the construction of hydrogens "
                              "and the calculation of the OP.")
     # parser.add_argument("-pi", "--pickle", type=str,
