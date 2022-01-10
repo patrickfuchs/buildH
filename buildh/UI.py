@@ -274,6 +274,11 @@ def main(coord_file, traj_file, def_file, out_file, prefix_traj_ouput, dic_lipid
     BuildHError
         When something went wront during calculation.
     """
+
+    if ignore_CH3s and prefix_traj_ouput:
+        raise BuildHError("An output trajectory can't be requested when the option to ignore CH3s groups is activated "
+                          "since all hydrogens are needed to rebuild a trajectory.")
+
     # Create universe without H.
     print("Constructing the system...")
     if traj_file:
