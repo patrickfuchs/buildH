@@ -230,6 +230,15 @@ class TestCLI:
         assert err.type == SystemExit
         assert "Slicing is only possible with a trajectory file." in capsys.readouterr().err
 
+    def test_fails_CLI_igCH3_opx(self, capsys):
+        """Fail tests when passing both -igch3 and -opx flag"""
+        sys.argv = (self.common_args + ["-l", "Berger_POPC"]
+                    + ["--ignore-CH3s"] + ["-opx", "base"])
+        with pytest.raises(SystemExit) as err:
+            UI.entry_point()
+        assert err.type == SystemExit
+        assert "An output trajectory can't be requested" in str(err.value)
+
 
 # Move to a temporary directory because some output files are written in the current directory.
 @pytest.mark.usefixtures("cd_tmp_dir")
@@ -264,7 +273,7 @@ class TestLaunch:
         assert "Results written to OP_buildH.out" in captured
 
 
-    def test_launch_minimal(self, capsys):
+    def test_launch_igCH3s(self, capsys):
         """Test launch with ignore_CH3s flag"""
         args = self.args.copy()
         args["ignore_CH3s"] = True
@@ -327,3 +336,14 @@ class TestLaunch:
             UI.launch(**args)
         assert err.type == BuildHError
         assert "Lipid PPHA is not supported" in str(err.value)
+
+
+    def test_fails_igCH3_opx(self, capsys):
+        """Fail tests when passing both -igch3 and -opx flag"""
+        args = self.args.copy()
+        args["ignore_CH3s"] = True
+        args["prefix_traj_ouput"] = "basename"
+        with pytest.raises(BuildHError) as err:
+            UI.launch(**args)
+        assert err.type == BuildHError
+        assert "An output trajectory can't be requested" in str(err.value)
