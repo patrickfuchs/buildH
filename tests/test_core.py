@@ -181,7 +181,7 @@ class TestPDBPOPC:
 
         # Check statistics
         assert_almost_equal(np.mean(self.dic_OP[('C40', 'H401')]), -0.28794656)
-        assert_almost_equal(np.mean(self.dic_OP[('C17', 'H171')]), -0.18843357)
+        assert_almost_equal(np.mean(self.dic_OP[('C17', 'H171')]), -0.1884334)
 
         # Check few particular cases
         # Use of a loop to check key and value separately.
