@@ -57,13 +57,15 @@ class TestWriters():
 
         self.begin = 0
         self.end = 1
+        self.ignore_CH3s = False
 
         # attributes
         self.universe_woH = mda.Universe(str(self.pdb))
         self.dic_atname2genericname = init_dics.make_dic_atname2genericname(self.defop)
         self.dic_OP, self.dic_corresp_numres_index_dic_OP = init_dics.init_dic_OP(self.universe_woH,
                                                                                   self.dic_atname2genericname,
-                                                                                  self.dic_lipid['resname'])
+                                                                                  self.dic_lipid,
+                                                                                  self.ignore_CH3s)
         self.dic_Cname2Hnames = init_dics.make_dic_Cname2Hnames(self.dic_OP)
 
         # Compute the order parameter
