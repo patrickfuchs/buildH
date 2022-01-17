@@ -1,6 +1,7 @@
 **Dev**
 
-- Add option to ignore CH pairs when they belongs to a CH3 group.
+- Add option --ignore-CH3s (-igch3) which ignore CH pairs when they belongs to a CH3 group.
+- Update doc and notebook04 with option -igch3
 
 **1.6.0**
 
