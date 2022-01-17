@@ -69,7 +69,7 @@ Once installed, a simple invocation of the `buildH` command will run the program
 ```
 $ buildH
 usage: buildH [-h] -c COORD [-t TRAJ] -l LIPID [-lt LIPID_TOPOLOGY [LIPID_TOPOLOGY ...]] -d DEFOP
-              [-opx OPDBXTC] [-o OUT] [-b BEGIN] [-e END] [-pi PICKLE]
+              [-opx OPDBXTC] [-o OUT] [-b BEGIN] [-e END] [-pi PICKLE] [-igch3]
 buildH: error: the following arguments are required: -c/--coord, -l/--lipid, -d/--defop
 ```
 
@@ -90,7 +90,7 @@ Invoking **buildH** with the `-h` flag will display some help to the screen and 
 ```
 $ buildH -h
 usage: buildH [-h] [-v] -c COORD [-t TRAJ] -l LIPID [-lt LIPID_TOPOLOGY [LIPID_TOPOLOGY ...]] -d
-              DEFOP [-opx OPDBXTC] [-o OUT] [-b BEGIN] [-e END]
+              DEFOP [-opx OPDBXTC] [-o OUT] [-b BEGIN] [-e END] [-igch3]
 [...]
 The list of supported lipids (-l option) are: Berger_CHOL, Berger_DOPC, Berger_DPPC, Berger_POP, Berger_POPC, Berger_PLA, Berger_POPE, Berger_POPS, CHARMM36UA_DPPC, CHARMM36UA_DPUC, CHARMM36_POPC, GROMOS53A6L_DPPC, GROMOSCKP_POPC, GROMOSCKP_POPS. More documentation can be found at https://buildh.readthedocs.io.
 ```
