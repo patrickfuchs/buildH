@@ -1,28 +1,15 @@
-# .readthedocs.yml
-# Read the Docs configuration file
-# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
-
-# Required
 version: 2
-
-# Build documentation in the docs/ directory with Sphinx
+build:
+  os: ubuntu-20.04
+  tools:
+    python: mambaforge-4.10
 sphinx:
   configuration: docs/conf.py
-
-# Build documentation in additional formats such as PDF and ePub
-formats:
-  - pdf
-
-# Install local package
 python:
   install:
-    - method: pip
-      path: .
-
-# Install conda env with Python version and dependencies
+  - method: pip
+    path: .
 conda:
   environment: binder/environment.yml
-
-
-# CONDA_USES_MAMBA feature flag uses mamba instead of conda to install dependencies
-# https://docs.readthedocs.io/en/stable/guides/feature-flags.html
+formats:
+- pdf
