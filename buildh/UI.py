@@ -82,7 +82,7 @@ def parse_cli():
     parser.add_argument("-l", "--lipid", type=str, required=True,
                         help="Combinaison of ForceField name and residue name "
                         "for the lipid to calculate the OP on (e.g. Berger_POPC)."
-                        "It must match with the internal topology files or the one(s) supplied."
+                        "It must match with the internal topology (json) files or the one(s) supplied."
                         "A list of supported terms is printed when calling the help.")
     parser.add_argument("-lt", "--lipid_topology", type=isfile, nargs='+',
                         help="User topology lipid json file(s).")
@@ -167,7 +167,7 @@ def launch(coord_file, def_file, lipid_type, traj_file=None, out_file="OP_buildH
         Order parameter definition file.
     lipid_type : str
         Combinaison of ForceField name and residue name for the lipid to calculate the OP on (e.g. Berger_POPC).
-        It must match with the internal topology files or the one(s) supplied.
+        It must match with the internal topology (json) files or the one(s) supplied.
     traj_file : str, optional
         Trajectory file (could be in XTC, TRR or DCD format), by default None.
     out_file : str, optional
@@ -321,7 +321,7 @@ def main(coord_file, traj_file, def_file, out_file, prefix_traj_ouput, dic_lipid
 
     # Check if the lipid topology match the the structure.
     if not lipids.check_topology(universe_woH, dic_lipid):
-        raise BuildHError(f"The topology chosen does not match the structure provided in {coord_file}")
+        raise BuildHError(f"The topology chosen (json file) does not match the structure provided in {coord_file}")
 
     # Check if atoms name in the def file are present in the structure.
     atoms_name = [heavy_atom for (heavy_atom, _) in dic_atname2genericname.keys()]
@@ -330,7 +330,7 @@ def main(coord_file, traj_file, def_file, out_file, prefix_traj_ouput, dic_lipid
 
     # Check the def file and the topology are coherent.
     if not utils.check_def_topol_consistency(dic_Cname2Hnames, dic_lipid):
-        raise BuildHError(f"Atoms defined in {def_file} are not consistent with the chosen topology.")
+        raise BuildHError(f"Atoms defined in {def_file} are not consistent with the chosen topology (json file).")
 
 
     print("System has {} atoms".format(len(universe_woH.coord)))
