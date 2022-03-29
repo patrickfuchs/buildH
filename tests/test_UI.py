@@ -135,7 +135,7 @@ class TestMain:
 
         with pytest.raises(BuildHError) as err:
             UI.main(**args)
-        assert "The topology chosen does not match the structure provided" in str(err.value)
+        assert "The topology chosen (json file) does not match the structure provided" in str(err.value)
 
 
     def test_fail_main_coord_def_mismatch(self):
