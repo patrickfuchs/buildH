@@ -1,5 +1,7 @@
 **Dev**
 
+- Fix issue in PDB writer (wrong column for element symbol)
+
 **1.6.1**
 
 - Add option --ignore-CH3s (-igch3) which ignore CH pairs when they belongs to a CH3 group.

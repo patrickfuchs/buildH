@@ -33,8 +33,8 @@ def test_pandas2pdb():
     df = pd.DataFrame(rows, columns=["atnum", "atname", "resname", "resnum",
                                      "x", "y", "z"])
 
-    ref_pdb_lines = ('ATOM      1  C1  POPC    1      34.420  46.940  26.310  1.00  0.00             C\n'
-                     'ATOM      2 H211 POPC    1       1.000   2.000   3.000  1.00  0.00             H\n')
+    ref_pdb_lines = ('ATOM      1  C1  POPC    1      34.420  46.940  26.310  1.00  0.00           C\n'
+                     'ATOM      2 H211 POPC    1       1.000   2.000   3.000  1.00  0.00           H\n')
 
     assert writers.pandasdf2pdb(df) == ref_pdb_lines
 
