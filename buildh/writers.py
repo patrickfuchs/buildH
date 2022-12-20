@@ -26,26 +26,25 @@ def pandasdf2pdb(df):
         atnum = int(atnum)
         resnum = int(resnum)
         # See for pdb format:
-        # https://www.cgl.ucsf.edu/chimera/docs/UsersGuide/tutorials/pdbintro.html.
+        # https://www.wwpdb.org/documentation/file-format-content/format33/sect9.html#ATOM
         # "alt" means alternate location indicator
         # "code" means code for insertions of residues
-    	# "seg" means segment identifier
         # "elt" means element symbol
         if len(atname) == 4:
             s += ("{record_type:6s}{atnum:5d} {atname:<4s}{alt:1s}{resname:>4s}"
                   "{chain:1s}{resnum:>4d}{code:1s}   {x:>8.3f}{y:>8.3f}{z:>8.3f}"
-                  "{occupancy:>6.2f}{temp_fact:>6.2f}          {seg:<2s}{elt:>2s}\n"
+                  "{occupancy:>6.2f}{temp_fact:>6.2f}          {elt:>2s}\n"
                   .format(record_type="ATOM", atnum=atnum, atname=atname, alt="",
                           resname=resname, chain=chain, resnum=resnum, code="",
-                          x=x, y=y, z=z, occupancy=1.0, temp_fact=0.0, seg="",
+                          x=x, y=y, z=z, occupancy=1.0, temp_fact=0.0,
                           elt=atname[0]))
         else:
             s += ("{record_type:6s}{atnum:5d}  {atname:<3s}{alt:1s}{resname:>4s}"
                   "{chain:1s}{resnum:>4d}{code:1s}   {x:>8.3f}{y:>8.3f}{z:>8.3f}"
-                  "{occupancy:>6.2f}{temp_fact:>6.2f}          {seg:<2s}{elt:>2s}\n"
+                  "{occupancy:>6.2f}{temp_fact:>6.2f}          {elt:>2s}\n"
                   .format(record_type="ATOM", atnum=atnum, atname=atname, alt="",
                           resname=resname, chain=chain, resnum=resnum, code="",
-                          x=x, y=y, z=z, occupancy=1.0, temp_fact=0.0, seg="",
+                          x=x, y=y, z=z, occupancy=1.0, temp_fact=0.0,
                           elt=atname[0]))
     return s
 
